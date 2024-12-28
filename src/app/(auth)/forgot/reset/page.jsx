@@ -1,6 +1,7 @@
-import Auth from "@/components/auth";
 import { CircularProgress } from "@mui/material";
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
+const Auth = dynamic(() => import("@/components/auth"), { ssr: false });
 
 const Page = () => {
   return (
