@@ -67,9 +67,11 @@ const DatabaseDetails = ({
 
   const scrollToMigrate = (id = "migrate") => {
     setTimeout(() => {
-      const migrateClick = document.getElementById(id);
-      if (migrateClick) {
-        migrateClick.scrollIntoView({ behavior: "smooth" });
+      if (typeof window !== "undefined") {
+        const migrateClick = document.getElementById(id);
+        if (migrateClick) {
+          migrateClick.scrollIntoView({ behavior: "smooth" });
+        }
       }
     }, 500);
   };
