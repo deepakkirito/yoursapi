@@ -12,7 +12,7 @@ const Page = () => {
         </div>
       }
     >
-      <Auth auth="forgot" />
+      <Auth auth="reset" />
     </Suspense>
   );
 };
