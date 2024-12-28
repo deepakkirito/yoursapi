@@ -62,7 +62,7 @@ const Navbar = () => {
   const { navTitle, setNavTitle } = useContext(CreateNavTitleContext);
 
   useEffect(() => {
-    if (!JSON.parse(localStorage.getItem("login"))) {
+    if (localStorage.getItem("login") !== "true") {
       window.location.pathname = "/login";
     }
   }, [location]);
