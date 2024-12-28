@@ -2,12 +2,18 @@ import Auth from "@/components/auth";
 import { CircularProgress } from "@mui/material";
 import { Suspense } from "react";
 
-export default function Page() {
+const Page = () => {
   return (
-    <div>
-      <Suspense fallback={<CircularProgress />}>
-        <Auth auth="reset" />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center flex-col gap-8">
+          <CircularProgress color="secondary" size={24} />
+        </div>
+      }
+    >
+      {/* <Auth auth="forgot" /> */}
+    </Suspense>
   );
-}
+};
+
+export default Page;

@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   CircularProgress,
-  InputAdornment,
   Typography,
 } from "@mui/material";
 import style from "./style.module.scss";
@@ -16,7 +15,7 @@ import SaveDatabase from "./save";
 import DatabaseDetails from "./details";
 import { catchError } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
-import { decrypt, encrypt } from "@/utilities/helpers/encryption";
+import { decrypt } from "@/utilities/helpers/encryption";
 
 const DataBase = () => {
   const [{ dbString, saveInternal, saveExternal, apiDatabase }, setData] =
@@ -46,13 +45,13 @@ const DataBase = () => {
       })
       .catch((err) => {
         console.log(err);
-
         catchError(err);
       })
       .finally(() => {
         setLoading(false);
       });
   };
+  
   const handleDisconnect = async () => {
     setButtonLoading(true);
     const body = {

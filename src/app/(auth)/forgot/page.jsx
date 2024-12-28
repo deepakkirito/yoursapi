@@ -1,6 +1,7 @@
-const { default: Auth } = require("@/components/auth")
+import Auth from "@/components/auth";
 
 const Page = () => {
-    return <Auth auth="forgot" />
-}
+//   return <Auth auth="forgot" />;
+return null;
+};
 export default Page;
