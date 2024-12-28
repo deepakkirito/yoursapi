@@ -80,7 +80,9 @@ const Auth = ({ auth = "login" }) => {
               type: "success",
             });
             if (res.data.user) {
-              localStorage.setItem("login", true);
+              if (typeof document !== "undefined") {
+                localStorage.setItem("login", true);
+              }
               router.push("/projects");
             } else {
               setUsername(true);

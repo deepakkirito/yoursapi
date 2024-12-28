@@ -67,7 +67,7 @@ const DatabaseDetails = ({
 
   const scrollToMigrate = (id = "migrate") => {
     setTimeout(() => {
-      if (typeof window !== "undefined") {
+      if (typeof document !== "undefined") {
         const migrateClick = document.getElementById(id);
         if (migrateClick) {
           migrateClick.scrollIntoView({ behavior: "smooth" });
