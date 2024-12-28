@@ -51,7 +51,7 @@ const DataBase = () => {
         setLoading(false);
       });
   };
-  
+
   const handleDisconnect = async () => {
     setButtonLoading(true);
     const body = {
@@ -137,7 +137,7 @@ const DataBase = () => {
                     fetchData={() => getDatabaseInfo({ load: false })}
                   />
                 )}
-                {dbString && (
+                {/* {dbString && (
                   <DatabaseDetails
                     dbString={dbString}
                     saveInternal={saveInternal}
@@ -145,7 +145,7 @@ const DataBase = () => {
                     apiDatabase={apiDatabase}
                     fetchData={(value) => getDatabaseInfo({ load: value })}
                   />
-                )}
+                )} */}
               </Box>
             )}
           </Box>

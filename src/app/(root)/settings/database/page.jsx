@@ -1,8 +1,7 @@
 import DataBase from "@/components/pages/settings/database";
 
 const Page = () => {
-  // return <DataBase />;
-  return null;
+  return <DataBase />;
 };
 
 export default Page;
