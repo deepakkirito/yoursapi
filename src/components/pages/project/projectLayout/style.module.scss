@@ -1,0 +1,51 @@
+.projectImage {
+  background-image: url(../../../assets/svg/createProject.svg);
+  height: 100%;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-end;
+  justify-content: end;
+  background-position: center;
+}
+
+.cardDelete {
+  opacity: 0;
+  transform: translateX(1rem);
+  transition: all 500ms;
+}
+
+.cardLink {
+  opacity: 0;
+  transform: translateX(-1rem);
+  transition: all 500ms;
+}
+
+.cardShare {
+  opacity: 0;
+  transform: translateY(-1rem);
+  transition: all 500ms;
+}
+
+.projectCard:hover {
+  .cardDelete {
+    opacity: 1;
+    transform: translateX(0rem);
+    transition: all 500ms;
+  }
+  .cardLink {
+    opacity: 1;
+    transform: translateX(0rem);
+    transition: all 500ms;
+  }
+  .cardShare {
+    opacity: 1;
+    transform: translateY(0rem);
+    transition: all 500ms;
+  }
+}
+
+.ProjectLayout {
+  span {
+    width: fit-content;
+  }
+}

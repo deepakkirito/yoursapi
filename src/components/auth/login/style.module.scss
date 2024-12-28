@@ -1,0 +1,30 @@
+@keyframes animation {
+    0% {
+        transform: translateY(-2rem);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0rem);
+        opacity: 1;
+    }
+}
+
+.email {
+    transform: translateY(-2rem);
+    opacity: 0;
+    animation: animation 600ms ease-in-out forwards;
+}
+
+.password {
+    transform: translateY(-2rem);
+    opacity: 0;
+    animation: animation 600ms ease-in-out 200ms forwards;
+    
+}
+
+.stack {
+    transform: translateY(-2rem);
+    opacity: 0;
+    animation: animation 600ms ease-in-out 400ms forwards;
+
+}

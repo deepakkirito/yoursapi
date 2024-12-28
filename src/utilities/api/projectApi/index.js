@@ -1,0 +1,85 @@
+const { axiosGet, axiosPost, axiosDelete, axiosHead, axiosPut } = require("..");
+
+const checkProjectExistApi = (projectName) => {
+  return axiosHead(`/project/${projectName}`);
+};
+
+const getProjectApi = (pagination, search, filter, sort) => {
+  return axiosGet(
+    `/project?page=${pagination.page}&rows=${pagination.rowsPerPage}${search ? `&search=${search}` : ""}${filter ? `&filter=${filter}&sort=${sort}` : ""}`
+  );
+};
+
+const getInactiveProjectApi = (pagination, search, filter, sort) => {
+  return axiosGet(
+    `/project/inactive?page=${pagination.page}&rows=${pagination.rowsPerPage}${search ? `&search=${search}` : ""}${filter ? `&filter=${filter}&sort=${sort}` : ""}`
+  );
+};
+
+const createProjectApi = (body) => {
+  return axiosPost(`/project`, body);
+};
+
+const restoreProjectApi = (id) => {
+  return axiosPost(`/project/restore/${id}`);
+};
+
+const inactiveProjectApi = (id) => {
+  return axiosDelete(`/project/inactive/${id}`);
+};
+
+const deleteProjectApi = (id) => {
+  return axiosDelete(`/project/${id}`);
+};
+
+const getSharedProjectApi = (pagination, search, filter, sort) => {
+  return axiosGet(
+    `/project/share?page=${pagination.page}&rows=${pagination.rowsPerPage}${search ? `&search=${search}` : ""}${filter ? `&filter=${filter}&sort=${sort}` : ""}`
+  );
+};
+
+const getSingleShareProjectAccessApi = (id) => {
+  return axiosGet(`/project/share/access/${id}`);
+};
+
+const shareProjectApi = (id, body) => {
+  return axiosPost(`/project/share/${id}`, body);
+};
+
+const revokeSharedProjectApi = (id, body) => {
+  return axiosPost(`/project/revoke/${id}`, body);
+};
+
+const updatePermissionApi = (id, body) => {
+  return axiosPost(`/project/update/permission/${id}`, body);
+};
+
+const getSingleProjectApi = async (id) => {
+  return await axiosGet(`/project/${id}`);
+};
+
+const updateProjectNameApi = (id, body) => {
+  return axiosPut(`/project/${id}`, body);
+};
+
+const updateSharedProjectNameApi = (id, body) => {
+  return axiosPut(`/project/share/${id}`, body);
+};
+
+export {
+  getProjectApi,
+  createProjectApi,
+  deleteProjectApi,
+  inactiveProjectApi,
+  checkProjectExistApi,
+  getInactiveProjectApi,
+  restoreProjectApi,
+  getSharedProjectApi,
+  getSingleShareProjectAccessApi,
+  shareProjectApi,
+  revokeSharedProjectApi,
+  updatePermissionApi,
+  getSingleProjectApi,
+  updateProjectNameApi,
+  updateSharedProjectNameApi
+};
