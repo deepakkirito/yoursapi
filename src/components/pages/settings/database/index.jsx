@@ -137,6 +137,8 @@ const DataBase = () => {
                     fetchData={() => getDatabaseInfo({ load: false })}
                   />
                 )}
+                {console.log(dbString)}
+                
                 {dbString && (
                   <DatabaseDetails
                     dbString={dbString}

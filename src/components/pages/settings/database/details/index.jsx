@@ -96,7 +96,7 @@ const DatabaseDetails = ({
 
   const handleMigrateStart = async () => {
     const body = {
-      project: selectProject.map((data) => data.project),
+      project: selectProject.map((data) => data.name),
       api: selectApi,
       migrate: migrateOption,
     };

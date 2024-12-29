@@ -5,7 +5,7 @@ import { saveDBStringApi } from "@/utilities/api/databaseApi";
 import { useState } from "react";
 import { Button, CircularProgress, InputAdornment } from "@mui/material";
 import { showNotification } from "@/components/common/notification";
-import { encrypt } from "@/utilities/helpers/encryption";
+import { decrypt, encrypt } from "@/utilities/helpers/encryption";
 
 const SaveDatabase = ({ fetchData = () => {} }) => {
   const [dbString, setDbString] = useState("");
@@ -14,6 +14,8 @@ const SaveDatabase = ({ fetchData = () => {} }) => {
   const handleSave = async () => {
     setLoading(true);
     const encrypted = encrypt(dbString);
+    const decrypted = decrypt(encrypted);
+    console.log({dbString, decrypted, encrypted});
     await saveDBStringApi({ dbString: encrypted, saveExternal: true, saveInternal: true })
       .then((res) => {
         showNotification({
@@ -28,7 +30,7 @@ const SaveDatabase = ({ fetchData = () => {} }) => {
         setLoading(false);
         fetchData();
       });
-  };
+  };  
 
   return (
     <form
