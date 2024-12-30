@@ -307,7 +307,7 @@ const ProjectLayout = ({
                   projects.map((item, index) => (
                     <Grid2
                       item
-                      size={{ xs: 12, sm: 6, md: 6, lg: 4 }}
+                      size={{ xs: 12, md: 6, xl: 4 }}
                       key={item._id}
                       className={style.projectCard}
                     >
@@ -324,14 +324,16 @@ const ProjectLayout = ({
                           boxShadow:
                             "0 0 0.1rem " + theme.palette.border.default,
                         })}
-                        onClick={() => {
-                          window.localStorage.setItem("project", item.name);
-                        }}
                       >
                         <Box className="flex justify-between items-center w-[100%]">
                           {(showEdit !== item._id || showEdit === "") && (
                             <Typography
                               variant="h5"
+                              sx={{
+                                textOverflow: "ellipsis",
+                                overflow: "hidden",
+                                whiteSpace: "nowrap",
+                              }}
                               onDoubleClick={() => {
                                 if (location.includes("/shared")) {
                                   if (item.permission === "admin") {

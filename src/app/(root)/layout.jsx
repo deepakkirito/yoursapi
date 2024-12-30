@@ -12,14 +12,28 @@ export default function Layout({ children }) {
 
   return (
     <div>
-      <Suspense fallback={<CircularProgress />}>
+      <Suspense
+        fallback={
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+              width: "100vw",
+            }}
+          >
+            <CircularProgress color="secondary" size={24} />
+          </Box>
+        }
+      >
         <Box>
           <Navbar />
           <Box
             width={"100%"}
             sx={{
               display: "flex",
-              padding: "0.5rem 0.5rem 1rem",
+              padding: "0rem 0.5rem 1rem",
               gap: "1rem",
               height: "fit-content",
               overflow: "hidden",

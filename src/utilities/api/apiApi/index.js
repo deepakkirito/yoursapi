@@ -20,10 +20,15 @@ const updateApiDataApi = (apiId, body) => {
   return axiosPut(`/api/data/${apiId}`, body);
 };
 
+const updateApiStatusApi = (apiId, body) => {
+  return axiosPut(`/api/status/${apiId}`, body);
+};
+
 export {
   checkApiExistApi,
   getApiDetailsApi,
   createApiApi,
   updateApiNameApi,
   updateApiDataApi,
+  updateApiStatusApi,
 };

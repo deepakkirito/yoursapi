@@ -1,12 +1,117 @@
 "use client";
-import { Box, Grid2 } from "@mui/material";
+import { Box, CircularProgress, Grid2 } from "@mui/material";
 import DataContent from "./content";
 import Navbar from "./navbar";
 import ContentBar from "@/components/common/contentBar";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Settings from "./settings";
+import { getApiDetailsApi, updateApiDataApi } from "@/utilities/api/apiApi";
+import { useSearchParams } from "next/navigation";
+import { catchError } from "@/utilities/helpers/functions";
+import { showNotification } from "@/components/common/notification";
 
 const DataApi = () => {
-  const [open, setOpen] = useState(true);
+  const searchparams = useSearchParams();
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState("");
+  const [loading, setLoading] = useState(true);
+  const id = searchparams.get("id");
+  const currentData = useRef("");
+  const [apiData, setApiData] = useState({});
+
+  useEffect(() => {
+    id && getApiDetails(id);
+  }, [id]);
+
+  const getApiDetails = async (id) => {
+    setLoading(true);
+    await getApiDetailsApi(id)
+      .then((response) => {
+        setData(
+          JSON.stringify(response.data.data, null, 4)
+            .replace(/"/g, '"') // Escape double quotes
+            .replace(/\\n/g, "\n")
+        );
+        currentData.current = JSON.stringify(response.data.data, null, 4)
+          .replace(/"/g, '"') // Escape double quotes
+          .replace(/\\n/g, "\n");
+        setApiData(response.data.apiData);
+      })
+      .catch((error) => {
+        catchError(error);
+        window.location.href = "/projects";
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const Items = useMemo(
+    () => [
+      {
+        id: "custom",
+        title: "Custom Data",
+        content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      },
+      {
+        id: "ai",
+        title: "YoursApi AI",
+        content:
+          "Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.",
+      },
+      {
+        id: "schema",
+        title: "Schema",
+        content:
+          "Nulla facilisi. Proin interdum metus a sollicitudin sagittis.",
+      },
+      {
+        id: "settings",
+        title: "Settings",
+        content: (
+          <Settings
+            apiData={apiData}
+            id={id}
+            refetch={() => getApiDetails(id)}
+            setApiData={setApiData}
+          />
+        ),
+      },
+    ],
+    [apiData, id]
+  );
+
+  const handleUpdateApi = async () => {
+    setLoading(true);
+    if (data !== "[]") {
+      try {
+        JSON.parse(data);
+      } catch (error) {
+        setLoading(false);
+        showNotification({
+          content: "Data is not in valid format",
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    const body = {
+      data: data,
+    };
+    await updateApiDataApi(id, body)
+      .then((response) => {
+        showNotification({
+          content: response.data.message,
+          type: "success",
+        });
+        getApiDetails(id);
+      })
+      .catch((error) => {
+        catchError(error);
+        setLoading(false);
+      });
+  };
 
   return (
     <div>
@@ -50,41 +155,42 @@ const DataApi = () => {
             },
           }}
         >
-          <Grid2 item size={{ xs: 12, md: open ? 6 : 11.2 }} sx={{ transition: "all 0.5s" }}>
-            <DataContent />
+          <Grid2
+            item
+            size={{ xs: 12, lg: open ? 6 : 11, xl: open ? 6 : 11.2 }}
+            sx={{ transition: "all 0.5s" }}
+          >
+            {loading ? (
+              <Box className="flex justify-center items-center h-full">
+                <CircularProgress color="secondary" size={24} />
+              </Box>
+            ) : (
+              <DataContent
+                data={data}
+                setData={setData}
+                currentData={currentData}
+                setLoading={setLoading}
+                handleUpdateApi={handleUpdateApi}
+              />
+            )}
           </Grid2>
-          <Grid2 item size={{ xs: 12, md:  open ? 6 : 0.8 }} sx={{ transition: "all 0.5s" }}>
-            <ContentBar
-              setOpen={setOpen}
-              open={open}
-              items={[
-                {
-                  id: "custom",
-                  title: "Custom Data",
-                  content:
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                },
-                {
-                  id: "ai",
-                  title: "YoursApi AI",
-                  content:
-                    "Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.",
-                },
-                {
-                  id: "schema",
-                  title: "Schema",
-                  content:
-                    "Nulla facilisi. Proin interdum metus a sollicitudin sagittis.",
-                },
-                {
-                  id: "settings",
-                  title: "Settings",
-                  content:
-                    "Nulla facilisi. Proin interdum metus a sollicitudin sagittis.",
-                },
-              ]}
-              defaultExpanded={"custom"}
-            />
+          <Grid2
+            item
+            size={{ xs: 12, lg: open ? 6 : 1, xl: open ? 6 : 0.8 }}
+            sx={{ transition: "all 0.5s" }}
+          >
+            {loading ? (
+              <Box className="flex justify-center items-center h-full">
+                <CircularProgress color="secondary" size={24} />
+              </Box>
+            ) : (
+              <ContentBar
+                setOpen={setOpen}
+                open={open}
+                items={Items}
+                defaultExpanded={"custom"}
+              />
+            )}
           </Grid2>
         </Grid2>
       </Box>
