@@ -11,7 +11,7 @@ import Typography from "@mui/material/Typography";
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
-//   border: `1px solid ${theme.palette.background.foreground}`,
+  //   border: `1px solid ${theme.palette.background.foreground}`,
   background: "none",
   "&:not(:last-child)": {
     borderBottom: 0,

@@ -1,4 +1,5 @@
-import { forwardRef } from "react";
+import { CreateAlertContext } from "@/utilities/context/alert";
+import { forwardRef, useContext } from "react";
 
 const {
   Box,
@@ -22,10 +23,11 @@ const Alert = ({
   handleClose = () => {},
   handleSuccess = () => {},
 }) => {
+  const { alert } = useContext(CreateAlertContext);
   return (
     <Box>
       <Dialog
-        open={open}
+        open={alert.open}
         variant="outlined"
         TransitionComponent={Transition}
         keepMounted
@@ -46,15 +48,15 @@ const Alert = ({
             padding: "0 0 1rem",
           }}
         >
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{alert.title}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-slide-description">
-              {content}
+              {alert.content}
             </DialogContentText>
           </DialogContent>
           <DialogActions className="flex justify-around">
             <Button
-              onClick={handleClose}
+              onClick={alert.handleClose}
               variant="outlined"
               sx={{
                 padding: "0.5rem 2rem",
@@ -77,8 +79,8 @@ const Alert = ({
                 backgroundColor: "background.default",
               }}
               onClick={() => {
-                handleClose();
-                handleSuccess();
+                alert.handleSuccess();
+                alert.handleClose();
               }}
             >
               Agree

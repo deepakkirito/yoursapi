@@ -36,6 +36,7 @@ const CustomSelect = ({
   handleButton = () => {},
   style = {},
   size="small",
+  fullWidth = true,
   ...props
 }) => {
   return (
@@ -47,7 +48,7 @@ const CustomSelect = ({
           </Typography>
         </Box>
       )}
-      <FormControl fullWidth sx={{ minWidth: 120 }} size={size}>
+      <FormControl fullWidth={fullWidth} sx={{ minWidth: 120 }} size={size}>
         {labelTop && <InputLabel>{labelTop}</InputLabel>}
         <Select
           value={value}

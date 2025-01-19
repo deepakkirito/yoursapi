@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { catchError } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
 import Schema from "./schema";
+import CustomData from "./customData";
 
 const DataApi = () => {
   const searchparams = useSearchParams();
@@ -63,7 +64,7 @@ const DataApi = () => {
       {
         id: "custom",
         title: "Custom Data",
-        content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        content: <CustomData />,
       },
       {
         id: "ai",

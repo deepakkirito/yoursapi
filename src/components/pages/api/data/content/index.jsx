@@ -1,3 +1,4 @@
+import { CreateAlertContext } from "@/utilities/context/alert";
 import { ThemeContext } from "@/utilities/context/theme";
 import { Editor } from "@monaco-editor/react";
 import { InfoOutlined } from "@mui/icons-material";
@@ -13,6 +14,7 @@ const DataContent = ({
 }) => {
   const { theme } = useContext(ThemeContext);
   const [codeValidator, setCodeValidator] = useState([]);
+  const { alert, setAlert } = useContext(CreateAlertContext);
 
   return (
     <Box
@@ -71,7 +73,21 @@ const DataContent = ({
       <Box className="flex gap-4 items-center">
         <Button
           variant="contained"
-          onClick={handleUpdateApi}
+          onClick={() => {
+            setAlert({
+              open: true,
+              title: "Are you Sure?",
+              content:
+                "Updating the data here will apply the schema to all the data, we suggest you to copy the data before updating to prevent any loss of data.",
+              handleClose: () => {
+                setAlert({ ...alert, open: false });
+              },
+              handleSuccess: () => {
+                handleUpdateApi();
+                setAlert({ ...alert, open: false });
+              },
+            });
+          }}
           disabled={
             Boolean(codeValidator.length) || currentData.current === data
           }

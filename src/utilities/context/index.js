@@ -4,6 +4,7 @@ import { AuthContext } from "./auth";
 import { PopupContext } from "./popup";
 import { SidebarContext } from "./sidebar";
 import { NavTitleContext } from "./navTitle";
+import { AlertContext } from "./alert";
 
 const Context = ({ children, getTheme }) => {
   const [theme, setTheme] = useState();
@@ -35,7 +36,9 @@ const Context = ({ children, getTheme }) => {
       <ThemeContext.Provider value={{ theme, setTheme }}>
         <SidebarContext>
           <PopupContext>
-            <NavTitleContext>{children}</NavTitleContext>
+            <AlertContext>
+              <NavTitleContext>{children}</NavTitleContext>
+            </AlertContext>
           </PopupContext>
         </SidebarContext>
       </ThemeContext.Provider>

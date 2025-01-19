@@ -14,6 +14,7 @@ import { CircularProgress } from "@mui/material";
 import FullScreenPopup from "@/components/common/popup/fullScreen";
 import DarkBackground from "@/components/assets/other/darkBackground.jpg";
 import LightBackground from "@/components/assets/other/lightBackground.avif";
+import Alert from "@/components/common/popup/alert";
 
 const CustomIcon = (props) => {
   if (props.isLoading) return <CircularProgress />;
@@ -73,6 +74,7 @@ export default function LayoutWrapper({ children }) {
             icon={CustomIcon}
           />
           <FullScreenPopup />
+          <Alert />
           {children}
         </ThemeProvider>
       </GoogleOAuthProvider>

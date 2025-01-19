@@ -191,7 +191,16 @@ const AddSchema = ({
 
   return (
     <Box className="py-4">
-      <Box className="flex justify-between items-center flex-col gap-4">
+      <Box
+        className="flex justify-between items-center flex-col gap-4"
+        sx={{
+          outline: "1px solid",
+          outlineColor: "divider",
+          borderRadius: "0.3rem",
+          padding: "1rem",
+          backgroundColor: "background.default",
+        }}
+      >
         <CustomInput
           label="Key"
           size="small"
@@ -365,6 +374,13 @@ const AddSchema = ({
                 <Box
                   key={index}
                   className="flex justify-between items-center flex-col gap-4"
+                  sx={{
+                    outline: "1px solid",
+                    outlineColor: "divider",
+                    borderRadius: "0.3rem",
+                    padding: "1rem",
+                    backgroundColor: "background.default",
+                  }}
                 >
                   <Box className="flex items-center gap-4 w-[100%]">
                     <Typography
@@ -449,7 +465,15 @@ const AddSchema = ({
             );
           })}
           {!editorRefresh && Object.keys(schemaLayout)?.length !== 0 && (
-            <Box className="w-[100%] flex justify-between gap-2 flex-col pt-2">
+            <Box
+              className="w-[100%] flex justify-between gap-2 flex-col overflow-hidden"
+              sx={{
+                outline: "3px solid",
+                outlineColor: "divider",
+                borderRadius: "0.3rem",
+                backgroundColor: "background.default",
+              }}
+            >
               <Editor
                 height="300px"
                 width="100%"
