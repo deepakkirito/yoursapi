@@ -31,7 +31,7 @@ import { CheckUsernameApi } from "@/utilities/api/authApi";
 import { updateUserApi } from "@/utilities/api/userApi";
 import { useRouter } from "next/navigation";
 import { CreateNavTitleContext, NavTitleContext } from "@/utilities/context/navTitle";
-import customWindow from "@/utilities/helpers/hooks/window";
+import useCustomWindow from "@/utilities/helpers/hooks/window";
 
 const Navbar = () => {
   const { popup, setPopup } = useContext(CreatePopupContext);
@@ -59,7 +59,7 @@ const Navbar = () => {
   const api = searchparams.get("api");
   const apiId = searchparams.get("id");
   const { setNavTitle } = useContext(CreateNavTitleContext);
-  const nextWindow = customWindow();
+  const nextWindow = useCustomWindow();
 
   useEffect(() => {
     if (apiData?.label) {

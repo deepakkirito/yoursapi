@@ -1,7 +1,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const customWindow = () => {
+const useCustomWindow = () => {
   const pathname = usePathname();
   const [nextWindow, setWindow] = useState(null);
   useEffect(() => {
@@ -14,4 +14,4 @@ const customWindow = () => {
   return nextWindow;
 };
 
-export default customWindow;
+export default useCustomWindow;
