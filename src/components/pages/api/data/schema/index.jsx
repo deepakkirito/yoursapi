@@ -213,7 +213,9 @@ const AddSchema = ({
                 key={index}
                 className="flex justify-between items-left flex-col gap-2 w-[100%]"
               >
-                <Box className="flex justify-between items-start gap-4 w-[100%]">
+                <Box
+                  className={`flex justify-between items-${input === "enum" ? "start" : "center"} gap-4 w-[100%]`}
+                >
                   <CustomSelect
                     fullWidth
                     labelTop="Value"
