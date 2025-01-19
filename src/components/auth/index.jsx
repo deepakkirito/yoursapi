@@ -224,14 +224,16 @@ const Auth = ({ auth = "login" }) => {
             <Stack sx={{ gap: 4, mb: 2 }}>
               <Stack sx={{ gap: 1 }}>
                 <Typography component="h1" variant="h3">
-                  {auth === "login" && "Sign in"}
+                  {auth === "login" && !username
+                    ? "Sign in"
+                    : "Create Username"}
                   {auth === "signup" && "Sign up"}
                   {auth === "forgot" && "Forgot Password"}
                   {auth === "reset" && "Reset Password"}
                 </Typography>
                 {!username && (
                   <Typography color="">
-                    {auth === "login" && "New to company? "}
+                    {auth === "login" && !username ? "New to company? " : ""}
                     {auth === "signup" && "Already in company? "}
                     {auth === "forgot" && "Recalled your password? "}
                     {auth === "reset" && "Recalled your password? "}

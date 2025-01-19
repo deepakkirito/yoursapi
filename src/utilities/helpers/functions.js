@@ -1,6 +1,6 @@
 import { showNotification } from "@/components/common/notification";
 
-const getDate = (date) => {
+export const getDate = (date) => {
   return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long", // 'short' for abbreviated month
@@ -10,7 +10,7 @@ const getDate = (date) => {
   });
 };
 
-const catchError = (err) => {
+export const catchError = (err) => {
   console.log(err);
   if (err.response?.status === 403) return;
   if (err.response?.status === 422) {
@@ -31,4 +31,13 @@ const catchError = (err) => {
   }
 };
 
-export { getDate, catchError };
+export const scrollToTarget = (id) => {
+  setTimeout(() => {
+    if (typeof document !== "undefined") {
+      const migrateClick = document.getElementById(id);
+      if (migrateClick) {
+        migrateClick.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, 500);
+};

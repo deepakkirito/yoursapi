@@ -57,7 +57,8 @@ export default function LayoutWrapper({ children }) {
       mode === "dark"
         ? `url(${DarkBackground.src})`
         : `url(${LightBackground.src})`;
-  }, [mode]);
+    document.body.style.scrollbarColor = `${theme.palette.loading.main} transparent`;
+  }, [mode, theme.palette.background]);
 
   return (
     <Context getTheme={(value) => setMode(value)}>

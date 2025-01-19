@@ -31,6 +31,7 @@ import { CheckUsernameApi } from "@/utilities/api/authApi";
 import { updateUserApi } from "@/utilities/api/userApi";
 import { useRouter } from "next/navigation";
 import { CreateNavTitleContext, NavTitleContext } from "@/utilities/context/navTitle";
+import customWindow from "@/utilities/helpers/hooks/window";
 
 const Navbar = () => {
   const { popup, setPopup } = useContext(CreatePopupContext);
@@ -58,6 +59,7 @@ const Navbar = () => {
   const api = searchparams.get("api");
   const apiId = searchparams.get("id");
   const { setNavTitle } = useContext(CreateNavTitleContext);
+  const nextWindow = customWindow();
 
   useEffect(() => {
     if (apiData?.label) {
@@ -293,7 +295,7 @@ const Navbar = () => {
               },
             }}
           >
-            <Typography>http://localhost/</Typography>
+            <Typography>{nextWindow?.location.origin}/</Typography>
             <CustomInput
               fullWidth
               value={username}
@@ -435,7 +437,7 @@ const Navbar = () => {
               <IconButton
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    `http://localhost/${username}/${project}/${apiData.label}`
+                    `${nextWindow?.location.origin}/${username}/${project}/${apiData.label}`
                   );
                   showNotification({
                     content: "Link copied to clipboard",

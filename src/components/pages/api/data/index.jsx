@@ -9,6 +9,7 @@ import { getApiDetailsApi, updateApiDataApi } from "@/utilities/api/apiApi";
 import { useSearchParams } from "next/navigation";
 import { catchError } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
+import Schema from "./schema";
 
 const DataApi = () => {
   const searchparams = useSearchParams();
@@ -49,21 +50,26 @@ const DataApi = () => {
   const Items = useMemo(
     () => [
       {
+        id: "schema",
+        title: "Schema",
+        content: (
+          <Schema
+            data={apiData.schema}
+            apiId={id}
+            refetch={() => getApiDetails(id)}
+          />
+        ),
+      },
+      {
         id: "custom",
         title: "Custom Data",
         content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
       },
       {
         id: "ai",
-        title: "YoursApi AI",
+        title: "Youpi AI",
         content:
           "Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.",
-      },
-      {
-        id: "schema",
-        title: "Schema",
-        content:
-          "Nulla facilisi. Proin interdum metus a sollicitudin sagittis.",
       },
       {
         id: "settings",
@@ -188,7 +194,7 @@ const DataApi = () => {
                 setOpen={setOpen}
                 open={open}
                 items={Items}
-                defaultExpanded={"custom"}
+                defaultExpanded={"schema"}
               />
             )}
           </Grid2>

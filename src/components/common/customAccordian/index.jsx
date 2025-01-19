@@ -65,6 +65,7 @@ const CustomAccordion = ({ items, defaultExpanded, onChange }) => {
       {items.map((item) => (
         <Accordion
           key={item.id}
+          id={item.id}
           expanded={expanded === item.id}
           onChange={handleChange(item.id)}
         >

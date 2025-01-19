@@ -198,7 +198,7 @@ const Navbar = () => {
                   className="cursor-pointer"
                   onClick={() => router.push("/projects")}
                 >
-                  YoursApi
+                  Youpi
                 </Typography>
               </Box>
               {navTitle && (

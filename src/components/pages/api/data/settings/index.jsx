@@ -47,15 +47,22 @@ const Settings = ({
   };
 
   return (
-    <Grid2 container spacing={2} className="px-4 pb-2">
+    <Grid2 container spacing={2}>
       {Object.keys(apiData).map((key, index) => {
         if (key !== "schema") {
           return (
             <Grid2
               item
               key={index}
-              size={{ xs: 12, md: 6 }}
+              size={{ xs: 12, md: 6, lg: 12, xl: 6 }}
               className="flex flex-col gap-2"
+              sx={{
+                outline: "0.1px solid",
+                outlineColor: "divider",
+                borderRadius: "0.3rem",
+                padding: "1rem",
+                backgroundColor: "background.default",
+              }}
             >
               <div>
                 <div className="flex gap-2 items-center mb-1">

@@ -5,9 +5,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import Logo from "./favicon.ico";
 
 export const metadata = {
-  title: "Company",
-  description: "A company providing services to developers",
-  keywords: "company, developer, api, api-platform, react, nextjs, mongodb",
+  title: "Youpi",
+  description: "REST API generator for developers",
+  keywords: "developer, api, api-platform, react, nextjs, mongodb, youpi, yours api",
   author: "Deepak Saini",
   favicon: "/favicon.ico",
 };
