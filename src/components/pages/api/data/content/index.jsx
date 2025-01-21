@@ -73,6 +73,7 @@ const DataContent = ({
       <Box className="flex gap-4 items-center">
         <Button
           variant="contained"
+          size="small"
           onClick={() => {
             setAlert({
               open: true,
@@ -96,6 +97,7 @@ const DataContent = ({
         </Button>
         <Button
           variant="contained"
+          size="small"
           disabled={data === "[]"}
           onClick={() => {
             setLoading(true);

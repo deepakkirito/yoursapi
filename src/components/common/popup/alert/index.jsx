@@ -42,7 +42,7 @@ const Alert = ({
         <Box
           sx={{
             backgroundColor: "background.invert",
-            border: "1rem solid",
+            border: "0.5rem solid",
             borderColor: "background.default",
             borderRadius: "1rem",
             padding: "0 0 1rem",
@@ -59,9 +59,9 @@ const Alert = ({
               onClick={alert.handleClose}
               variant="outlined"
               sx={{
-                padding: "0.5rem 2rem",
+                padding: "0.3rem 1.5rem",
                 borderRadius: "2rem",
-                fontSize: "1.2rem",
+                fontSize: "14px",
                 fontWeight: "700",
                 backgroundColor: "status.red",
                 color: "common.button",
@@ -72,9 +72,9 @@ const Alert = ({
             <Button
               variant="outlined"
               sx={{
-                padding: "0.5rem 2rem",
+                padding: "0.3rem 1.5rem",
                 borderRadius: "2rem",
-                fontSize: "1.2rem",
+                fontSize: "14px",
                 fontWeight: "700",
                 backgroundColor: "background.default",
               }}

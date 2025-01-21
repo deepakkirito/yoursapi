@@ -441,15 +441,6 @@ const AddSchema = ({
                             size="small"
                             value={schemaLayout[schema][key]}
                             paddingLeft="1rem"
-                            // onChange={(event) =>
-                            //   setSchemaLayout({
-                            //     ...schemaLayout,
-                            //     [schema]: {
-                            //       ...schemaLayout[schema],
-                            //       [key]: event.target.value,
-                            //     },
-                            //   })
-                            // }
                             inputProps={{
                               readOnly: true,
                             }}
@@ -483,30 +474,11 @@ const AddSchema = ({
                 defaultValue={JSON.stringify(schemaLayout, null, 4)
                   .replace(/"/g, "") // Escape double quotes
                   .replace(/\\n/g, "\n")}
-                // value={data}
-                // onChange={(value) => {
-                //   setData(value);
-                // }}
                 onValidate={(value) => setCodeValidator(value)}
                 options={{
-                  readOnly: true, // Disable typing
+                  readOnly: true,
                 }}
               />
-              {/* {Boolean(codeValidator.length) &&
-              codeValidator.map((error, index) => (
-                <FormHelperText
-                  key={index}
-                  error
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <InfoOutlined />
-                  <Typography>{error.message}</Typography>
-                </FormHelperText>
-              ))} */}
             </Box>
           )}
         </Box>

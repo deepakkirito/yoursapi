@@ -4,4 +4,8 @@ const getCustomDataApi = (query) => {
   return axiosGet(`/customdata${query ? `?${query}` : ""}`);
 };
 
-export { getCustomDataApi };
+const postCustomDataApi = (id, body) => {
+  return axiosPost("/customdata/" + id, body);
+};
+
+export { getCustomDataApi, postCustomDataApi };

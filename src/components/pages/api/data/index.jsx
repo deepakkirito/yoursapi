@@ -64,7 +64,12 @@ const DataApi = () => {
       {
         id: "custom",
         title: "Custom Data",
-        content: <CustomData />,
+        content: (
+          <CustomData
+            schema={apiData.schema}
+            refetch={() => getApiDetails(id)}
+          />
+        ),
       },
       {
         id: "ai",
@@ -125,7 +130,7 @@ const DataApi = () => {
       <Box
         sx={{
           borderRadius: "1rem",
-          border: "1rem solid",
+          border: "0.5rem solid",
           borderColor: "background.default",
           boxShadow: "0 0 1rem background.default",
           outline: "2px solid",
@@ -136,7 +141,7 @@ const DataApi = () => {
         <Box
           sx={{
             backgroundColor: "background.foreground",
-            borderBottom: "1rem solid",
+            borderBottom: "0.5rem solid",
             borderColor: "background.default",
             padding: "1rem",
             position: {
