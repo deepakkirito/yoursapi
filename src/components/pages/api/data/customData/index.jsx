@@ -166,7 +166,7 @@ const CustomData = ({ schema, refetch = () => {} }) => {
                         {schema !== null && (
                           <Typography>
                             - This api have a schema set, this data may not get
-                            saved if custom data doesn't matches the schema.
+                            saved if custom data doesn&apos;t matches the schema.
                           </Typography>
                         )}
                       </Box>
@@ -204,7 +204,7 @@ const CustomData = ({ schema, refetch = () => {} }) => {
                         {schema !== null && (
                           <Typography>
                             - This api have a schema set, this data may not get
-                            saved if custom data doesn't matches the schema.
+                            saved if custom data doesn&apos;t matches the schema.
                           </Typography>
                         )}
                       </Box>
