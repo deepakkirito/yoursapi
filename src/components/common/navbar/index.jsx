@@ -26,6 +26,7 @@ import { LogoutApi } from "@/utilities/api/authApi";
 import { mainListUrl } from "@/components/assets/constants/barList";
 import Logo from "@/app/favicon.svg";
 import { CreateNavTitleContext } from "@/utilities/context/navTitle";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 
 function ColorSchemeToggle(props) {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -60,6 +61,7 @@ const Navbar = () => {
   const { open, setOpen } = useContext(CreateSidebarContext);
   const router = useRouter();
   const { navTitle, setNavTitle } = useContext(CreateNavTitleContext);
+  const [profile, setProfile] = useLocalStorage("profile");
 
   useEffect(() => {
     if (localStorage.getItem("login") !== "true") {
@@ -89,6 +91,7 @@ const Navbar = () => {
     setLoading(true);
     getUsersApi()
       .then((res) => {
+        setProfile(res.data.data?.profile);
         setUserData(res.data.data);
         setLoading(false);
       })

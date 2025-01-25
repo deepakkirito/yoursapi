@@ -1,8 +1,9 @@
-import { ArrowBack } from "@mui/icons-material";
-import { Box, IconButton, Typography } from "@mui/material";
+import { ArrowBack, Fullscreen, FullscreenExit } from "@mui/icons-material";
+import { Box, IconButton, Typography, useMediaQuery } from "@mui/material";
 import { useEffect, useState } from "react";
 import DisplaySettingsRoundedIcon from "@mui/icons-material/DisplaySettingsRounded";
 import CustomAccordion from "../customAccordian";
+import { usePathname } from "next/navigation";
 
 const ContentBar = ({
   children,
@@ -12,6 +13,15 @@ const ContentBar = ({
   onChange,
   items,
 }) => {
+  const [fullScreen, setFullScreen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 1200px)");
+  const location = usePathname();
+  useState(() => {
+    if (isMobile) {
+      setOpen(true);
+    }
+  }, [isMobile, location]);
+
   return (
     <Box
       sx={{
@@ -33,14 +43,28 @@ const ContentBar = ({
         className="flex flex-col gap-2 rounded-lg"
         sx={{
           overflow: "auto",
+          position: fullScreen ? "fixed" : "relative",
+          top: fullScreen ? "10vh" : "0",
+          left: fullScreen ? "1vw" : "0",
+          zIndex: fullScreen ? "100" : "0",
+          width: fullScreen ? "98vw" : "100%",
           minHeight: {
-            lg: "100%",
-            xs: "5rem",
+            lg: fullScreen ? "85vh" : "100%",
+            xs: fullScreen ? "85vh" : "5rem",
           },
           maxHeight: {
-            lg: open ? "30rem" : "100%",
-            xs: "30rem",
+            lg: open
+              ? fullScreen
+                ? "85vh"
+                : "30rem"
+              : fullScreen
+                ? "85vh"
+                : "100%",
+            xs: fullScreen ? "90vh" : "30rem",
           },
+          transition: "all 0.5s",
+          backgroundColor: fullScreen ? "background.invert" : "none",
+          paddingBottom: fullScreen ? "5vh" : "0",
         }}
       >
         <Box
@@ -70,19 +94,47 @@ const ContentBar = ({
               Data Creation, settings and more...
             </Typography>
           </Box>
-          <IconButton onClick={() => setOpen(!open)}>
-            <ArrowBack
-              color="secondary"
-              sx={{
-                rotate: open ? "180deg" : "0deg",
-                transition: "all 0.5s",
-                display: {
-                  xs: "none",
-                  lg: "flex",
-                },
+          <Box className="flex items-center gap-2">
+            <IconButton onClick={() => setFullScreen(!fullScreen)}>
+              {fullScreen ? (
+                <FullscreenExit
+                  sx={{
+                    display: {
+                      xs: "none",
+                      lg: "flex",
+                    },
+                  }}
+                />
+              ) : (
+                <Fullscreen
+                  sx={{
+                    display: {
+                      xs: "none",
+                      lg: "flex",
+                    },
+                  }}
+                />
+              )}
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                setOpen(!open);
+                setFullScreen(false);
               }}
-            />
-          </IconButton>
+            >
+              <ArrowBack
+                color="secondary"
+                sx={{
+                  rotate: open ? "180deg" : "0deg",
+                  transition: "all 0.5s",
+                  display: {
+                    xs: "none",
+                    lg: "flex",
+                  },
+                }}
+              />
+            </IconButton>
+          </Box>
         </Box>
         {!open && (
           <Box
@@ -97,7 +149,7 @@ const ContentBar = ({
           >
             <Box
               sx={{
-                height: open ? "calc(100vh - 25rem)" : "calc(100vh - 24.5rem)",
+                height: open ? "calc(100vh - 25rem)" : "calc(100vh - 21.5rem)",
                 overflow: "auto",
                 transition: "all 0.5s",
                 width: "100%",

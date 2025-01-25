@@ -9,6 +9,7 @@ const CustomInput = ({
   formClassName,
   type = "text",
   paddingLeft = "0rem",
+  formSX = {}, 
   ...props
 }) => {
   return (
@@ -18,9 +19,10 @@ const CustomInput = ({
       error={formError}
       className={formClassName}
       sx={{
-        "& .MuiInputBase-input": {
-          padding: "0.7rem 1rem 0.7rem " + paddingLeft,
-        },
+        // "& .MuiInputBase-input": {
+        //   padding: "0.7rem 1rem 0.7rem " + paddingLeft,
+        // },
+        ...formSX,
       }}
     >
       <FormLabel className="mb-1">{formLabel}</FormLabel>

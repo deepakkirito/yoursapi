@@ -11,6 +11,7 @@ import { catchError } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
 import Schema from "./schema";
 import CustomData from "./customData";
+import AI from "./ai";
 
 const DataApi = () => {
   const searchparams = useSearchParams();
@@ -74,8 +75,7 @@ const DataApi = () => {
       {
         id: "ai",
         title: "Youpi AI",
-        content:
-          "Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.",
+        content: <AI schema={apiData.schema} id={id} />,
       },
       {
         id: "settings",
@@ -141,7 +141,7 @@ const DataApi = () => {
         <Box
           sx={{
             backgroundColor: "background.foreground",
-            borderBottom: "0.5rem solid",
+            borderBottom: "0.2rem solid",
             borderColor: "background.default",
             padding: "1rem",
             position: {
@@ -151,6 +151,7 @@ const DataApi = () => {
             top: "0",
             zIndex: "5",
             width: "100%",
+            borderRadius: "0.5rem",
           }}
         >
           <Navbar />
@@ -162,7 +163,7 @@ const DataApi = () => {
             padding: "1rem",
             overflow: "auto",
             height: {
-              lg: "calc(100vh - 15.7rem)",
+              lg: "calc(100vh - 13rem)",
               xs: "100%",
             },
           }}

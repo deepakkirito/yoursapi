@@ -6,7 +6,7 @@ const Page = (props) => {
     <Box
       sx={{
         height: {
-          xs: "85vh",
+          xs: "90vh",
           lg: "100%",
         },
         overflow: "auto",

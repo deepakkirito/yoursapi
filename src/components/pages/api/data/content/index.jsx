@@ -20,7 +20,7 @@ const DataContent = ({
     <Box
       sx={{
         width: "100%",
-        height: "35rem !important",
+        height: "calc(100vh - 18rem) !important",
       }}
       className="flex flex-col gap-4 items-center"
     >
