@@ -11,6 +11,7 @@ import {
   Box,
   CircularProgress,
   IconButton,
+  InputAdornment,
   Typography,
 } from "@mui/material";
 import { useContext, useMemo } from "react";
@@ -19,6 +20,9 @@ import streamingText from "../streamingText";
 import StreamingText from "../streamingText";
 import { ContentCopyRounded } from "@mui/icons-material";
 import { showNotification } from "../notification";
+import json5 from "json5";
+import CustomInput from "../customTextField";
+import TooltipCustom from "../tooltip";
 const aiImage =
   "https://cdn.glitch.global/1451944e-7aa5-4b35-8561-bbbd6e79fae9/happy-hacker.gif?v=1682951858146";
 
@@ -66,7 +70,7 @@ const CustomAiResponse = ({ messages, loading }) => {
               sx={{
                 borderRadius: "1rem",
                 padding: "0 0.5rem",
-                backgroundColor: "background.default",
+                backgroundColor: "background.defaultSolid",
                 border: "2px solid",
                 borderColor: "divider",
                 minWidth: "70%",
@@ -93,7 +97,7 @@ const CustomAiResponse = ({ messages, loading }) => {
             sx={{
               borderRadius: "1rem",
               padding: "0.5rem",
-              backgroundColor: "background.default",
+              backgroundColor: "background.defaultSolid",
               border: "2px solid",
               borderColor: "divider",
               minWidth: "0%",
@@ -131,7 +135,7 @@ const RenderMessages = ({ message }) => {
         className="flex gap-2 items-start flex-col w-full rounded-lg overflow-hidden"
         key={index}
       >
-        <Editor
+        {/* <Editor
           height="300px"
           width="100%"
           theme={`vs-${theme}`}
@@ -139,6 +143,57 @@ const RenderMessages = ({ message }) => {
           defaultValue={getDataToString(item.content)}
           options={{
             readOnly: true,
+          }}
+        /> */}
+        <CustomInput
+          label={item.type}
+          InputProps={{
+            readOnly: true,
+            endAdornment: (
+              <TooltipCustom title="Copy to clipboard" placement="top">
+                <InputAdornment
+                  position="top-end"
+                  sx={{
+                    position: "absolute",
+                    top: "0rem",
+                    right: "0rem",
+                    cursor: "pointer",
+                    opacity: 0,
+                    transition: "all 0.8s",
+                    backgroundColor: "background.defaultSolid",
+                    borderRadius: "2rem",
+                    padding: "1.2rem 0.5rem ",
+                  }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      getDataToString(item.content)
+                    );
+                    showNotification({
+                      content: "Copied to clipboard",
+                    });
+                  }}
+                >
+                  <ContentCopyRounded color="secondary" />
+                </InputAdornment>
+              </TooltipCustom>
+            ),
+          }}
+          size="small"
+          value={getDataToString(item.content)}
+          multiline={true}
+          formSX={{
+            "& .MuiInputBase-root": {
+              backgroundColor: "#000000",
+              padding: "1rem",
+              color: "whitesmoke",
+            },
+            ":hover": {
+              "& .MuiInputAdornment-root": {
+                opacity: 1,
+                right: "1rem",
+                top: "1rem",
+              },
+            },
           }}
         />
       </Box>
@@ -176,28 +231,25 @@ const RenderMessages = ({ message }) => {
 
                 case "jsonArray":
                   return renderEditor(item, index);
-                
+
                 case "code":
                   return renderEditor(item, index);
 
                 case "html":
                   return (
-                    <Box className="flex gap-2 items-center">
-                      <Box className="flex gap-2 items-start flex-col">
+                    <Box className="flex gap-2 items-center w-full" key={index}>
+                      <Box className="flex gap-2 items-start flex-col w-full">
                         <Typography
-                          variant="h7"
-                          className="text-break"
-                          key={index}
-                          dangerouslySetInnerHTML={{ __html: item.content }}
-                          color="text.primary"
+                          component={"iframe"}
+                          srcDoc={item.content}
                           sx={{
-                            width: "100%",
-                            maxWidth: "100%",
-                            overflow: "auto",
+                            minWidth: "30rem",
+                            maxWidth: "40rem",
+                            height: "30rem",
+                            // overflow: "auto",
                             borderRadius: "0.5rem",
                           }}
                         />
-                        {/* {renderEditor(item, index)} */}
                       </Box>
                       <IconButton
                         size="small"

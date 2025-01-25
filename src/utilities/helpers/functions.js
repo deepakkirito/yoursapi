@@ -53,9 +53,11 @@ export const getUniqueValuesFromObject = (arr, key) => {
 
 export const getDataToString = (data) => {
   return JSON.stringify(data, null, 4)
-    .replace(/"/g, '"') // Escape double quotes
-    .replace(/\\n/g, "\n");
+    .replace(/\\n/g, "\n")      // Replace escaped newlines with actual newline characters
+    .replace(/\\"/g, '"')       // Replace escaped quotes with actual quotes
+    .replace(/\\\\/g, '\\');    // Escape backslashes if needed
 };
+
 
 export const getRandomColor = () => {
   const letters = "0123456789ABCDEF";
