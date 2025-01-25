@@ -57,7 +57,6 @@ const CustomAiResponse = ({ messages, loading }) => {
               sx={{
                 // bgcolor: getRandomColor(),
                 color: "text.primary",
-                marginTop: "0.2rem",
                 width: message.role === "user" ? "2.5rem" : "4rem",
                 height: message.role === "user" ? "2.5rem" : "4rem",
               }}
