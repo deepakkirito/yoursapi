@@ -1,4 +1,7 @@
-import { aiSizeOptions, sizeOptions } from "@/components/assets/constants/customData";
+import {
+  aiSizeOptions,
+  sizeOptions,
+} from "@/components/assets/constants/customData";
 import CustomAiResponse from "@/components/common/customAiResponse";
 import CustomSelect from "@/components/common/customSelect";
 import CustomInput from "@/components/common/customTextField";
@@ -165,7 +168,7 @@ const AI = ({ schema, id }) => {
       {messages?.length > 0 && (
         <Box
           id="ai-input"
-          className="flex items-center justify-center gap-4 flex-row w-full sticky bottom-2 p-4 rounded-lg"
+          className="flex items-end justify-center gap-2 flex-row w-full sticky bottom-2 p-2 rounded-lg"
           sx={{
             backgroundColor: "background.defaultSolid",
             border: "2px solid",
@@ -180,6 +183,8 @@ const AI = ({ schema, id }) => {
             onChange={(event) => {
               setCurrentMessage(String(event.target.value));
             }}
+            minRows={1}
+            maxRows={6}
             autoFocus={true}
             value={currentMessage}
             multiline={true}
@@ -189,34 +194,35 @@ const AI = ({ schema, id }) => {
               },
             }}
           />
-
-          <Button
-            variant="contained"
-            disabled={currentMessage === "" || loading}
-            endIcon={
-              loading && <CircularProgress size={16} color="secondary" />
-            }
-            className="px-4"
-            onClick={handleGeneratedData}
-          >
-            send
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => {
-              setMessages([]);
-            }}
-          >
-            Reset
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleSaveExample();
-            }}
-          >
-            Save
-          </Button>
+          <Box className="flex gap-2 items-center justify-center mb-0.5">
+            <Button
+              variant="contained"
+              disabled={currentMessage === "" || loading}
+              endIcon={
+                loading && <CircularProgress size={16} color="secondary" />
+              }
+              className="px-4"
+              onClick={handleGeneratedData}
+            >
+              send
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setMessages([]);
+              }}
+            >
+              Reset
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleSaveExample();
+              }}
+            >
+              Save
+            </Button>
+          </Box>
         </Box>
       )}
     </>

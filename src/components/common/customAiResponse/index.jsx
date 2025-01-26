@@ -74,7 +74,7 @@ const CustomAiResponse = ({ messages, loading }) => {
                 backgroundColor: "background.defaultSolid",
                 border: "2px solid",
                 borderColor: "divider",
-                minWidth: "70%",
+                minWidth: "0%",
                 maxWidth: "80%",
               }}
             >
@@ -164,6 +164,8 @@ const RenderMessages = ({ message }) => {
                     backgroundColor: "background.defaultSolid",
                     borderRadius: "2rem",
                     padding: "1.2rem 0.5rem ",
+                    border: "2px solid",
+                    borderColor: "divider",
                   }}
                   onClick={() => {
                     navigator.clipboard.writeText(
@@ -191,8 +193,8 @@ const RenderMessages = ({ message }) => {
             ":hover": {
               "& .MuiInputAdornment-root": {
                 opacity: 1,
-                right: "1rem",
-                top: "1rem",
+                right: "0.5rem",
+                top: "0.5rem",
               },
             },
           }}

@@ -164,7 +164,7 @@ const ContentBar = ({
                     rotate: "-90deg",
                     width: "max-content",
                     position: "absolute",
-                    right: "-3.3rem",
+                    right: "-6.5rem",
                     transform: "translateX(calc(-25vh))",
                     fontWeight: "700",
                     color: "text.primary",
