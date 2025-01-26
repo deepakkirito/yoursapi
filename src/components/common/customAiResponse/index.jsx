@@ -23,6 +23,7 @@ import { showNotification } from "../notification";
 import json5 from "json5";
 import CustomInput from "../customTextField";
 import TooltipCustom from "../tooltip";
+import { colorOptions } from "@/components/assets/constants/color";
 const aiImage =
   "https://cdn.glitch.global/1451944e-7aa5-4b35-8561-bbbd6e79fae9/happy-hacker.gif?v=1682951858146";
 
@@ -183,9 +184,9 @@ const RenderMessages = ({ message }) => {
           multiline={true}
           formSX={{
             "& .MuiInputBase-root": {
-              backgroundColor: "#000000",
+              backgroundColor: colorOptions.blackPremium,
               padding: "1rem",
-              color: "whitesmoke",
+              color: "#F5F4EB",
             },
             ":hover": {
               "& .MuiInputAdornment-root": {

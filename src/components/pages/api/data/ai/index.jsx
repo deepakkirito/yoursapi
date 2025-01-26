@@ -1,4 +1,4 @@
-import { sizeOptions } from "@/components/assets/constants/customData";
+import { aiSizeOptions, sizeOptions } from "@/components/assets/constants/customData";
 import CustomAiResponse from "@/components/common/customAiResponse";
 import CustomSelect from "@/components/common/customSelect";
 import CustomInput from "@/components/common/customTextField";
@@ -150,7 +150,7 @@ const AI = ({ schema, id }) => {
           <CustomSelect
             size="small"
             fullWidth={false}
-            options={sizeOptions}
+            options={aiSizeOptions}
             labelTop="Data size"
             value={selectedDataSize}
             none={false}
