@@ -3,7 +3,7 @@ import CustomAiResponse from "@/components/common/customAiResponse";
 import CustomSelect from "@/components/common/customSelect";
 import CustomInput from "@/components/common/customTextField";
 import { showNotification } from "@/components/common/notification";
-import { postDataAiApi } from "@/utilities/api/aiApi";
+import { postDataAiApi, postExampleAiApi } from "@/utilities/api/aiApi";
 import {
   catchError,
   getDataToString,
@@ -85,6 +85,21 @@ const AI = ({ schema, id }) => {
     await postMessage({
       custom: "",
     });
+  };
+
+  const handleSaveExample = async () => {
+    const body = {
+      data: messages,
+    };
+    await postExampleAiApi(body)
+      .then((res) => {
+        showNotification({
+          content: res.data.message,
+        });
+      })
+      .catch((err) => {
+        catchError(err);
+      });
   };
 
   return (
@@ -193,6 +208,14 @@ const AI = ({ schema, id }) => {
             }}
           >
             Reset
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleSaveExample();
+            }}
+          >
+            Save
           </Button>
         </Box>
       )}
