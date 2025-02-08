@@ -5,6 +5,7 @@ import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import BadgeRoundedIcon from "@mui/icons-material/BadgeRounded";
 import { ThemeContext } from "@/utilities/context/theme";
 import {
+  Avatar,
   Box,
   CircularProgress,
   CssBaseline,
@@ -27,6 +28,7 @@ import { mainListUrl } from "@/components/assets/constants/barList";
 import Logo from "@/app/favicon.svg";
 import { CreateNavTitleContext } from "@/utilities/context/navTitle";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import { catchError } from "@/utilities/helpers/functions";
 
 function ColorSchemeToggle(props) {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -54,6 +56,7 @@ function ColorSchemeToggle(props) {
 
 const Navbar = () => {
   const [userData, setUserData] = useState({});
+  const [user, setUser] = useLocalStorage("user");
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(true);
   const location = usePathname();
@@ -93,15 +96,12 @@ const Navbar = () => {
       .then((res) => {
         setProfile(res.data.data?.profile);
         setUserData(res.data.data);
+        setUser(res.data.data);
         setLoading(false);
       })
       .catch((err) => {
         console.log(err);
-
-        showNotification({
-          content: err.response.data.message,
-          type: "error",
-        });
+        catchError(err);
         setLoading(false);
       });
   };

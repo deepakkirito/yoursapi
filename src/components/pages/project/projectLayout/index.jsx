@@ -45,6 +45,7 @@ import EditCalendarRoundedIcon from "@mui/icons-material/EditCalendarRounded";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
 import DrawRoundedIcon from "@mui/icons-material/DrawRounded";
 import CustomInput from "@/components/common/customTextField";
+import { CreateAlertContext } from "@/utilities/context/alert";
 
 const ProjectLayout = ({
   getApi,
@@ -55,6 +56,7 @@ const ProjectLayout = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { popup, setPopup } = useContext(CreatePopupContext);
+  const { alert, setAlert } = useContext(CreateAlertContext);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [totlaCount, setTotalCont] = useState(0);
@@ -76,10 +78,10 @@ const ProjectLayout = ({
     !popup.open && getProject();
   }, [pagination, filter, search, sort, popup]);
 
-  const handleDelete = async () => {
+  const handleDelete = async (id) => {
     setDeleteLoading(true);
     await deleteData
-      .api(deleteId)
+      .api(id)
       .then((res) => {
         showNotification({
           content: res.data.message,
@@ -474,8 +476,17 @@ const ProjectLayout = ({
                                     <IconButton
                                       className={style.cardDelete}
                                       onClick={() => {
-                                        setOpen(true);
-                                        setDeleteId(item._id);
+                                        // setOpen(true);
+                                        // setDeleteId(item._id);
+                                        setAlert({
+                                          open: true,
+                                          title: "Are you Sure?",
+                                          content: alertContent,
+                                          handleSuccess: () => handleDelete(item._id),
+                                          handleClose: () => setAlert({
+                                            open: false,
+                                          }),
+                                        });
                                       }}
                                     >
                                       {deleteData.icon}
@@ -609,7 +620,10 @@ const ProjectLayout = ({
                                 placement="top"
                               >
                                 <Box className="flex gap-2 items-center">
-                                  <CalendarMonthRoundedIcon fontSize="small" color="secondary" />
+                                  <CalendarMonthRoundedIcon
+                                    fontSize="small"
+                                    color="secondary"
+                                  />
                                   <Typography
                                     variant="h7"
                                     sx={
@@ -646,7 +660,10 @@ const ProjectLayout = ({
                                 placement="bottom"
                               >
                                 <Box className="flex gap-2 items-center">
-                                  <EditCalendarRoundedIcon fontSize="small" color="secondary" />
+                                  <EditCalendarRoundedIcon
+                                    fontSize="small"
+                                    color="secondary"
+                                  />
                                   <Typography
                                     variant="h7"
                                     sx={

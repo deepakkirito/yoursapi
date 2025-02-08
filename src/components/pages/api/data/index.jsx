@@ -3,24 +3,27 @@ import { Box, CircularProgress, Grid2 } from "@mui/material";
 import DataContent from "./content";
 import Navbar from "./navbar";
 import ContentBar from "@/components/common/contentBar";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import Settings from "./settings";
 import { getApiDetailsApi, updateApiDataApi } from "@/utilities/api/apiApi";
-import { useSearchParams } from "next/navigation";
-import { catchError } from "@/utilities/helpers/functions";
+import { useRouter, useSearchParams } from "next/navigation";
+import { catchError, getDataToString } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
 import Schema from "./schema";
 import CustomData from "./customData";
 import AI from "./ai";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 
-const DataApi = () => {
+const DataApi = ({ shared = false }) => {
+  const project = useLocalStorage("project", "");
   const searchparams = useSearchParams();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useLocalStorage(`${project}_open`, false);
   const [data, setData] = useState("");
   const [loading, setLoading] = useState(true);
   const id = searchparams.get("id");
   const currentData = useRef("");
   const [apiData, setApiData] = useState({});
+  const router = useRouter();
 
   useEffect(() => {
     id && getApiDetails(id);
@@ -30,19 +33,13 @@ const DataApi = () => {
     setLoading(true);
     await getApiDetailsApi(id)
       .then((response) => {
-        setData(
-          JSON.stringify(response.data.data, null, 4)
-            .replace(/"/g, '"') // Escape double quotes
-            .replace(/\\n/g, "\n")
-        );
-        currentData.current = JSON.stringify(response.data.data, null, 4)
-          .replace(/"/g, '"') // Escape double quotes
-          .replace(/\\n/g, "\n");
+        setData(getDataToString(response.data.data));
+        currentData.current = getDataToString(response.data.data);
         setApiData(response.data.apiData);
       })
       .catch((error) => {
         catchError(error);
-        window.location.href = "/projects";
+        router.back();
       })
       .finally(() => {
         setLoading(false);
@@ -154,7 +151,7 @@ const DataApi = () => {
             borderRadius: "0.5rem",
           }}
         >
-          <Navbar />
+          <Navbar shared={shared} />
         </Box>
         <Grid2
           container

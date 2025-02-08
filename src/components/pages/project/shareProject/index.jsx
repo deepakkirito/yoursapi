@@ -11,6 +11,7 @@ import {
 } from "@/utilities/api/projectApi";
 import { checkOtherUserApi } from "@/utilities/api/userApi";
 import { CreatePopupContext } from "@/utilities/context/popup";
+import { catchError } from "@/utilities/helpers/functions";
 import { VerifiedUserRounded } from "@mui/icons-material";
 import {
   Button,
@@ -47,10 +48,7 @@ const ShareProject = ({ id }) => {
         setProject(res.data);
       })
       .catch((err) => {
-        showNotification({
-          content: err.response.data.message,
-          type: "error",
-        });
+        catchError(err);
       })
       .finally(() => {
         setLoading(false);
@@ -68,10 +66,7 @@ const ShareProject = ({ id }) => {
         setCheckedUserData(res.data);
       })
       .catch((err) => {
-        showNotification({
-          type: "error",
-          content: err.response.data.message,
-        });
+        catchError(err);
       })
       .finally(() => {
         setButtonLoading(false);
@@ -91,10 +86,7 @@ const ShareProject = ({ id }) => {
         getProject(false);
       })
       .catch((err) => {
-        showNotification({
-          content: err.response.data.message,
-          type: "error",
-        });
+        catchError(err);
       })
       .finally(() => {
         setButtonLoading(false);
@@ -113,10 +105,7 @@ const ShareProject = ({ id }) => {
         getProject(false);
       })
       .catch((err) => {
-        showNotification({
-          content: err.response.data.message,
-          type: "error",
-        });
+        catchError(err);
       })
       .finally(() => {
         // setRevokeLoading(false);
@@ -135,10 +124,7 @@ const ShareProject = ({ id }) => {
         });
       })
       .catch((err) => {
-        showNotification({
-          content: err.response.data.message,
-          type: "error",
-        });
+        catchError(err);
       })
       .finally(() => {
         getProject(false);

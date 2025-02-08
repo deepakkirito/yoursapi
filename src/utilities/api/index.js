@@ -12,6 +12,7 @@ const axiosGet = (url) => {
       .catch((err) => {
         if (err.status === 403) {
           localStorage.removeItem("login");
+          localStorage.removeItem("user");
           window.location.pathname = "/login";
         }
         reject(err);
@@ -32,6 +33,7 @@ const axiosPost = (url, body) => {
       .catch((err) => {
         if (err.status === 403) {
           localStorage.removeItem("login");
+          localStorage.removeItem("user");
           window.location.pathname = "/login";
         }
         reject(err);
@@ -52,6 +54,7 @@ const axiosPut = (url, body) => {
       .catch((err) => {
         if (err.status === 403) {
           localStorage.removeItem("login");
+          localStorage.removeItem("user");
           window.location.pathname = "/login";
         }
         reject(err);
@@ -72,6 +75,7 @@ const axiosDelete = (url) => {
       .catch((err) => {
         if (err.status === 403) {
           localStorage.removeItem("login");
+          localStorage.removeItem("user");
           window.location.pathname = "/login";
         }
         reject(err);

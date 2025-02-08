@@ -53,11 +53,10 @@ export const getUniqueValuesFromObject = (arr, key) => {
 
 export const getDataToString = (data) => {
   return JSON.stringify(data, null, 4)
-    .replace(/\\n/g, "\n")      // Replace escaped newlines with actual newline characters
-    .replace(/\\"/g, '"')       // Replace escaped quotes with actual quotes
-    .replace(/\\\\/g, '\\');    // Escape backslashes if needed
+    .replace(/\\n/g, "\n") // Replace escaped newlines with actual newline characters
+    .replace(/\\"/g, '"') // Replace escaped quotes with actual quotes
+    .replace(/\\\\/g, "\\"); // Escape backslashes if needed
 };
-
 
 export const getRandomColor = () => {
   const letters = "0123456789ABCDEF";
@@ -123,6 +122,11 @@ export const isValidJson = (str) => {
     return { valid: true, content: parsed };
   } catch (e) {
     console.error("Parsing failed:", e.message);
-    return { valid: false, content: str };
+    try {
+      const parsed = JSON.parse(str);
+      return { valid: true, content: parsed };
+    } catch (e) {
+      return { valid: false, content: str };
+    }
   }
 };

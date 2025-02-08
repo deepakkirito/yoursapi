@@ -15,6 +15,7 @@ import FullScreenPopup from "@/components/common/popup/fullScreen";
 import DarkBackground from "@/components/assets/other/darkBackground.jpg";
 import LightBackground from "@/components/assets/other/lightBackground.avif";
 import Alert from "@/components/common/popup/alert";
+import SocketNotification from "@/components/common/notification/socket";
 
 const CustomIcon = (props) => {
   if (props.isLoading) return <CircularProgress />;
@@ -73,8 +74,9 @@ export default function LayoutWrapper({ children }) {
             id="toaster"
             icon={CustomIcon}
           />
-          <FullScreenPopup />
+          <SocketNotification />
           <Alert />
+          <FullScreenPopup />
           {children}
         </ThemeProvider>
       </GoogleOAuthProvider>

@@ -30,14 +30,17 @@ import { catchError } from "@/utilities/helpers/functions";
 import { CheckUsernameApi } from "@/utilities/api/authApi";
 import { updateUserApi } from "@/utilities/api/userApi";
 import { useRouter } from "next/navigation";
-import { CreateNavTitleContext, NavTitleContext } from "@/utilities/context/navTitle";
+import {
+  CreateNavTitleContext,
+  NavTitleContext,
+} from "@/utilities/context/navTitle";
 import useCustomWindow from "@/utilities/helpers/hooks/window";
 
-const Navbar = () => {
+const Navbar = ({ shared = false }) => {
   const { popup, setPopup } = useContext(CreatePopupContext);
   const location = usePathname();
   const router = useRouter();
-  const projectId = location.split("/")[2];
+  const projectId = shared ? location.split("/")[3] : location.split("/")[2];
   const [apiList, setApiList] = useState([]);
   const [username, setUsername] = useState("");
   const [currentUsername, setCurrentUsername] = useState("");
@@ -64,7 +67,7 @@ const Navbar = () => {
   useEffect(() => {
     if (apiData?.label) {
       router.push(
-        `/projects/${projectId}/data?api=${apiData.label}&id=${apiData.value}`,
+        `/projects/${shared ? "shared/" : ""}${projectId}/data?api=${apiData.label}&id=${apiData.value}`,
         undefined,
         {
           shallow: true,
@@ -80,7 +83,6 @@ const Navbar = () => {
   useEffect(() => {
     setNavTitle(project);
   }, [currentProject]);
-  
 
   const getSingleProject = async (id, create = false) => {
     setLoading(true);
@@ -93,15 +95,12 @@ const Navbar = () => {
         setApiList(res.data.apiIds);
         setApiData(
           !create && apiId
-            ? {
-                label: api,
-                value: apiId,
-              }
+            ? res.data.apiIds.find((item) => item.value === apiId)
             : res.data.apiIds[apiName === "" ? 0 : res.data.apiIds.length - 1]
         );
         setApiName(
           !create && apiId
-            ? api
+            ? res.data.apiIds.find((item) => item.value === apiId).label
             : res.data.apiIds[apiName === "" ? 0 : res.data.apiIds.length - 1]
                 .label
         );

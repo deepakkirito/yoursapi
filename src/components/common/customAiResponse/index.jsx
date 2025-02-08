@@ -1,5 +1,6 @@
 import { ThemeContext } from "@/utilities/context/theme";
 import {
+  catchError,
   getDataToString,
   getRandomColor,
   isValidJson,
@@ -9,12 +10,13 @@ import { Editor } from "@monaco-editor/react";
 import {
   Avatar,
   Box,
+  Button,
   CircularProgress,
   IconButton,
   InputAdornment,
   Typography,
 } from "@mui/material";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import Logo from "@/app/favicon.svg";
 import streamingText from "../streamingText";
 import StreamingText from "../streamingText";
@@ -24,6 +26,9 @@ import json5 from "json5";
 import CustomInput from "../customTextField";
 import TooltipCustom from "../tooltip";
 import { colorOptions } from "@/components/assets/constants/color";
+import { postCustomDataApi } from "@/utilities/api/customDataApi";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CreateAlertContext } from "@/utilities/context/alert";
 const aiImage =
   "https://cdn.glitch.global/1451944e-7aa5-4b35-8561-bbbd6e79fae9/happy-hacker.gif?v=1682951858146";
 
@@ -43,7 +48,7 @@ const CustomTypography = ({ children }) => {
   );
 };
 
-const CustomAiResponse = ({ messages, loading }) => {
+const CustomAiResponse = ({ messages, loading, data }) => {
   const [profile, setProfile] = useLocalStorage("profile");
 
   return (
@@ -78,7 +83,10 @@ const CustomAiResponse = ({ messages, loading }) => {
                 maxWidth: "80%",
               }}
             >
-              <RenderMessages message={isValidJson(message.content)} />
+              <RenderMessages
+                message={isValidJson(message.content)}
+                data={data}
+              />
             </Box>
           </Box>
         ))}
@@ -128,9 +136,35 @@ const CustomAiResponse = ({ messages, loading }) => {
 export default CustomAiResponse;
 
 const RenderMessages = ({ message }) => {
+  const searchparams = useSearchParams();
   const { theme } = useContext(ThemeContext);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const router = useRouter();
+  const { alert, setAlert } = useContext(CreateAlertContext);
+  const apiId = searchparams.get("id");
 
-  const renderEditor = (item, index) => {
+  const handleUpdateData = async (option, data) => {
+    const body = {
+      data: data,
+      option: option,
+    };
+    setUpdateLoading(true);
+    await postCustomDataApi(apiId, body)
+      .then((res) => {
+        showNotification({
+          content: res.data.message,
+        });
+        window.location.reload();
+      })
+      .catch((err) => {
+        catchError(err);
+      })
+      .finally(() => {
+        setUpdateLoading(false);
+      });
+  };
+
+  const renderEditor = (item, index, type) => {
     return (
       <Box
         className="flex gap-2 items-start flex-col w-full rounded-lg overflow-hidden"
@@ -199,6 +233,80 @@ const RenderMessages = ({ message }) => {
             },
           }}
         />
+        {type && (
+          <Box className="flex gap-4 items-center justify-center w-full my-2">
+            <Button
+              variant="contained"
+              size="small"
+              endIcon={
+                updateLoading && <CircularProgress size={16} color="loading" />
+              }
+              onClick={() => {
+                setAlert({
+                  open: true,
+                  title: "Are you Sure?",
+                  content: (
+                    <Box className="flex flex-col gap-2">
+                      <Typography>
+                        - Custom data will be merged with the existing data.
+                      </Typography>
+                      {schema !== null && (
+                        <Typography>
+                          - This api have a schema set, this data may not get
+                          saved if custom data doesn&apos;t matches the schema.
+                        </Typography>
+                      )}
+                    </Box>
+                  ),
+                  handleClose: () => {
+                    setAlert({ ...alert, open: false });
+                  },
+                  handleSuccess: () => {
+                    handleUpdateData("merge", item.content);
+                    setAlert({ ...alert, open: false });
+                  },
+                });
+              }}
+            >
+              Merge
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              endIcon={
+                updateLoading && <CircularProgress size={16} color="loading" />
+              }
+              onClick={() => {
+                setAlert({
+                  open: true,
+                  title: "Are you Sure?",
+                  content: (
+                    <Box className="flex flex-col gap-2">
+                      <Typography>
+                        - Custom data will be replaced with the existing data.
+                      </Typography>
+                      {schema !== null && (
+                        <Typography>
+                          - This api have a schema set, this data may not get
+                          saved if custom data doesn&apos;t matches the schema.
+                        </Typography>
+                      )}
+                    </Box>
+                  ),
+                  handleClose: () => {
+                    setAlert({ ...alert, open: false });
+                  },
+                  handleSuccess: () => {
+                    handleUpdateData("replace", item.content);
+                    setAlert({ ...alert, open: false });
+                  },
+                });
+              }}
+            >
+              Replace
+            </Button>
+          </Box>
+        )}
       </Box>
     );
   };
@@ -221,19 +329,19 @@ const RenderMessages = ({ message }) => {
                 case "text":
                   return <CustomTypography>{item.content}</CustomTypography>;
                 case "object":
-                  return renderEditor(item, index);
+                  return renderEditor(item, index, "");
 
                 case "array":
-                  return renderEditor(item, index);
+                  return renderEditor(item, index, "array");
 
                 case "objectArray":
-                  return renderEditor(item, index);
+                  return renderEditor(item, index, "objectArray");
 
                 case "json":
-                  return renderEditor(item, index);
+                  return renderEditor(item, index, "json");
 
                 case "jsonArray":
-                  return renderEditor(item, index);
+                  return renderEditor(item, index, "jsonArray");
 
                 case "code":
                   return renderEditor(item, index);

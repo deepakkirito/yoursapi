@@ -7,6 +7,7 @@ import MuiAccordionSummary, {
 } from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -51,7 +52,11 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 }));
 
 const CustomAccordion = ({ items, defaultExpanded, onChange }) => {
-  const [expanded, setExpanded] = useState(defaultExpanded || false);
+  const project = useLocalStorage("project", "");
+  const [expanded, setExpanded] = useLocalStorage(
+    `${project}_expanded`,
+    defaultExpanded || false
+  );
 
   const handleChange = (panel) => (_, newExpanded) => {
     setExpanded(newExpanded ? panel : false);

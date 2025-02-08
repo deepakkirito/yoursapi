@@ -120,7 +120,13 @@ const Sidebar = () => {
           >
             {open && !mainListUrl.includes(location) && (
               <TooltipCustom title="Back" placement="right">
-                <Link href={"/projects"}>
+                <Link
+                  href={
+                    location.includes("shared")
+                      ? "/projects/shared"
+                      : "/projects"
+                  }
+                >
                   <IconButton>
                     <KeyboardArrowLeftRounded color="secondary" />
                   </IconButton>
@@ -128,7 +134,11 @@ const Sidebar = () => {
               </TooltipCustom>
             )}
             <IconButton onClick={handleDrawerClose}>
-              {open ? <MenuOpenRoundedIcon color="secondary" /> : <MenuRoundedIcon color="secondary" />}
+              {open ? (
+                <MenuOpenRoundedIcon color="secondary" />
+              ) : (
+                <MenuRoundedIcon color="secondary" />
+              )}
             </IconButton>
           </Box>
         </DrawerHeader>
