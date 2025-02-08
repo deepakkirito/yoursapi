@@ -106,10 +106,7 @@ const Navbar = ({ shared = false }) => {
         );
       })
       .catch((err) => {
-        showNotification({
-          content: err.response.data.message,
-          type: "error",
-        });
+        catchError(err);
       })
       .finally(() => {
         setLoading(false);
