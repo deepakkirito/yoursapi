@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 // Server URL (Change this to your actual backend URL)
-const SERVER_URL = "localhost:3080";
+const SERVER_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
 
 // Create a socket instance with auto-connect enabled
 const socket = io(SERVER_URL, {
