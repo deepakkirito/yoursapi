@@ -51,9 +51,11 @@ const AuthApi = ({ shared = false }) => {
     getAuthApi(id)
       .then((res) => {
         setLoading(false);
-        currentData.current = getDataToString(res.data.data);
-        setData(getDataToString(res.data.data));
-        setAuthData(res.data.authData);
+        if (res.data?.data?.length) {
+          currentData.current = getDataToString(res.data.data);
+          setData(getDataToString(res.data.data));
+        }
+        setAuthData(res.data.authData || res.data);
       })
       .catch((err) => {
         catchError(err);
@@ -95,6 +97,7 @@ const AuthApi = ({ shared = false }) => {
         getAuthApiData(projectId.current);
       });
   };
+  console.log(authData);
 
   return (
     <Box
@@ -113,7 +116,7 @@ const AuthApi = ({ shared = false }) => {
         </div>
       ) : (
         <Box className="flex flex-col gap-4 items-center justify-center h-full overflow-auto">
-          {authData?.name === "" ? (
+          {"name" in authData && authData.name === "" ? (
             <Create projectId={projectId.current} refetch={getAuthApiData} />
           ) : (
             <Box className="w-full h-full">
