@@ -25,7 +25,7 @@ const ContentBar = ({
   return (
     <Box
       sx={{
-        backgroundColor: "background.invert",
+        backgroundColor: "background.default",
         padding: "0.5rem",
         width: open ? "100%" : "4.9rem",
         height: "100%",
@@ -96,27 +96,15 @@ const ContentBar = ({
           </Box>
           <Box className="flex items-center gap-2">
             <IconButton onClick={() => setFullScreen(!fullScreen)}>
-              {fullScreen ? (
-                <FullscreenExit
-                  sx={{
-                    display: {
-                      xs: "none",
-                      lg: "flex",
-                    },
-                  }}
-                />
-              ) : (
-                <Fullscreen
-                  sx={{
-                    display: {
-                      xs: "none",
-                      lg: "flex",
-                    },
-                  }}
-                />
-              )}
+              {fullScreen ? <FullscreenExit /> : <Fullscreen />}
             </IconButton>
             <IconButton
+              sx={{
+                display: {
+                  xs: "none",
+                  lg: "flex",
+                },
+              }}
               onClick={() => {
                 setOpen(!open);
                 setFullScreen(false);
@@ -127,10 +115,6 @@ const ContentBar = ({
                 sx={{
                   rotate: open ? "180deg" : "0deg",
                   transition: "all 0.5s",
-                  display: {
-                    xs: "none",
-                    lg: "flex",
-                  },
                 }}
               />
             </IconButton>

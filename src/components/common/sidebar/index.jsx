@@ -83,12 +83,13 @@ const Sidebar = () => {
           height: "calc(100vh - 7rem)",
           transition: "all 500ms",
           "& .MuiDrawer-paper": {
+            border: "0.2rem solid",
+            borderColor: "background.foreground",
+            borderRadius: "1rem",
             width: "100%",
             boxSizing: "border-box",
             transition: "all 500ms",
             borderRadius: "1rem",
-            border: "0.1px solid",
-            borderColor: "background.inactive",
           },
           "& .MuiPaper-root": {
             position: "relative",

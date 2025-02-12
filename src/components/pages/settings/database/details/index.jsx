@@ -372,7 +372,6 @@ const DatabaseDetails = ({
             handleChange={(event) => {
               setMigrateSelect(event.target.value);
             }}
-            // style={{ border: "1px solid", borderColor: "border.default" }}
           />
         </Box>
         {/* Migrate Data */}
@@ -469,9 +468,6 @@ const DatabaseDetails = ({
                                   {(item.sizeOnDisk / 1024 / 1024).toFixed(2)}{" "}
                                   MB
                                 </Typography>
-                                {/* <Typography variant="h7">
-                                Empty: {String(item.empty)}
-                              </Typography> */}
                                 <TooltipCustom
                                   title={
                                     item.collections?.length ? (
@@ -632,7 +628,7 @@ const DatabaseDetails = ({
                 <Button
                   id="migrateButton"
                   variant="contained"
-                  color="secondary"
+                  color="primary"
                   onClick={handleMigrateStart}
                 >
                   Migrate

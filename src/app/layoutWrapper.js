@@ -54,7 +54,7 @@ export default function LayoutWrapper({ children }) {
   }, []);
 
   useEffect(() => {
-    // document.body.style.backgroundColor = mode === "dark" ? "#677ca5" : "white";
+    document.body.style.backgroundColor = theme.palette.background.default;
     document.body.style.backgroundImage =
       mode === "dark"
         ? `url(${DarkBackground.src})`

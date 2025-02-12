@@ -29,6 +29,7 @@ import Logo from "@/app/favicon.svg";
 import { CreateNavTitleContext } from "@/utilities/context/navTitle";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import { catchError } from "@/utilities/helpers/functions";
+import useCustomWindow from "@/utilities/helpers/hooks/window";
 
 function ColorSchemeToggle(props) {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -65,6 +66,7 @@ const Navbar = () => {
   const router = useRouter();
   const { navTitle, setNavTitle } = useContext(CreateNavTitleContext);
   const [profile, setProfile] = useLocalStorage("profile");
+  const window = useCustomWindow();
 
   useEffect(() => {
     if (localStorage.getItem("login") !== "true") {

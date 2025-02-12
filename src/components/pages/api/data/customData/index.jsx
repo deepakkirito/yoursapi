@@ -9,6 +9,7 @@ import {
 import { CreateAlertContext } from "@/utilities/context/alert";
 import { ThemeContext } from "@/utilities/context/theme";
 import { catchError } from "@/utilities/helpers/functions";
+import useCustomWindow from "@/utilities/helpers/hooks/window";
 import { Editor } from "@monaco-editor/react";
 import {
   Box,
@@ -31,6 +32,7 @@ const CustomData = ({ schema, refetch = () => {} }) => {
   const searchparams = useSearchParams();
   const apiId = searchparams.get("id");
   const [updateLoading, setUpdateLoading] = useState(false);
+  const window = useCustomWindow();
 
   useEffect(() => {
     getDataList();

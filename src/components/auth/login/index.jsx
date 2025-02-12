@@ -25,6 +25,7 @@ import {
 } from "@mui/material";
 import { AuthContext } from "@/utilities/context/auth";
 import CustomInput from "@/components/common/customTextField";
+import useCustomWindow from "@/utilities/helpers/hooks/window";
 
 const Login = () => {
   const [verify, setVerify] = useState(null);
@@ -37,6 +38,7 @@ const Login = () => {
   });
   const { setLogin } = useContext(AuthContext);
   const [focused, setFocused] = useState(false);
+  const window = useCustomWindow();
 
   useEffect(() => {
     if (verify) {

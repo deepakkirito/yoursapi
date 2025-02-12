@@ -193,7 +193,7 @@ const Auth = ({ auth = "login" }) => {
                 }}
               />
               <Typography variant="h6" color="text.primary">
-                YoursApi
+                Youpi
               </Typography>
             </Box>
             <ColorSchemeToggle />
@@ -284,7 +284,7 @@ const Auth = ({ auth = "login" }) => {
           </Box>
           <Box component="footer" sx={{ py: 3 }}>
             <Typography sx={{ textAlign: "center" }}>
-              © YoursApi {new Date().getFullYear()}
+              © Youpi {new Date().getFullYear()}
             </Typography>
           </Box>
         </Box>

@@ -13,10 +13,19 @@ const SaveDatabase = ({ fetchData = () => {} }) => {
 
   const handleSave = async () => {
     setLoading(true);
-    const encrypted = encrypt(dbString);
-    const decrypted = decrypt(encrypted);
-    console.log({dbString, decrypted, encrypted});
-    await saveDBStringApi({ dbString: encrypted, saveExternal: true, saveInternal: true })
+
+    let updatedString = dbString;
+    if (dbString[dbString.length - 1] !== "/") {
+      updatedString = dbString + "/";
+    }
+
+    const encrypted = encrypt(updatedString);
+
+    await saveDBStringApi({
+      dbString: encrypted,
+      saveExternal: true,
+      saveInternal: true,
+    })
       .then((res) => {
         showNotification({
           content: res.data.message,
@@ -30,16 +39,13 @@ const SaveDatabase = ({ fetchData = () => {} }) => {
         setLoading(false);
         fetchData();
       });
-  };  
+  };
 
   return (
     <form
       className="flex flex-col gap-4 items-center"
       onSubmit={(event) => {
         event.preventDefault();
-        const formElements = event.currentTarget.elements;
-        const dbString = formElements.dbString.value;
-        // setDbString(dbString);
         handleSave();
       }}
     >

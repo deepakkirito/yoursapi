@@ -29,6 +29,7 @@ import { colorOptions } from "@/components/assets/constants/color";
 import { postCustomDataApi } from "@/utilities/api/customDataApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CreateAlertContext } from "@/utilities/context/alert";
+import useCustomWindow from "@/utilities/helpers/hooks/window";
 const aiImage =
   "https://cdn.glitch.global/1451944e-7aa5-4b35-8561-bbbd6e79fae9/happy-hacker.gif?v=1682951858146";
 
@@ -142,6 +143,7 @@ const RenderMessages = ({ message }) => {
   const router = useRouter();
   const { alert, setAlert } = useContext(CreateAlertContext);
   const apiId = searchparams.get("id");
+  const window = useCustomWindow();
 
   const handleUpdateData = async (option, data) => {
     const body = {
@@ -206,7 +208,7 @@ const RenderMessages = ({ message }) => {
                       getDataToString(item.content)
                     );
                     showNotification({
-                      content: "Copied to clipboard",
+                      content: "Code copied",
                     });
                   }}
                 >
@@ -368,7 +370,7 @@ const RenderMessages = ({ message }) => {
                         onClick={() => {
                           navigator.clipboard.writeText(item.content);
                           showNotification({
-                            content: "Link copied to clipboard",
+                            content: "Html copied",
                           });
                         }}
                       >

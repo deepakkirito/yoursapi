@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import AddProject from "../../../project/addProject";
 import {
   checkProjectExistApi,
   getSingleProjectApi,
@@ -30,13 +29,11 @@ import { catchError } from "@/utilities/helpers/functions";
 import { CheckUsernameApi } from "@/utilities/api/authApi";
 import { updateUserApi } from "@/utilities/api/userApi";
 import { useRouter } from "next/navigation";
-import {
-  CreateNavTitleContext,
-  NavTitleContext,
-} from "@/utilities/context/navTitle";
+import { CreateNavTitleContext } from "@/utilities/context/navTitle";
 import useCustomWindow from "@/utilities/helpers/hooks/window";
+import AddProject from "../../project/addProject";
 
-const Navbar = ({ shared = false }) => {
+const Navbar = ({ shared = false, endpoint = "", query = false }) => {
   const { popup, setPopup } = useContext(CreatePopupContext);
   const location = usePathname();
   const router = useRouter();
@@ -59,15 +56,14 @@ const Navbar = ({ shared = false }) => {
   const [apiExists, setApiExists] = useState(null);
   const [apiName, setApiName] = useState("");
   const searchparams = useSearchParams();
-  const api = searchparams.get("api");
   const apiId = searchparams.get("id");
   const { setNavTitle } = useContext(CreateNavTitleContext);
-  const nextWindow = useCustomWindow();
+  const window = useCustomWindow();
 
   useEffect(() => {
     if (apiData?.label) {
       router.push(
-        `/projects/${shared ? "shared/" : ""}${projectId}/data?api=${apiData.label}&id=${apiData.value}`,
+        `/projects/${shared ? "shared/" : ""}${projectId}/${endpoint}${query ? `?api=${apiData.label}&id=${apiData.value}` : ""}`,
         undefined,
         {
           shallow: true,
@@ -259,23 +255,43 @@ const Navbar = ({ shared = false }) => {
   };
 
   return (
-    <Grid2 container alignItems={"center"} spacing={2}>
-      <Grid2 item size={{ xs: 1 }}>
-        <Typography
-          variant="h6"
-          sx={{
-            width: "max-content",
-          }}
-        >
-          Your Api:
-        </Typography>
-      </Grid2>
+    <Grid2
+      container
+      alignItems={"center"}
+      spacing={2}
+      sx={{
+        backgroundColor: "background.foreground",
+        borderBottom: "0.2rem solid",
+        borderColor: "background.default",
+        padding: "1rem",
+        position: {
+          lg: "sticky",
+          xs: "relative",
+        },
+        top: "0",
+        zIndex: "5",
+        width: "100%",
+        borderRadius: "0.5rem 0.5rem 0 0",
+      }}
+    >
+      {loading && (
+        <Grid2 item size={{ xs: 1.5 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              width: "max-content",
+            }}
+          >
+            Your Api:
+          </Typography>
+        </Grid2>
+      )}
       {loading ? (
         <CircularProgress color="secondary" size={24} />
       ) : (
         <Grid2
           item
-          size={{ xs: 12, md: 8 }}
+          size={{ xs: 12, md: query ? 10 : 12 }}
           sx={{
             "& .MuiInputBase-input": {
               padding: "0.5rem 0rem 0.5rem 1rem !important",
@@ -291,7 +307,17 @@ const Navbar = ({ shared = false }) => {
               },
             }}
           >
-            <Typography>{nextWindow?.location.origin}/</Typography>
+            <Typography
+              variant="h6"
+              className="pr-2"
+              sx={{
+                minWidth: "max-content",
+                maxWidth: "-webkit-fill-available",
+              }}
+            >
+              Your Api:
+            </Typography>
+            <Typography>{window?.location.origin}/</Typography>
             <CustomInput
               fullWidth
               value={username}
@@ -433,7 +459,7 @@ const Navbar = ({ shared = false }) => {
               <IconButton
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    `${nextWindow?.location.origin}/${username}/${project}/${apiData.label}`
+                    `${window?.location.origin}/${username}/${project}/${apiData.label}`
                   );
                   showNotification({
                     content: "Link copied to clipboard",
@@ -446,10 +472,10 @@ const Navbar = ({ shared = false }) => {
           </Box>
         </Grid2>
       )}
-      {!loading && (
+      {query && !loading && (
         <Grid2
           item
-          size={{ xs: 3 }}
+          size={{ xs: 2 }}
           sx={{
             display: "flex",
             justifyContent: "end",

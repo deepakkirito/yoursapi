@@ -1,21 +1,17 @@
 "use client";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import style from "./style.module.scss";
 import {
   getDatabaseInfoApi,
   saveDBStringApi,
 } from "@/utilities/api/databaseApi";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SaveDatabase from "./save";
 import DatabaseDetails from "./details";
 import { catchError } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
 import { decrypt } from "@/utilities/helpers/encryption";
+import { CreateAlertContext } from "@/utilities/context/alert";
 
 const DataBase = () => {
   const [{ dbString, saveInternal, saveExternal, apiDatabase }, setData] =
@@ -27,11 +23,12 @@ const DataBase = () => {
     });
   const [loading, setLoading] = useState(true);
   const [buttonLoading, setButtonLoading] = useState(false);
+  const { alert, setAlert } = useContext(CreateAlertContext);
 
   useEffect(() => {
     getDatabaseInfo({ load: true });
   }, []);
-  
+
   const getDatabaseInfo = async ({ load }) => {
     setLoading(load);
     await getDatabaseInfoApi()
@@ -80,35 +77,43 @@ const DataBase = () => {
         className={style.DataBase}
         sx={{
           borderRadius: "1rem",
-          border: "1rem solid",
+          border: "0.2rem solid",
           borderColor: "background.default",
           boxShadow: "0 0 1rem background.default",
-          outline: "2px solid",
-          outlineColor: "background.inactive",
         }}
       >
         <Box
           className="flex items-center justify-between"
           sx={{
             backgroundColor: "background.foreground",
-            borderBottom: "1rem solid",
+            borderBottom: "0.2rem solid",
             borderColor: "background.default",
-            padding: "1rem",
+            padding: "0.5rem 1rem",
             position: "sticky",
             top: "0",
             zIndex: "5",
+            borderRadius: "1rem 1rem 0 0",
           }}
         >
           <Typography className="heading">Database Settings</Typography>
           {dbString && (
             <Button
               variant="contained"
-              onClick={handleDisconnect}
+              onClick={() => {
+                setAlert({
+                  open: true,
+                  title: "Are you Sure?",
+                  content: "Data will stop saving to your database",
+                  handleSuccess: () => handleDisconnect(),
+                  handleClose: () =>
+                    setAlert({
+                      open: false,
+                    }),
+                });
+              }}
               disabled={buttonLoading}
               endIcon={
-                buttonLoading && (
-                  <CircularProgress color="loading" size={24} />
-                )
+                buttonLoading && <CircularProgress color="loading" size={24} />
               }
               sx={{
                 backgroundColor: "status.red",
@@ -123,9 +128,10 @@ const DataBase = () => {
           className="p-4"
           sx={{
             backgroundColor: "background.foreground",
+            borderRadius: "0 0 1rem 1rem",
           }}
         >
-          <Box className="min-h-[calc(100vh-17rem)] max-h-[calc(100vh-17rem)] overflow-y-auto">
+          <Box className="min-h-[calc(100vh-13.7rem)] max-h-[calc(100vh-13.7rem)] overflow-y-auto">
             {loading ? (
               <Box className="flex justify-center items-center transform translate-y-[15rem]">
                 <CircularProgress color="secondary" size={24} />
@@ -138,7 +144,7 @@ const DataBase = () => {
                   />
                 )}
                 {console.log(dbString)}
-                
+
                 {dbString && (
                   <DatabaseDetails
                     dbString={dbString}

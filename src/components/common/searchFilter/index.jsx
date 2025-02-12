@@ -21,7 +21,7 @@ const SearchFilter = ({
       sx={{
         backgroundColor: "background.default",
         borderRadius: "0.5rem",
-        padding: "0.5rem 1rem",
+        padding: "0.5rem",
         alignItems: "center",
       }}
     >

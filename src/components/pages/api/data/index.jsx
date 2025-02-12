@@ -1,18 +1,18 @@
 "use client";
 import { Box, CircularProgress, Grid2 } from "@mui/material";
-import DataContent from "./content";
-import Navbar from "./navbar";
+import DataContent from "../dataContent";
 import ContentBar from "@/components/common/contentBar";
-import { use, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Settings from "./settings";
 import { getApiDetailsApi, updateApiDataApi } from "@/utilities/api/apiApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { catchError, getDataToString } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
-import Schema from "./schema";
 import CustomData from "./customData";
 import AI from "./ai";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import Navbar from "../navbar";
+import Schema from "../schema";
 
 const DataApi = ({ shared = false }) => {
   const project = useLocalStorage("project", "");
@@ -127,32 +127,14 @@ const DataApi = ({ shared = false }) => {
       <Box
         sx={{
           borderRadius: "1rem",
-          border: "0.5rem solid",
+          border: "0.2rem solid",
           borderColor: "background.default",
           boxShadow: "0 0 1rem background.default",
-          outline: "2px solid",
-          outlineColor: "background.inactive",
           height: "100%",
+          backgroundColor: "background.foreground",
         }}
       >
-        <Box
-          sx={{
-            backgroundColor: "background.foreground",
-            borderBottom: "0.2rem solid",
-            borderColor: "background.default",
-            padding: "1rem",
-            position: {
-              lg: "sticky",
-              xs: "relative",
-            },
-            top: "0",
-            zIndex: "5",
-            width: "100%",
-            borderRadius: "0.5rem",
-          }}
-        >
-          <Navbar shared={shared} />
-        </Box>
+        <Navbar shared={shared} endpoint="data" query={true} />
         <Grid2
           container
           spacing={2}
@@ -160,9 +142,11 @@ const DataApi = ({ shared = false }) => {
             padding: "1rem",
             overflow: "auto",
             height: {
-              lg: "calc(100vh - 13rem)",
+              lg: "calc(100vh - 12.3rem)",
               xs: "100%",
             },
+
+            borderRadius: "0 0 0.5rem 0.5rem",
           }}
         >
           <Grid2

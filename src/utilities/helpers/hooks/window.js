@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 
 const useCustomWindow = () => {
   const pathname = usePathname();
-  const [nextWindow, setWindow] = useState(null);
+  const [nextWindow, setNextWindow] = useState(typeof window !== "undefined" ? window : null);
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const nextWindow = window;
-      setWindow(nextWindow);
+    if (!nextWindow && typeof window !== "undefined") {
+      setNextWindow(window);
     }
-  }, [pathname]);
+  }, [pathname, nextWindow]);
 
   return nextWindow;
 };

@@ -46,8 +46,8 @@ const projectList = [
     icon: <SpaceDashboardRoundedIcon color="secondary" />,
   },
   {
-    link: "login",
-    name: "Login Api",
+    link: "auth",
+    name: "Auth Api",
     icon: <AccountTreeRoundedIcon color="secondary" />,
   },
   {

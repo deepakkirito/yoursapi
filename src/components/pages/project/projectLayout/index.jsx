@@ -46,6 +46,7 @@ import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
 import DrawRoundedIcon from "@mui/icons-material/DrawRounded";
 import CustomInput from "@/components/common/customTextField";
 import { CreateAlertContext } from "@/utilities/context/alert";
+import useCustomWindow from "@/utilities/helpers/hooks/window";
 
 const ProjectLayout = ({
   getApi,
@@ -73,6 +74,7 @@ const ProjectLayout = ({
   const [projectName, setProjectName] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
   const [showEdit, setShowEdit] = useState("");
+  const window = useCustomWindow();
 
   useEffect(() => {
     !popup.open && getProject();
@@ -213,22 +215,22 @@ const ProjectLayout = ({
         className={style.ProjectLayout}
         sx={{
           borderRadius: "1rem",
-          border: "1rem solid",
+          border: "0.2rem solid",
           borderColor: "background.default",
-          outline: "2px solid",
-          outlineColor: "background.inactive",
+          backgroundColor: "background.foreground",
         }}
       >
         <Box
           className="flex items-center justify-between"
           sx={{
             backgroundColor: "background.foreground",
-            borderBottom: "1rem solid",
+            borderBottom: "0.2rem solid",
             borderColor: "background.default",
-            padding: "1rem",
+            padding: "0.5rem 1rem",
             position: "sticky",
             top: "0",
             zIndex: "5",
+            borderRadius: "1rem 1rem 0 0",
           }}
         >
           <Typography className="heading">{title}</Typography>
@@ -251,9 +253,9 @@ const ProjectLayout = ({
           )}
         </Box>
         <Box
-          className="p-4"
+          className="py-2 px-2"
           sx={{
-            backgroundColor: "background.foreground",
+            borderRadius: "0 0 1rem 1rem",
           }}
         >
           <Box>
@@ -274,20 +276,22 @@ const ProjectLayout = ({
               }}
             />
           </Box>
-          <Box className="min-h-[calc(100vh-24.9rem)]">
+          <Box
+            className={`min-h-[calc(100vh-${projects?.length ? "20.4" : "17"}rem)]`}
+          >
             {pageLoading ? (
-              <Box className="flex justify-center items-center min-h-[calc(100vh-21.5rem)]">
+              <Box className="flex justify-center items-center min-h-[calc(100vh-16.2rem)]">
                 <CircularProgress size={24} color="secondary" />
               </Box>
             ) : (
               <Grid2
                 container
                 spacing={4}
-                className="items-center p-4 max-h-[calc(100vh-25.5rem)] overflow-auto"
+                className="items-center p-4 min-h-[calc(100vh-19.4rem)] max-h-[calc(100vh-19.4rem)] overflow-auto"
               >
                 {!projects?.length ? (
                   <Grid2 item size={{ xs: 12 }}>
-                    <Box className="flex flex-col items-center justify-center">
+                    <Box className="flex flex-col items-center justify-center py-8">
                       <Image
                         src={NotFound}
                         alt="no project"
@@ -482,10 +486,12 @@ const ProjectLayout = ({
                                           open: true,
                                           title: "Are you Sure?",
                                           content: alertContent,
-                                          handleSuccess: () => handleDelete(item._id),
-                                          handleClose: () => setAlert({
-                                            open: false,
-                                          }),
+                                          handleSuccess: () =>
+                                            handleDelete(item._id),
+                                          handleClose: () =>
+                                            setAlert({
+                                              open: false,
+                                            }),
                                         });
                                       }}
                                     >

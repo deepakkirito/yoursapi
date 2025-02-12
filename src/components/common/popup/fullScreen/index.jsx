@@ -95,6 +95,7 @@ const FullScreenPopup = () => {
                   className={style.projectImage}
                   sx={{
                     background: `url(${popup?.image?.src || CreateImage.src})`,
+                    borderRadius: "100rem",
                     a: {
                       color: "text.primary",
                     },

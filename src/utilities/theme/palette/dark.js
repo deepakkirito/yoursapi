@@ -21,11 +21,11 @@ export const dark = {
     contrastText: "#616161",
   },
   background: {
-    default: "#00304f70",
+    default: "#00304f80",
     defaultSolid: "#00304f",
     defaultLinear: "linear-gradient(to right, #00142a, #013b61)",
     login: "rgba(0 0 0/ 0.4)",
-    foreground: "#01476e80",
+    foreground: "#01476e90",
     invert: "#01476e",
     input: "#e8f0ff",
     active: "#00304f70",

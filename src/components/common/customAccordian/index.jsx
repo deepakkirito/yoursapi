@@ -45,9 +45,8 @@ const AccordionSummary = styled((props) => (
 
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
-  borderTop: `1px solid ${theme.palette.background.foreground}`,
-  borderBottom: `1px solid ${theme.palette.background.foreground}`,
-  backgroundColor: theme.palette.background.default,
+  border: `2px solid ${theme.palette.background.defaultSolid}`,
+  backgroundColor: theme.palette.background.invert,
   borderRadius: "0.5rem",
 }));
 
