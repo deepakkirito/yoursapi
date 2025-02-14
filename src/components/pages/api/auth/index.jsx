@@ -97,7 +97,6 @@ const AuthApi = ({ shared = false }) => {
         getAuthApiData(projectId.current);
       });
   };
-  console.log(authData);
 
   return (
     <Box

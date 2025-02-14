@@ -24,7 +24,12 @@ const AI = ({ schema, id }) => {
     []
   );
   const [loading, setLoading] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState("");
+  const [currentMessage, setCurrentMessage] = useState([
+    {
+      type: "text",
+      content: "",
+    },
+  ]);
 
   const handleSubmitSchema = async () => {
     const convertedData = getDataToString([
@@ -58,7 +63,7 @@ const AI = ({ schema, id }) => {
     };
     await postDataAiApi(body)
       .then((res) => {
-        setCurrentMessage("");
+        setCurrentMessage([{ type: "text", content: "" }]);
         setMessages([
           ...messages,
           { role: "user", content: custom || currentMessage },
@@ -125,9 +130,11 @@ const AI = ({ schema, id }) => {
             rows={4}
             formfullwidth={true}
             onChange={(event) => {
-              setCurrentMessage(event.target.value.toString());
+              setCurrentMessage([
+                { type: "text", content: event.target.value.toString() },
+              ]);
             }}
-            value={currentMessage}
+            value={currentMessage[0].content}
           />
           <Button variant="contained" onClick={handleGeneratedData}>
             send
@@ -181,12 +188,14 @@ const AI = ({ schema, id }) => {
             formfullwidth={true}
             paddingLeft="1rem"
             onChange={(event) => {
-              setCurrentMessage(String(event.target.value));
+              setCurrentMessage([
+                { type: "text", content: String(event.target.value) },
+              ]);
             }}
             minRows={1}
             maxRows={6}
             autoFocus={true}
-            value={currentMessage}
+            value={currentMessage[0].content}
             multiline={true}
             formSx={{
               "& .MuiInputBase-input": {
@@ -197,7 +206,7 @@ const AI = ({ schema, id }) => {
           <Box className="flex gap-2 items-center justify-center mb-0.5">
             <Button
               variant="contained"
-              disabled={currentMessage === "" || loading}
+              disabled={currentMessage.content === "" || loading}
               endIcon={
                 loading && <CircularProgress size={16} color="secondary" />
               }

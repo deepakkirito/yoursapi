@@ -8,25 +8,36 @@ const CustomInput = ({
   formRequired,
   formClassName,
   type = "text",
-  paddingLeft = "0rem",
   formSX = {}, 
+  autoComplete, 
+  name,
   ...props
 }) => {
   return (
     <FormControl
-      required={props.required}
+      required={formRequired}
       fullWidth={formfullwidth}
       error={formError}
       className={formClassName}
       sx={{
-        // "& .MuiInputBase-input": {
-        //   padding: "0.7rem 1rem 0.7rem " + paddingLeft,
-        // },
         ...formSX,
       }}
     >
-      <FormLabel className="mb-1">{formLabel}</FormLabel>
-      <TextField type={type} {...props} />
+      {/* Label for better association */}
+      <FormLabel htmlFor={name} className="mb-1">
+        {formLabel}
+      </FormLabel>
+
+      {/* ✅ Pass autoComplete inside both TextField and inputProps */}
+      <TextField
+        id={name}
+        name={name}
+        type={type}
+        autoComplete={autoComplete}
+        inputProps={{ autoComplete }} // Ensures browser picks it up
+        {...props}
+      />
+
       {children}
     </FormControl>
   );
