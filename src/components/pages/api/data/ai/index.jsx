@@ -206,7 +206,7 @@ const AI = ({ schema, id }) => {
           <Box className="flex gap-2 items-center justify-center mb-0.5">
             <Button
               variant="contained"
-              disabled={currentMessage.content === "" || loading}
+              disabled={currentMessage[0].content === "" || loading}
               endIcon={
                 loading && <CircularProgress size={16} color="secondary" />
               }
