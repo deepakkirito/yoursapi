@@ -138,11 +138,11 @@ const MessageContent = ({ item }) => {
   switch (item.type) {
     case "text":
       return <MarkdownContent>{item.content}</MarkdownContent>;
+    case "objectArray":
     case "json":
     case "code":
     case "object":
     case "array":
-    case "objectArray":
       return <CodeBlock content={getDataToString(item.content)} />;
     case "html":
       return <HtmlPreview content={item.content} />;
