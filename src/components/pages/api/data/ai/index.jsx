@@ -1,113 +1,109 @@
-import {
-  aiSizeOptions,
-  sizeOptions,
-} from "@/components/assets/constants/customData";
-import CustomAiResponse from "@/components/common/customAiResponse";
-import CustomSelect from "@/components/common/customSelect";
-import CustomInput from "@/components/common/customTextField";
-import { showNotification } from "@/components/common/notification";
-import { postDataAiApi, postExampleAiApi } from "@/utilities/api/aiApi";
-import {
-  catchError,
-  getDataToString,
-  scrollToTarget,
-} from "@/utilities/helpers/functions";
-import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import { useEffect, useState } from "react";
 import { Box, Button, CircularProgress, Divider } from "@mui/material";
-import { useState } from "react";
+import CustomInput from "@/components/common/customTextField";
+import CustomSelect from "@/components/common/customSelect";
+import NewCustomAiResponse from "@/components/common/customAiResponse/new";
+import { showNotification } from "@/components/common/notification";
+import { postExampleAiApi } from "@/utilities/api/aiApi";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import socket from "@/utilities/helpers/socket";
+import { aiSizeOptions } from "@/components/assets/constants/customData";
+import { catchError } from "@/utilities/helpers/functions";
 
 const AI = ({ schema, id }) => {
   const [selectedDataSize, setSelectedDataSize] = useState("10");
   const [project, setProject] = useLocalStorage("project", "");
-  const [messages, setMessages] = useLocalStorage(
-    `datamessages_${project}`,
-    []
-  );
+  const [messages, setMessages] = useLocalStorage(`datamessages_${project}`, []);
   const [loading, setLoading] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState([
-    {
-      type: "text",
-      content: "",
-    },
-  ]);
+  const [currentMessage, setCurrentMessage] = useState("");
+  const [latestMessage, setLatestMessage] = useState({ role: "system", content: "" });
+  const [sendMessage, setSendMessage] = useState("");
 
-  const handleSubmitSchema = async () => {
-    const convertedData = getDataToString([
-      {
-        type: "text",
-        content: `Generate atleast ${selectedDataSize} data according to this schema: `,
-      },
-      {
-        type: "object",
-        content: schema,
-      },
-    ]);
-
-    setMessages([
-      ...messages,
-      {
-        role: "user",
-        content: convertedData,
-      },
-    ]);
-    setLoading(true);
-    scrollToTarget(`loading`);
-    await postMessage({
-      custom: convertedData,
-    });
-  };
-
-  const postMessage = async ({ custom = "" }) => {
-    const body = {
-      data: [...messages, { role: "user", content: custom || currentMessage }],
+  // Effect to handle incoming AI message chunks
+  useEffect(() => {
+    const handleAiMessage = (chunk) => {
+      setLatestMessage((prev) => ({
+        content: prev.content + chunk.content,
+        role: "system",
+      }));
     };
-    await postDataAiApi(body)
-      .then((res) => {
-        setCurrentMessage([{ type: "text", content: "" }]);
-        setMessages([
-          ...messages,
-          { role: "user", content: custom || currentMessage },
-          { role: "system", content: res.data },
-        ]);
-      })
-      .catch((err) => {
-        console.log(err);
-        catchError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-        scrollToTarget(`message-${messages.length}`);
-      });
-  };
 
-  const handleGeneratedData = async () => {
-    setLoading(true);
-    setMessages([
-      ...messages,
-      {
-        role: "user",
-        content: currentMessage,
-      },
-    ]);
-    scrollToTarget(`loading`);
-    await postMessage({
-      custom: "",
-    });
-  };
+    socket.on("ai-message", handleAiMessage);
 
+    return () => {
+      socket.off("ai-message", handleAiMessage);
+    };
+  }, []);
+
+  // Effect to handle when the AI message is complete
+  useEffect(() => {
+    const handleAiMessageEnd = () => {
+      // Add the completed AI message to the messages array
+      setMessages((prevMessages) => [...prevMessages, latestMessage]);
+      setLoading(false);
+      setCurrentMessage("");
+      setLatestMessage({ role: "system", content: "" });
+    };
+
+    socket.once("ai-message-end", handleAiMessageEnd);
+
+    return () => {
+      socket.off("ai-message-end", handleAiMessageEnd);
+    };
+  }, [latestMessage, setMessages]);
+
+  // Handle the save example button click
   const handleSaveExample = async () => {
-    const body = {
-      data: messages,
-    };
-    await postExampleAiApi(body)
-      .then((res) => {
-        showNotification({
-          content: res.data.message,
-        });
-      })
-      .catch((err) => {
-        catchError(err);
+    try {
+      const body = { data: messages };
+      const res = await postExampleAiApi(body);
+      showNotification({ content: res.data.message });
+    } catch (err) {
+      catchError(err);
+    }
+  };
+
+  // Handle sending user message
+  const handleSendMessage = () => {
+    if (currentMessage.trim()) {
+      const newUserMessage = { role: "user", content: currentMessage };
+
+      // Add the user message to messages first (use functional update to avoid stale state)
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages, newUserMessage];
+
+        // Emit the user message to AI immediately after updating the message array
+        socket.emit("ai-message", { data: updatedMessages });
+
+        return updatedMessages;
       });
+
+      setSendMessage(currentMessage);
+      setLoading(true);
+    }
+  };
+
+  // Handle schema generation request
+  const handleGenerateDataFromSchema = () => {
+    if (schema) {
+      const dataRequest = `Generate at least ${selectedDataSize} data according to this schema: ${JSON.stringify(schema, null, 4)}`;
+      const newUserMessage = { role: "user", content: dataRequest };
+
+      // Add the schema generation request to the messages array
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages, newUserMessage];
+
+        // Send the message to AI
+        socket.emit("ai-message", { data: updatedMessages });
+
+        return updatedMessages;
+      });
+
+      setSendMessage(dataRequest);
+      setLoading(true);
+    } else {
+      showNotification({ content: "No schema found", type: "error" });
+    }
   };
 
   return (
@@ -126,35 +122,21 @@ const AI = ({ schema, id }) => {
           <CustomInput
             label={"Enter your instructions"}
             size="small"
-            multiline="true"
+            multiline
             rows={4}
-            formfullwidth={true}
-            onChange={(event) => {
-              setCurrentMessage([
-                { type: "text", content: event.target.value.toString() },
-              ]);
-            }}
-            value={currentMessage[0].content}
+            formfullwidth
+            onChange={(event) => setCurrentMessage(event.target.value)}
+            value={currentMessage}
           />
-          <Button variant="contained" onClick={handleGeneratedData}>
-            send
-          </Button>
+          <Button variant="contained" onClick={handleSendMessage}>Send</Button>
         </Box>
+
         <Box className="w-[50%]">
           <Divider>or</Divider>
         </Box>
+
         <Box className="flex items-center justify-center gap-4">
-          <Button
-            variant="contained"
-            onClick={() => {
-              schema
-                ? handleSubmitSchema()
-                : showNotification({
-                    content: "No schema found",
-                    type: "error",
-                  });
-            }}
-          >
+          <Button variant="contained" onClick={handleGenerateDataFromSchema}>
             Generate Data from schema
           </Button>
           <CustomSelect
@@ -164,14 +146,14 @@ const AI = ({ schema, id }) => {
             labelTop="Data size"
             value={selectedDataSize}
             none={false}
-            handleChange={(event) => {
-              setSelectedDataSize(event.target.value);
-            }}
+            handleChange={(event) => setSelectedDataSize(event.target.value)}
             style={{ width: "min-content !important" }}
           />
         </Box>
       </Box>
-      <CustomAiResponse messages={messages} loading={loading} />
+
+      <NewCustomAiResponse messages={messages} latestMessage={latestMessage} />
+
       {messages?.length > 0 && (
         <Box
           id="ai-input"
@@ -185,18 +167,14 @@ const AI = ({ schema, id }) => {
           <CustomInput
             label={"Enter your instructions"}
             size="small"
-            formfullwidth={true}
+            formfullwidth
             paddingLeft="1rem"
-            onChange={(event) => {
-              setCurrentMessage([
-                { type: "text", content: String(event.target.value) },
-              ]);
-            }}
+            onChange={(event) => setCurrentMessage(event.target.value)}
             minRows={1}
             maxRows={6}
-            autoFocus={true}
-            value={currentMessage[0].content}
-            multiline={true}
+            autoFocus
+            value={currentMessage}
+            multiline
             formSx={{
               "& .MuiInputBase-input": {
                 padding: "0 !important",
@@ -206,29 +184,17 @@ const AI = ({ schema, id }) => {
           <Box className="flex gap-2 items-center justify-center mb-0.5">
             <Button
               variant="contained"
-              disabled={currentMessage[0].content === "" || loading}
-              endIcon={
-                loading && <CircularProgress size={16} color="secondary" />
-              }
+              disabled={!currentMessage || loading}
+              endIcon={loading && <CircularProgress size={16} color="secondary" />}
               className="px-4"
-              onClick={handleGeneratedData}
+              onClick={handleSendMessage}
             >
-              send
+              Send
             </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setMessages([]);
-              }}
-            >
+            <Button variant="contained" onClick={() => setMessages([])}>
               Reset
             </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                handleSaveExample();
-              }}
-            >
+            <Button variant="contained" onClick={handleSaveExample}>
               Save
             </Button>
           </Box>
