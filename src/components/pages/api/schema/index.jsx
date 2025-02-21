@@ -28,8 +28,15 @@ import { catchError, scrollToTarget } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
 import { updateApiSchemaApi } from "@/utilities/api/apiApi";
 import MultiValueTextField from "@/components/common/multiValueTextfield";
+import { updateAuthApi } from "@/utilities/api/authApiApi";
 
-const Schema = ({ data, apiId, refetch = () => {} }) => {
+const Schema = ({
+  data,
+  apiId,
+  refetch = () => {},
+  auth = false,
+  excludeKeyValues = [],
+}) => {
   const [schemaEdit, setSchemaEdit] = useState(false);
   const [schemaKey, setSchemaKey] = useState("");
   const [schemaValue, setSchemaValue] = useState([{ key: "", value: "" }]);
@@ -61,7 +68,8 @@ const Schema = ({ data, apiId, refetch = () => {} }) => {
       schema: Object.keys(schemaLayout)?.length ? schemaLayout : null,
     };
     setLoading(true);
-    await updateApiSchemaApi(apiId, body)
+    const updateSchema = auth ? updateAuthApi : updateApiSchemaApi;
+    await updateSchema(apiId, body)
       .then((res) => {
         showNotification({
           content: res.data.message,
@@ -77,6 +85,16 @@ const Schema = ({ data, apiId, refetch = () => {} }) => {
       });
   };
 
+  const addUpdateSchemaCheck = useMemo(() => {
+    let check = false;
+    schemaValue.forEach((value) => {
+      if (value.key === "" || value.value === "") {
+        check = true;
+      }
+    });
+    return check;
+  }, [schemaValue]);
+
   return (
     <Box>
       <Box className="flex justify-between items-center h-full">
@@ -85,11 +103,7 @@ const Schema = ({ data, apiId, refetch = () => {} }) => {
             variant="contained"
             color="primary"
             size="small"
-            disabled={
-              schemaKey === "" ||
-              schemaValue[0].key === "" ||
-              schemaValue[0].value === ""
-            }
+            disabled={schemaKey === "" || addUpdateSchemaCheck}
             startIcon={<AddIcon />}
             onClick={handleAddSchemaLayout}
           >
@@ -124,6 +138,8 @@ const Schema = ({ data, apiId, refetch = () => {} }) => {
         setSchemaLayout={setSchemaLayout}
         setSchemaValue={setSchemaValue}
         setSchemaKey={setSchemaKey}
+        excludeKeys={Object.keys(excludeKeyValues)}
+        excludeKeyValues={excludeKeyValues}
       />
     </Box>
   );
@@ -139,6 +155,8 @@ const AddSchema = ({
   setSchemaLayout,
   schemaEdit,
   setSchemaEdit,
+  excludeKeys,
+  excludeKeyValues,
 }) => {
   const { theme } = useContext(ThemeContext);
   const [codeValidator, setCodeValidator] = useState([]);
@@ -146,8 +164,14 @@ const AddSchema = ({
 
   const updatedSchemaOptions = useMemo(() => {
     const checkk = schemaValue.map((value) => value.key);
-    return schemaOptions.filter((option) => {
-      return true;
+    return schemaOptions.map((option) => {
+      if (checkk.includes(option.value)) {
+        return {
+          ...option,
+          disabled: true,
+        };
+      }
+      return option;
     });
   }, [schemaOptions, schemaValue]);
 
@@ -159,7 +183,7 @@ const AddSchema = ({
   }, [schemaLayout]);
 
   const getSchemaValueDetails = (index, key) => {
-    const data = schemaOptions.find(
+    const data = updatedSchemaOptions.find(
       (option) => option.value === (key || schemaValue[index].key)
     );
     return {
@@ -206,6 +230,7 @@ const AddSchema = ({
           size="small"
           value={schemaKey}
           paddingLeft="1rem"
+          disabled={excludeKeys.includes(schemaKey)}
           onChange={(event) => setSchemaKey(event.target.value)}
         />
         <Box className="w-[100%] flex justify-between items-center gap-4 flex-col">
@@ -232,6 +257,7 @@ const AddSchema = ({
                     none={false}
                     options={updatedSchemaOptions}
                     value={value.key}
+                    disabled={excludeKeyValues[schemaKey]?.includes(value.key)}
                     onChange={(event) => {
                       const { default: defaultValue } = getSchemaValueDetails(
                         index,
@@ -258,6 +284,9 @@ const AddSchema = ({
                         size="small"
                         value={value.value}
                         paddingLeft="1rem"
+                        disabled={excludeKeyValues[schemaKey]?.includes(
+                          value.key
+                        )}
                         onChange={(event) =>
                           setSchemaValue([
                             ...schemaValue.map((item, i) =>
@@ -273,6 +302,9 @@ const AddSchema = ({
                     <MultiValueTextField
                       label="Value"
                       placeholder="Type and press Enter"
+                      disabled={excludeKeyValues[schemaKey]?.includes(
+                        value.key
+                      )}
                       onChange={(values) =>
                         setSchemaValue([
                           ...schemaValue.map((item, i) =>
@@ -291,6 +323,9 @@ const AddSchema = ({
                       paddingLeft="1rem"
                       none={false}
                       options={options}
+                      disabled={excludeKeyValues[schemaKey]?.includes(
+                        value.key
+                      )}
                       value={value.value || defaultValue}
                       onChange={(event) =>
                         setSchemaValue([
@@ -307,7 +342,9 @@ const AddSchema = ({
                     {index === schemaValue.length - 1 && (
                       <IconButton
                         disabled={
-                          schemaValue[index].key === "" || schemaKey === ""
+                          schemaValue[index].key === "" ||
+                          schemaKey === "" ||
+                          schemaValue[index].value === ""
                         }
                         onClick={() => {
                           setSchemaValue([
@@ -319,17 +356,18 @@ const AddSchema = ({
                         <AddIcon />
                       </IconButton>
                     )}
-                    {schemaValue.length !== 1 && (
-                      <IconButton
-                        onClick={() => {
-                          setSchemaValue([
-                            ...schemaValue.filter((_, i) => i !== index),
-                          ]);
-                        }}
-                      >
-                        <Delete color="error" />
-                      </IconButton>
-                    )}
+                    {!excludeKeyValues[schemaKey]?.includes(value.key) &&
+                      schemaValue.length !== 1 && (
+                        <IconButton
+                          onClick={() => {
+                            setSchemaValue([
+                              ...schemaValue.filter((_, i) => i !== index),
+                            ]);
+                          }}
+                        >
+                          <Delete color="error" />
+                        </IconButton>
+                      )}
                   </div>
                 </Box>
                 {schemaValue[index].key && (
@@ -412,11 +450,15 @@ const AddSchema = ({
                           <Edit />
                         </IconButton>
                       </TooltipCustom>
-                      <TooltipCustom title="Delete" placement="top">
-                        <IconButton onClick={() => handleDeleteSchema(schema)}>
-                          <Delete color="error" />
-                        </IconButton>
-                      </TooltipCustom>
+                      {!excludeKeys.includes(schema) && (
+                        <TooltipCustom title="Delete" placement="top">
+                          <IconButton
+                            onClick={() => handleDeleteSchema(schema)}
+                          >
+                            <Delete color="error" />
+                          </IconButton>
+                        </TooltipCustom>
+                      )}
                     </Box>
                   </Box>
                   <Box className="w-[100%] flex justify-between items-center gap-4 flex-col">

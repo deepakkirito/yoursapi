@@ -35,7 +35,7 @@ const CustomSelect = ({
   buttonLabel = "",
   handleButton = () => {},
   style = {},
-  size="small",
+  size = "small",
   fullWidth = true,
   ...props
 }) => {
@@ -55,6 +55,12 @@ const CustomSelect = ({
           onChange={handleChange}
           label={labelTop}
           disabled={disabled}
+          sx={{
+            ...props.sx,
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "divider",
+            },
+          }}
           MenuProps={{
             PaperProps: {
               sx: {
@@ -65,7 +71,7 @@ const CustomSelect = ({
                 borderColor: "background.defaultSolid",
                 "& .MuiList-padding": {
                   padding: "0rem",
-                }
+                },
               },
             },
           }}
@@ -78,7 +84,12 @@ const CustomSelect = ({
           )}
           {options.length &&
             options.map((item, index) => (
-              <MenuItemWrapper key={index} value={item.value} name={item.label}>
+              <MenuItemWrapper
+                key={index}
+                value={item.value}
+                name={item.label}
+                disabled={item?.disabled}
+              >
                 {item.label}
               </MenuItemWrapper>
             ))}

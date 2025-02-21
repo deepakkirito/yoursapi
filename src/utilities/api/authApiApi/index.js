@@ -1,7 +1,7 @@
 const { axiosGet, axiosPost, axiosDelete, axiosHead, axiosPut } = require("..");
 
-const getAuthApi = (projectId) => {
-  return axiosGet(`/authapi/${projectId}`);
+const getAuthApi = (projectId, query) => {
+  return axiosGet(`/authapi/${projectId}${query ? `?${query}` : ""}`);
 };
 
 const createAuthApi = (body) => {

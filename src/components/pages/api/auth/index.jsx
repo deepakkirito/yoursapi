@@ -10,6 +10,8 @@ import DataContent from "../dataContent";
 import ContentBar from "@/components/common/contentBar";
 import Schema from "../schema";
 import { showNotification } from "@/components/common/notification";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import Settings from "./settings";
 
 const AuthApi = ({ shared = false }) => {
   const [loading, setLoading] = useState(true);
@@ -19,7 +21,8 @@ const AuthApi = ({ shared = false }) => {
   const [authData, setAuthData] = useState({});
   const [data, setData] = useState("[]");
   const currentData = useRef("");
-  const [open, setOpen] = useState(false);
+  const project = useLocalStorage("project", "");
+  const [open, setOpen] = useLocalStorage(`${project}_open`, false);
   const Items = useMemo(
     () => [
       {
@@ -27,8 +30,13 @@ const AuthApi = ({ shared = false }) => {
         title: "Schema",
         content: (
           <Schema
+            auth={true}
             data={authData.schema}
             apiId={authData._id}
+            excludeKeyValues={{
+              email: ["type", "required"],
+              password: ["type", "required"],
+            }}
             refetch={() => getAuthApiData(projectId.current)}
           />
         ),
@@ -36,7 +44,7 @@ const AuthApi = ({ shared = false }) => {
       {
         id: "settings",
         title: "Settings",
-        content: "settings",
+        content: <Settings data={authData} />,
       },
     ],
     [authData]
@@ -119,7 +127,15 @@ const AuthApi = ({ shared = false }) => {
             <Create projectId={projectId.current} refetch={getAuthApiData} />
           ) : (
             <Box className="w-full h-full">
-              <Navbar shared={shared} endpoint="auth" query={false} />
+              <Navbar
+                shared={shared}
+                endpoint="auth"
+                query={false}
+                auth={{
+                  name: authData?.name,
+                  id: authData?._id,
+                }}
+              />
               <Grid2
                 container
                 spacing={2}

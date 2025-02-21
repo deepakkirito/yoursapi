@@ -32,8 +32,17 @@ import { useRouter } from "next/navigation";
 import { CreateNavTitleContext } from "@/utilities/context/navTitle";
 import useCustomWindow from "@/utilities/helpers/hooks/window";
 import AddProject from "../../project/addProject";
+import { updateAuthApi } from "@/utilities/api/authApiApi";
 
-const Navbar = ({ shared = false, endpoint = "", query = false }) => {
+const Navbar = ({
+  shared = false,
+  endpoint = "",
+  query = false,
+  auth = {
+    name: "",
+    id: "",
+  },
+}) => {
   const { popup, setPopup } = useContext(CreatePopupContext);
   const location = usePathname();
   const router = useRouter();
@@ -59,6 +68,10 @@ const Navbar = ({ shared = false, endpoint = "", query = false }) => {
   const apiId = searchparams.get("id");
   const { setNavTitle } = useContext(CreateNavTitleContext);
   const window = useCustomWindow();
+  const [authData, setAuthData] = useState({
+    name: auth?.name || "",
+    id: auth?.id || "",
+  });
 
   useEffect(() => {
     if (apiData?.label) {
@@ -254,6 +267,24 @@ const Navbar = ({ shared = false, endpoint = "", query = false }) => {
       });
   };
 
+  const handleUpdateAuthApiName = async () => {
+    setSaveApiLoading(true);
+    await updateAuthApi(authData.id, {
+      name: authData.name,
+    })
+      .then(async (res) => {
+        showNotification({
+          content: res.data.message,
+        });
+      })
+      .catch((err) => {
+        catchError(err);
+      })
+      .finally(() => {
+        setSaveApiLoading(false);
+      });
+  };
+
   return (
     <Grid2
       container
@@ -414,8 +445,8 @@ const Navbar = ({ shared = false, endpoint = "", query = false }) => {
             /
             <CustomInput
               fullWidth
-              value={apiName}
-              label="Api"
+              value={auth?.name ? authData.name : apiName}
+              label={auth?.name ? "Auth api" : "Api"}
               InputLabelProps={{ shrink: true }}
               disabled={saveApiLoading}
               slotProps={{
@@ -429,10 +460,14 @@ const Navbar = ({ shared = false, endpoint = "", query = false }) => {
                           disabled={
                             saveApiLoading ||
                             apiExists ||
-                            apiName === apiData.label
+                            (auth?.name
+                              ? auth.name === authData.name
+                              : apiName === apiData.label)
                           }
                           onClick={() => {
-                            handleUpdateApiName();
+                            auth?.name
+                              ? handleUpdateAuthApiName()
+                              : handleUpdateApiName();
                           }}
                           sx={{
                             "&.Mui-disabled": {
@@ -452,7 +487,9 @@ const Navbar = ({ shared = false, endpoint = "", query = false }) => {
                 },
               }}
               onChange={(event) => {
-                setApiName(event.target.value);
+                auth?.name
+                  ? setAuthData({ ...authData, name: event.target.value })
+                  : setApiName(event.target.value);
               }}
             />
             <TooltipCustom title="Copy Link">

@@ -34,7 +34,12 @@ const CustomInput = ({
         name={name}
         type={type}
         autoComplete={autoComplete}
-        inputProps={{ autoComplete }} // Ensures browser picks it up
+        sx={{
+          ...props.sx,
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "divider",
+          },
+        }}
         {...props}
       />
 
