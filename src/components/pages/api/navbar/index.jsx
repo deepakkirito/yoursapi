@@ -370,10 +370,10 @@ const Navbar = ({
           size={{
             xs: 12,
             md: query
-              ? apiId || !query
+              ? (apiId || !query) && !shared
                 ? 9.5
                 : 10
-              : apiId || !query
+              : (apiId || !query) && !shared
                 ? 11.5
                 : 12,
           }}
@@ -618,15 +618,15 @@ const Navbar = ({
           />
         </Grid2>
       )}
-      <Grid2
-        item
-        size={{ xs: 6, md: apiId || !query ? 0.5 : 0 }}
-        sx={{
-          display: "flex",
-          justifyContent: "end",
-        }}
-      >
-        {(apiId || !query) && !shared && !loading && (
+      {(apiId || !query) && !shared && !loading && (
+        <Grid2
+          item
+          size={{ xs: 6, md: 0.5 }}
+          sx={{
+            display: "flex",
+            justifyContent: "end",
+          }}
+        >
           <IconButton
             disabled={deleteLoading}
             onClick={() => {
@@ -651,8 +651,8 @@ const Navbar = ({
               <DeleteRounded color="error" />
             )}
           </IconButton>
-        )}
-      </Grid2>
+        </Grid2>
+      )}
     </Grid2>
   );
 };
