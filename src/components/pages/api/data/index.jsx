@@ -20,7 +20,7 @@ const DataApi = ({ shared = false }) => {
   const searchparams = useSearchParams();
   const [open, setOpen] = useLocalStorage(`${project}_open`, false);
   const [data, setData] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const id = searchparams.get("id");
   const currentData = useRef("");
   const [apiData, setApiData] = useState({});
