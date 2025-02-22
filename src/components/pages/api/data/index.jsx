@@ -14,6 +14,8 @@ import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import Navbar from "../navbar";
 import Schema from "../schema";
 import Details from "../details";
+import Lottie from "react-lottie";
+import CreateApi from "@/components/assets/json/createApi.json";
 
 const DataApi = ({ shared = false }) => {
   const project = useLocalStorage("project", "");
@@ -159,9 +161,22 @@ const DataApi = ({ shared = false }) => {
             {loading ? (
               <CircularProgress color="secondary" size={24} />
             ) : (
-              <Typography variant="h6">
-                Create your first api to get started
-              </Typography>
+              <>
+                {/* <Typography variant="h4" sx={{
+                  transform: "translateY(100%)"
+                }}>
+                  Create your first api to get started
+                </Typography> */}
+                <Lottie
+                  options={{
+                    animationData: CreateApi,
+                    loop: true,
+                    autoPlay: true,
+                  }}
+                  height={"100%"}
+                  width={"100%"}
+                />
+              </>
             )}
           </div>
         ) : (
