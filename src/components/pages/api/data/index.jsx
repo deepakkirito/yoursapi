@@ -20,7 +20,7 @@ const DataApi = ({ shared = false }) => {
   const searchparams = useSearchParams();
   const [open, setOpen] = useLocalStorage(`${project}_open`, false);
   const [data, setData] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const id = searchparams.get("id");
   const currentData = useRef("");
   const [apiData, setApiData] = useState({});
@@ -156,9 +156,13 @@ const DataApi = ({ shared = false }) => {
         />
         {!id ? (
           <div className="flex flex-col items-center justify-center h-[calc(100vh-12.3rem)] gap-4">
-            <Typography variant="h6">
-              Create your first api to get started
-            </Typography>
+            {loading ? (
+              <CircularProgress color="secondary" size={24} />
+            ) : (
+              <Typography variant="h6">
+                Create your first api to get started
+              </Typography>
+            )}
           </div>
         ) : (
           <Grid2
