@@ -367,7 +367,16 @@ const Navbar = ({
       ) : (
         <Grid2
           item
-          size={{ xs: 12, md: query ? 9.5 : 11.5 }}
+          size={{
+            xs: 12,
+            md: query
+              ? apiId || !query
+                ? 9.5
+                : 10
+              : apiId || !query
+                ? 11.5
+                : 12,
+          }}
           sx={{
             "& .MuiInputBase-input": {
               padding: "0.5rem 0rem 0.5rem 1rem !important",
@@ -611,7 +620,7 @@ const Navbar = ({
       )}
       <Grid2
         item
-        size={{ xs: 6, md: 0.5 }}
+        size={{ xs: 6, md: apiId || !query ? 0.5 : 0 }}
         sx={{
           display: "flex",
           justifyContent: "end",
