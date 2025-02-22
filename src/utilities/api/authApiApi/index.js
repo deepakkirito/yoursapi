@@ -12,4 +12,8 @@ const updateAuthApi = (id, body) => {
   return axiosPut(`/authapi/${id}`, body);
 };
 
-export { getAuthApi, createAuthApi, updateAuthApi };
+const deleteAuthApi = (id) => {
+  return axiosDelete(`/authapi/${id}`);
+};
+
+export { getAuthApi, createAuthApi, updateAuthApi, deleteAuthApi };

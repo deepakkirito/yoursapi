@@ -1,4 +1,4 @@
-const { axiosHead, axiosGet, axiosPost, axiosPut } = require("..");
+const { axiosHead, axiosGet, axiosPost, axiosPut, axiosDelete } = require("..");
 
 const checkApiExistApi = (projectId, apiName) => {
   return axiosHead(`/api/${projectId}/${apiName}`);
@@ -28,6 +28,10 @@ const updateApiSchemaApi = (apiId, body) => {
   return axiosPut(`/api/schema/${apiId}`, body);
 };
 
+const deleteApiApi = (apiId) => {
+  return axiosDelete(`/api/${apiId}`);
+};
+
 export {
   checkApiExistApi,
   getApiDetailsApi,
@@ -36,4 +40,5 @@ export {
   updateApiDataApi,
   updateApiStatusApi,
   updateApiSchemaApi,
+  deleteApiApi
 };

@@ -1,13 +1,14 @@
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useState } from "react";
 
-const CustomToggle = ({ options, value, handleChange = () => {} }) => {
+const CustomToggle = ({ options, value, handleChange = () => {}, disabled }) => {
   const [selected, setSelected] = useState(value);
 
   return (
     <ToggleButtonGroup
       value={selected}
       exclusive
+      disabled={disabled}
       onChange={(event, newValue) => {
         setSelected(newValue);
         handleChange(newValue);

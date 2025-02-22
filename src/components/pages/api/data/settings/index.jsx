@@ -14,10 +14,13 @@ import { useState } from "react";
 const Settings = ({
   apiData,
   id,
-  refetch = () => {},
+  refetch = (loading) => {},
   setApiData = () => {},
+  shared = false,
+  permission,
 }) => {
   const [loading, setLoading] = useState({});
+  const getPermission = shared ? permission !== "read" : true;
 
   const toggleOptions = [
     { label: "Active", value: true },
@@ -38,7 +41,7 @@ const Settings = ({
         setApiData({ ...apiData, [key]: { ...apiData[key], active: value } });
       })
       .catch((err) => {
-        refetch();
+        refetch(false);
         catchError(err);
       })
       .finally(() => {
@@ -49,7 +52,15 @@ const Settings = ({
   return (
     <Grid2 container spacing={2}>
       {Object.keys(apiData).map((key, index) => {
-        if (key !== "schema") {
+        if (
+          [
+            "getRequest",
+            "postRequest",
+            "putRequest",
+            "deleteRequest",
+            "headRequest",
+          ].includes(key)
+        ) {
           return (
             <Grid2
               item
@@ -91,6 +102,7 @@ const Settings = ({
                   <CustomToggle
                     options={toggleOptions}
                     value={apiData[key].active}
+                    disabled={!getPermission}
                     handleChange={(value) => {
                       if (apiData[key].active !== value && value !== null) {
                         handleUpdateApiData(key, value);

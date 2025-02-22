@@ -6,9 +6,11 @@ import { CircularProgress } from "@mui/material";
 import Navbar from "@/components/common/navbar";
 import Sidebar from "@/components/common/sidebar";
 import { CreateSidebarContext } from "@/utilities/context/sidebar";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 
 export default function Layout({ children }) {
-  const { open, setOpen } = useContext(CreateSidebarContext);
+  // const { sidebarOpen, setSidebarOpen } = useContext(CreateSidebarContext);
+  const [sidebarOpen, setSidebarOpen] = useLocalStorage("sidebar", true);
 
   return (
     <div>
@@ -43,11 +45,11 @@ export default function Layout({ children }) {
               sx={{
                 transition: "all 500ms",
                 width: {
-                  xs: open ? "60vw" : "0vw",
-                  sm: open ? "40vw" : "0vw",
-                  md: open ? "20%" : "3.5rem",
-                  lg: open ? "15%" : "3.7rem",
-                  xl: open ? "13%" : "3.7rem",
+                  xs: sidebarOpen ? "60vw" : "0vw",
+                  sm: sidebarOpen ? "40vw" : "0vw",
+                  md: sidebarOpen ? "20%" : "3.5rem",
+                  lg: sidebarOpen ? "15%" : "3.7rem",
+                  xl: sidebarOpen ? "13%" : "3.7rem",
                 },
                 position: {
                   xs: "fixed",
@@ -60,7 +62,7 @@ export default function Layout({ children }) {
             >
               <Sidebar
                 getOpen={(val) => {
-                  setOpen(val);
+                  setSidebarOpen(val);
                 }}
               />
             </Box>
@@ -69,9 +71,9 @@ export default function Layout({ children }) {
                 transition: "all 500ms",
                 width: {
                   xs: "100vw",
-                  md: open ? "80%" : "calc(100% - 3.5rem)",
-                  lg: open ? "85%" : "calc(100% - 3.7rem)",
-                  xl: open ? "87%" : "calc(100% - 3.7rem)",
+                  md: sidebarOpen ? "80%" : "calc(100% - 3.5rem)",
+                  lg: sidebarOpen ? "85%" : "calc(100% - 3.7rem)",
+                  xl: sidebarOpen ? "87%" : "calc(100% - 3.7rem)",
                 },
                 height: "fit-content",
               }}

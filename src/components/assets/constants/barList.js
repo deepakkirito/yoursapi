@@ -3,6 +3,9 @@ import AccountTreeRoundedIcon from "@mui/icons-material/AccountTreeRounded";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import StorageRoundedIcon from '@mui/icons-material/StorageRounded';
 import HideSourceRoundedIcon from '@mui/icons-material/HideSourceRounded';
+import DataArrayRoundedIcon from '@mui/icons-material/DataArrayRounded';
+import LockRoundedIcon from '@mui/icons-material/LockRounded';
+import StreamRoundedIcon from '@mui/icons-material/StreamRounded';
 
 const mainList = [
   {
@@ -43,17 +46,17 @@ const projectList = [
   {
     link: "data",
     name: "Data Api",
-    icon: <SpaceDashboardRoundedIcon color="secondary" />,
+    icon: <DataArrayRoundedIcon color="secondary" />,
   },
   {
     link: "auth",
     name: "Auth Api",
-    icon: <AccountTreeRoundedIcon color="secondary" />,
+    icon: <LockRoundedIcon color="secondary" />,
   },
   {
     link: "websockets",
     name: "Websockets Api",
-    icon: <AccountTreeRoundedIcon color="secondary" />,
+    icon: <StreamRoundedIcon color="secondary" />,
   },
 ];
 

@@ -50,7 +50,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderRadius: "0.5rem",
 }));
 
-const CustomAccordion = ({ items, defaultExpanded, onChange }) => {
+const CustomAccordion = ({ items, defaultExpanded, onChange, hideItems }) => {
   const project = useLocalStorage("project", "");
   const [expanded, setExpanded] = useLocalStorage(
     `${project}_expanded`,
@@ -66,24 +66,29 @@ const CustomAccordion = ({ items, defaultExpanded, onChange }) => {
 
   return (
     <div className="w-full">
-      {items.map((item) => (
-        <Accordion
-          key={item.id}
-          id={item.id}
-          expanded={expanded === item.id}
-          onChange={handleChange(item.id)}
-        >
-          <AccordionSummary
-            aria-controls={`${item.id}-content`}
-            id={`${item.id}-header`}
+      {items.map((item) => {
+        if (hideItems.includes(item.id)) {
+          return null;
+        }
+        return (
+          <Accordion
+            key={item.id}
+            id={item.id}
+            expanded={expanded === item.id}
+            onChange={handleChange(item.id)}
           >
-            <Typography component="span">{item.title}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>{item.content}</Typography>
-          </AccordionDetails>
-        </Accordion>
-      ))}
+            <AccordionSummary
+              aria-controls={`${item.id}-content`}
+              id={`${item.id}-header`}
+            >
+              <Typography component="span">{item.title}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>{item.content}</Typography>
+            </AccordionDetails>
+          </Accordion>
+        );
+      })}
     </div>
   );
 };

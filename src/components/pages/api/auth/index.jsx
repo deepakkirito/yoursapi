@@ -12,6 +12,7 @@ import Schema from "../schema";
 import { showNotification } from "@/components/common/notification";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import Settings from "./settings";
+import Details from "../details";
 
 const AuthApi = ({ shared = false }) => {
   const [loading, setLoading] = useState(true);
@@ -23,8 +24,14 @@ const AuthApi = ({ shared = false }) => {
   const currentData = useRef("");
   const project = useLocalStorage("project", "");
   const [open, setOpen] = useLocalStorage(`${project}_open`, false);
+  const [permission, setPermission] = useState("read");
   const Items = useMemo(
     () => [
+      {
+        id: "details",
+        title: "Details",
+        content: <Details data={authData} />,
+      },
       {
         id: "schema",
         title: "Schema",
@@ -37,25 +44,29 @@ const AuthApi = ({ shared = false }) => {
               email: ["type", "required"],
               password: ["type", "required"],
             }}
-            refetch={() => getAuthApiData(projectId.current)}
+            refetch={(loading) => getAuthApiData(projectId.current, loading)}
+            shared={shared}
+            permission={permission}
           />
         ),
       },
       {
         id: "settings",
         title: "Settings",
-        content: <Settings data={authData} />,
+        content: (
+          <Settings data={authData} shared={shared} permission={permission} />
+        ),
       },
     ],
-    [authData]
+    [authData, permission]
   );
 
   useEffect(() => {
     getAuthApiData(projectId.current);
   }, []);
 
-  const getAuthApiData = (id) => {
-    setLoading(true);
+  const getAuthApiData = (id, loading = true) => {
+    loading && setLoading(true);
     getAuthApi(id)
       .then((res) => {
         setLoading(false);
@@ -64,6 +75,7 @@ const AuthApi = ({ shared = false }) => {
           setData(getDataToString(res.data.data));
         }
         setAuthData(res.data.authData || res.data);
+        setPermission(res.data.permission);
       })
       .catch((err) => {
         catchError(err);
@@ -124,7 +136,12 @@ const AuthApi = ({ shared = false }) => {
       ) : (
         <Box className="flex flex-col gap-4 items-center justify-center h-full overflow-auto">
           {"name" in authData && authData.name === "" ? (
-            <Create projectId={projectId.current} refetch={getAuthApiData} />
+            <Create
+              projectId={projectId.current}
+              refetch={getAuthApiData}
+              shared={shared}
+              permission={permission}
+            />
           ) : (
             <Box className="w-full h-full">
               <Navbar
@@ -135,6 +152,7 @@ const AuthApi = ({ shared = false }) => {
                   name: authData?.name,
                   id: authData?._id,
                 }}
+                refetch={(loading) => getAuthApiData(projectId.current, loading)}
               />
               <Grid2
                 container
@@ -160,6 +178,8 @@ const AuthApi = ({ shared = false }) => {
                     currentData={currentData}
                     setLoading={setLoading}
                     handleUpdateApi={handleUpdateApi}
+                    shared={shared}
+                    permission={permission}
                   />
                 </Grid2>
                 <Grid2
@@ -171,7 +191,12 @@ const AuthApi = ({ shared = false }) => {
                     setOpen={setOpen}
                     open={open}
                     items={Items}
-                    defaultExpanded={"schema"}
+                    defaultExpanded={"details"}
+                    // hideItems={
+                    //   shared && permission === "read"
+                    //     ? ["schema", "settings"]
+                    //     : []
+                    // }
                   />
                 </Grid2>
               </Grid2>

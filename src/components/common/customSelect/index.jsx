@@ -37,6 +37,7 @@ const CustomSelect = ({
   style = {},
   size = "small",
   fullWidth = true,
+  buttonDisable = false,
   ...props
 }) => {
   return (
@@ -100,6 +101,7 @@ const CustomSelect = ({
                 onClick={handleButton}
                 variant="contained"
                 className="sticky bottom-0"
+                disabled={buttonDisable}
               >
                 {buttonLabel}
               </Button>

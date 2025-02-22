@@ -12,6 +12,7 @@ const ContentBar = ({
   defaultExpanded,
   onChange,
   items,
+  hideItems = [],
 }) => {
   const [fullScreen, setFullScreen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 1200px)");
@@ -91,7 +92,7 @@ const ContentBar = ({
                 transition: "all 0.5s",
               }}
             >
-              Data Creation, settings and more...
+              Schema Creation, settings and more...
             </Typography>
           </Box>
           <Box className="flex items-center gap-2">
@@ -148,7 +149,7 @@ const ContentBar = ({
                     rotate: "-90deg",
                     width: "max-content",
                     position: "absolute",
-                    right: "-6.5rem",
+                    right: "-7.2rem",
                     transform: "translateX(calc(-25vh))",
                     fontWeight: "700",
                     color: "text.primary",
@@ -156,7 +157,7 @@ const ContentBar = ({
                     transition: "all 0.5s",
                   }}
                 >
-                  Data Creation, settings and more...
+                  Schema Creation, settings and more...
                 </Typography>
               )}
             </Box>
@@ -167,6 +168,7 @@ const ContentBar = ({
             items={items}
             defaultExpanded={defaultExpanded}
             onChange={onChange}
+            hideItems={hideItems}
           />
         )}
       </Box>

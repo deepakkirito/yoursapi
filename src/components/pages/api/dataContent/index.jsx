@@ -11,10 +11,13 @@ const DataContent = ({
   currentData,
   setLoading,
   handleUpdateApi = () => {},
+  shared = false,
+  permission,
 }) => {
   const { theme } = useContext(ThemeContext);
   const [codeValidator, setCodeValidator] = useState([]);
   const { alert, setAlert } = useContext(CreateAlertContext);
+  const getPermission = shared ? permission !== "read" : true;
 
   return (
     <Box
@@ -90,7 +93,9 @@ const DataContent = ({
             });
           }}
           disabled={
-            Boolean(codeValidator.length) || currentData.current === data
+            Boolean(codeValidator.length) ||
+            currentData.current === data ||
+            !getPermission
           }
         >
           Save
@@ -98,7 +103,7 @@ const DataContent = ({
         <Button
           variant="contained"
           size="small"
-          disabled={data === "[]"}
+          disabled={data === "[]" || !getPermission}
           onClick={() => {
             setLoading(true);
             setData("[]");

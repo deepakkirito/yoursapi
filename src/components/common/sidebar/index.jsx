@@ -31,6 +31,7 @@ import {
   KeyboardArrowLeftRounded,
 } from "@mui/icons-material";
 import { CreateSidebarContext } from "@/utilities/context/sidebar";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -43,7 +44,8 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 const Sidebar = () => {
   const location = usePathname();
   const theme = useTheme();
-  const { open, setOpen } = useContext(CreateSidebarContext);
+  // const { sidebarOpen, setSidebarOpen } = useContext(CreateSidebarContext);
+  const [sidebarOpen, setSidebarOpen] = useLocalStorage("sidebar", true);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [isProjectLink, setIsProjectLink] = useState(false);
 
@@ -57,14 +59,12 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (isMobile) {
-      setOpen(false);
-    } else {
-      setOpen(true);
+      setSidebarOpen(false);
     }
   }, [isMobile]);
 
   const handleDrawerClose = () => {
-    setOpen(!open);
+    setSidebarOpen(!sidebarOpen);
   };
 
   const data = useMemo(() => {
@@ -101,8 +101,8 @@ const Sidebar = () => {
             overflow: "hidden",
           },
           "& .MuiTypography-root": {
-            fontSize: open ? "1rem" : "0rem !important",
-            opacity: open ? "1" : "0 !important",
+            fontSize: sidebarOpen ? "1rem" : "0rem !important",
+            opacity: sidebarOpen ? "1" : "0 !important",
             transition: "all 1000ms, color 10ms",
           },
           "& .MuiButtonBase-root": {
@@ -119,7 +119,7 @@ const Sidebar = () => {
               mainListUrl.includes(location) ? "end" : "between"
             }`}
           >
-            {open && !mainListUrl.includes(location) && (
+            {sidebarOpen && !mainListUrl.includes(location) && (
               <TooltipCustom title="Back" placement="right">
                 <Link
                   href={
@@ -135,7 +135,7 @@ const Sidebar = () => {
               </TooltipCustom>
             )}
             <IconButton onClick={handleDrawerClose}>
-              {open ? (
+              {sidebarOpen ? (
                 <MenuOpenRoundedIcon color="secondary" />
               ) : (
                 <MenuRoundedIcon color="secondary" />
@@ -152,7 +152,7 @@ const Sidebar = () => {
             if (item.name === "header") {
               return (
                 <div key={index}>
-                  {open && (
+                  {sidebarOpen && (
                     <InputLabel className="px-4 pb-2">{item.label}</InputLabel>
                   )}
                 </div>
@@ -162,7 +162,7 @@ const Sidebar = () => {
               <Link key={index} href={item.link}>
                 <ListItem key={item.link} disablePadding>
                   <ListItemButton
-                    onClick={() => isMobile && setOpen(false)}
+                    onClick={() => isMobile && setSidebarOpen(false)}
                     sx={{
                       backgroundColor: isProjectLink
                         ? location === item.link
@@ -182,7 +182,7 @@ const Sidebar = () => {
                     }}
                   >
                     <TooltipCustom
-                      title={open ? "" : item.name}
+                      title={sidebarOpen ? "" : item.name}
                       placement="right"
                     >
                       <ListItemIcon>{item.icon}</ListItemIcon>

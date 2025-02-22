@@ -33,15 +33,18 @@ import { updateAuthApi } from "@/utilities/api/authApiApi";
 const Schema = ({
   data,
   apiId,
-  refetch = () => {},
+  refetch = (loading) => {},
   auth = false,
   excludeKeyValues = [],
+  shared = false,
+  permission,
 }) => {
   const [schemaEdit, setSchemaEdit] = useState(false);
   const [schemaKey, setSchemaKey] = useState("");
   const [schemaValue, setSchemaValue] = useState([{ key: "", value: "" }]);
   const [schemaLayout, setSchemaLayout] = useState({});
   const [loading, setLoading] = useState(false);
+  const getPermission = shared ? permission !== "read" : true;
 
   const handleAddSchemaLayout = () => {
     let temp = {};
@@ -74,7 +77,7 @@ const Schema = ({
         showNotification({
           content: res.data.message,
         });
-        refetch();
+        refetch(false);
       })
       .catch((err) => {
         catchError(err);
@@ -120,7 +123,9 @@ const Schema = ({
           disabled={
             (data
               ? data === schemaLayout
-              : Object.keys(schemaLayout)?.length === 0) || loading
+              : Object.keys(schemaLayout)?.length === 0) ||
+            loading ||
+            !getPermission
           }
           onClick={handleSaveSchema}
         >

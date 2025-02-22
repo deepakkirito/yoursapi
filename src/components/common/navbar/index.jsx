@@ -30,6 +30,7 @@ import { CreateNavTitleContext } from "@/utilities/context/navTitle";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import { catchError } from "@/utilities/helpers/functions";
 import useCustomWindow from "@/utilities/helpers/hooks/window";
+import Profile from "./profile";
 
 function ColorSchemeToggle(props) {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -62,7 +63,8 @@ const Navbar = () => {
   const [loading, setLoading] = useState(true);
   const location = usePathname();
   const { setLogin } = useContext(AuthContext);
-  const { open, setOpen } = useContext(CreateSidebarContext);
+  // const { sidebarOpen, setSidebarOpen } = useContext(CreateSidebarContext);
+  const [sidebarOpen, setSidebarOpen] = useLocalStorage("sidebar", true);
   const router = useRouter();
   const { navTitle, setNavTitle } = useContext(CreateNavTitleContext);
   const [profile, setProfile] = useLocalStorage("profile");
@@ -188,12 +190,12 @@ const Navbar = () => {
                   size="sm"
                   sx={{
                     display: {
-                      xs: !open ? "flex" : "none",
+                      xs: !sidebarOpen ? "flex" : "none",
                       md: "none",
                     },
                   }}
                   onClick={() => {
-                    setOpen(!open);
+                    setSidebarOpen(!sidebarOpen);
                   }}
                 >
                   <MenuRoundedIcon color="secondary" />
@@ -216,54 +218,11 @@ const Navbar = () => {
                 {loading ? (
                   <CircularProgress size={24} />
                 ) : (
-                  <Box
-                    className="flex gap-0 items-center"
-                    onClick={handleClick}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        display: {
-                          xs: "none",
-                          md: "flex",
-                        },
-                      }}
-                    >
-                      {userData?.name}
-                    </Typography>
-                    <CustomMenu
-                      tooltipPlacement="left"
-                      menuPosition="right"
-                      icon={
-                        <Image
-                          src={userData?.profile}
-                          alt="profile"
-                          width={32}
-                          height={0}
-                          style={{
-                            height: "auto",
-                            borderRadius: "2rem",
-                          }}
-                        />
-                      }
-                      tooltipTitle={"Profile Menu"}
-                      options={[
-                        {
-                          email: userData?.email,
-                        },
-
-                        {
-                          icon: <Logout fontSize="small" />,
-                          name: "Logout",
-                          onClick: async () => {
-                            await LogoutApi();
-                            setLogin(false);
-                            router.push("/login");
-                          },
-                        },
-                      ]}
-                    />
-                  </Box>
+                  <Profile
+                    userData={userData}
+                    setLogin={setLogin}
+                    router={router}
+                  />
                 )}
               </Box>
             </Box>

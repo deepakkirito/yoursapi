@@ -133,7 +133,7 @@ const ProjectLayout = ({
   const handleUpdateProjectName = async (id) => {
     setSaveLoading(true);
     await updateProjectNameApi(id, {
-      projectName: projectName,
+      projectname: projectName,
     })
       .then((res) => {
         showNotification({

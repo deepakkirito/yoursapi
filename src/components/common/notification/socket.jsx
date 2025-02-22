@@ -16,11 +16,10 @@ const SocketNotification = () => {
 
     // ✅ Attach the event listeners
     socket.on("register", (data) => {
-      showNotification({ content: data.message });
+      // showNotification({ content: data.message });
     });
 
     socket.on("notification", (data) => {
-        console.log(data);
       showNotification({ content: data.message, type: data.type });
     });
 

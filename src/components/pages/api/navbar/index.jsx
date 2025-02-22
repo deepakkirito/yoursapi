@@ -4,10 +4,16 @@ import { showNotification } from "@/components/common/notification";
 import {
   checkApiExistApi,
   createApiApi,
+  deleteApiApi,
   updateApiNameApi,
 } from "@/utilities/api/apiApi";
 import { CreatePopupContext } from "@/utilities/context/popup";
-import { Add, ContentCopyRounded, SaveRounded } from "@mui/icons-material";
+import {
+  Add,
+  ContentCopyRounded,
+  DeleteRounded,
+  SaveRounded,
+} from "@mui/icons-material";
 import {
   Box,
   CircularProgress,
@@ -32,7 +38,8 @@ import { useRouter } from "next/navigation";
 import { CreateNavTitleContext } from "@/utilities/context/navTitle";
 import useCustomWindow from "@/utilities/helpers/hooks/window";
 import AddProject from "../../project/addProject";
-import { updateAuthApi } from "@/utilities/api/authApiApi";
+import { deleteAuthApi, updateAuthApi } from "@/utilities/api/authApiApi";
+import { CreateAlertContext } from "@/utilities/context/alert";
 
 const Navbar = ({
   shared = false,
@@ -42,6 +49,7 @@ const Navbar = ({
     name: "",
     id: "",
   },
+  refetch = () => {},
 }) => {
   const { popup, setPopup } = useContext(CreatePopupContext);
   const location = usePathname();
@@ -72,6 +80,9 @@ const Navbar = ({
     name: auth?.name || "",
     id: auth?.id || "",
   });
+  const [permission, setPermission] = useState("read");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const { alert, setAlert } = useContext(CreateAlertContext);
 
   useEffect(() => {
     if (apiData?.label) {
@@ -93,8 +104,8 @@ const Navbar = ({
     setNavTitle(project);
   }, [currentProject]);
 
-  const getSingleProject = async (id, create = false) => {
-    setLoading(true);
+  const getSingleProject = async (id, create = false, loading = true) => {
+    loading && setLoading(true);
     await getSingleProjectApi(id)
       .then((res) => {
         setProject(res.data.name);
@@ -104,15 +115,16 @@ const Navbar = ({
         setApiList(res.data.apiIds);
         setApiData(
           !create && apiId
-            ? res.data.apiIds.find((item) => item.value === apiId)
-            : res.data.apiIds[apiName === "" ? 0 : res.data.apiIds.length - 1]
+            ? res.data.apiIds.find((item) => item?.value === apiId)
+            : res.data.apiIds[apiName === "" ? 0 : res.data.apiIds?.length - 1]
         );
         setApiName(
           !create && apiId
-            ? res.data.apiIds.find((item) => item.value === apiId).label
+            ? res.data.apiIds.find((item) => item.value === apiId)?.label
             : res.data.apiIds[apiName === "" ? 0 : res.data.apiIds.length - 1]
-                .label
+                ?.label
         );
+        setPermission(res.data.permission);
       })
       .catch((err) => {
         catchError(err);
@@ -143,7 +155,7 @@ const Navbar = ({
   const handleUpdateProjectName = async (id) => {
     setSaveProjectLoading(true);
     await updateProjectNameApi(id, {
-      projectName: project,
+      projectname: project,
     })
       .then((res) => {
         showNotification({
@@ -190,9 +202,6 @@ const Navbar = ({
         showNotification({
           content: res.data.message,
         });
-        setTimeout(() => {
-          router.push("/login");
-        }, 1000);
       })
       .catch((err) => {
         catchError(err);
@@ -213,7 +222,7 @@ const Navbar = ({
         showNotification({
           content: res.data.message,
         });
-        getSingleProject(projectId, true);
+        getSingleProject(projectId, true, false);
         setPopup({
           open: false,
         });
@@ -235,7 +244,7 @@ const Navbar = ({
         showNotification({
           content: res.data.message,
         });
-        await getSingleProject(projectId);
+        await getSingleProject(projectId, false, false);
         setApiData({ ...apiData, label: apiName });
         setApiName(apiName);
       })
@@ -248,7 +257,7 @@ const Navbar = ({
   };
 
   useEffect(() => {
-    apiName !== apiData.label && handleCheckApiName();
+    apiName !== apiData?.label && handleCheckApiName();
   }, [apiName]);
 
   const handleCheckApiName = async () => {
@@ -276,12 +285,48 @@ const Navbar = ({
         showNotification({
           content: res.data.message,
         });
+        refetch(false);
       })
       .catch((err) => {
         catchError(err);
       })
       .finally(() => {
         setSaveApiLoading(false);
+      });
+  };
+
+  const handleDeleteApi = () => {
+    setDeleteLoading(true);
+    deleteApiApi(apiId)
+      .then((res) => {
+        showNotification({
+          content: res.data.message,
+        });
+        refetch(false);
+        getSingleProject(projectId, true, false);
+      })
+      .catch((err) => {
+        catchError(err);
+      })
+      .finally(() => {
+        setDeleteLoading(false);
+      });
+  };
+
+  const handleDeleteAuthApi = () => {
+    setDeleteLoading(true);
+    deleteAuthApi(auth.id)
+      .then((res) => {
+        showNotification({
+          content: res.data.message,
+        });
+        refetch(false);
+      })
+      .catch((err) => {
+        catchError(err);
+      })
+      .finally(() => {
+        setDeleteLoading(false);
       });
   };
 
@@ -322,7 +367,7 @@ const Navbar = ({
       ) : (
         <Grid2
           item
-          size={{ xs: 12, md: query ? 10 : 12 }}
+          size={{ xs: 12, md: query ? 9.5 : 11.5 }}
           sx={{
             "& .MuiInputBase-input": {
               padding: "0.5rem 0rem 0.5rem 1rem !important",
@@ -356,6 +401,9 @@ const Navbar = ({
               type="text"
               InputLabelProps={{
                 shrink: true,
+              }}
+              inputProps={{
+                readOnly: shared,
               }}
               onChange={(event) => {
                 setUsername(event.target.value.toLowerCase());
@@ -407,6 +455,9 @@ const Navbar = ({
               onChange={(event) => {
                 setProject(event.target.value);
               }}
+              inputProps={{
+                readOnly: shared ? permission !== "admin" : false,
+              }}
               disabled={saveProjectLoading}
               slotProps={{
                 input: {
@@ -443,55 +494,60 @@ const Navbar = ({
               }}
             />
             /
-            <CustomInput
-              fullWidth
-              value={auth?.name ? authData.name : apiName}
-              label={auth?.name ? "Auth api" : "Api"}
-              InputLabelProps={{ shrink: true }}
-              disabled={saveApiLoading}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <TooltipCustom title="Save Api name" placement="top">
-                        <IconButton
-                          aria-label="save Api name"
-                          edge="end"
-                          disabled={
-                            saveApiLoading ||
-                            apiExists ||
-                            (auth?.name
-                              ? auth.name === authData.name
-                              : apiName === apiData.label)
-                          }
-                          onClick={() => {
-                            auth?.name
-                              ? handleUpdateAuthApiName()
-                              : handleUpdateApiName();
-                          }}
-                          sx={{
-                            "&.Mui-disabled": {
-                              opacity: 0.3,
-                            },
-                          }}
-                        >
-                          {saveApiLoading ? (
-                            <CircularProgress size={16} color="secondary" />
-                          ) : (
-                            <SaveRounded color="secondary" />
-                          )}
-                        </IconButton>
-                      </TooltipCustom>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-              onChange={(event) => {
-                auth?.name
-                  ? setAuthData({ ...authData, name: event.target.value })
-                  : setApiName(event.target.value);
-              }}
-            />
+            {Boolean(apiId || !query) && (
+              <CustomInput
+                fullWidth
+                value={auth?.name ? authData.name : apiName}
+                label={auth?.name ? "Auth api" : "Api"}
+                InputLabelProps={{ shrink: true }}
+                disabled={saveApiLoading}
+                inputProps={{
+                  readOnly: shared ? permission !== "admin" : false,
+                }}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <TooltipCustom title="Save Api name" placement="top">
+                          <IconButton
+                            aria-label="save Api name"
+                            edge="end"
+                            disabled={
+                              saveApiLoading ||
+                              apiExists ||
+                              (auth?.name
+                                ? auth?.name === authData?.name
+                                : apiName === apiData?.label)
+                            }
+                            onClick={() => {
+                              auth?.name
+                                ? handleUpdateAuthApiName()
+                                : handleUpdateApiName();
+                            }}
+                            sx={{
+                              "&.Mui-disabled": {
+                                opacity: 0.3,
+                              },
+                            }}
+                          >
+                            {saveApiLoading ? (
+                              <CircularProgress size={16} color="secondary" />
+                            ) : (
+                              <SaveRounded color="secondary" />
+                            )}
+                          </IconButton>
+                        </TooltipCustom>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                onChange={(event) => {
+                  auth?.name
+                    ? setAuthData({ ...authData, name: event.target.value })
+                    : setApiName(event.target.value);
+                }}
+              />
+            )}
             <TooltipCustom title="Copy Link">
               <IconButton
                 onClick={() => {
@@ -512,7 +568,7 @@ const Navbar = ({
       {query && !loading && (
         <Grid2
           item
-          size={{ xs: 2 }}
+          size={{ xs: 6, md: 2 }}
           sx={{
             display: "flex",
             justifyContent: "end",
@@ -520,10 +576,11 @@ const Navbar = ({
         >
           <CustomSelect
             options={apiList}
-            value={apiData.value}
+            value={apiData?.value}
             none={false}
             labelTop="Api List"
             buttonLabel="Create more Api"
+            buttonDisable={shared ? permission !== "admin" : false}
             handleButton={() =>
               setPopup({
                 ...popup,
@@ -541,7 +598,7 @@ const Navbar = ({
             handleChange={(event) => {
               const name = apiList.find(
                 (item) => item.value === event.target.value
-              ).label;
+              )?.label;
               event.target.value &&
                 setApiData({
                   value: event.target.value,
@@ -552,6 +609,41 @@ const Navbar = ({
           />
         </Grid2>
       )}
+      <Grid2
+        item
+        size={{ xs: 6, md: 0.5 }}
+        sx={{
+          display: "flex",
+          justifyContent: "end",
+        }}
+      >
+        {(apiId || !query) && !shared && !loading && (
+          <IconButton
+            disabled={deleteLoading}
+            onClick={() => {
+              setAlert({
+                open: true,
+                title: "Are you Sure?",
+                content:
+                  "Deleting the api will remove all the data associated with it, we suggest you to copy the data before deleting to prevent any loss of data.",
+                handleClose: () => {
+                  setAlert({ ...alert, open: false });
+                },
+                handleSuccess: () => {
+                  !query ? handleDeleteAuthApi() : handleDeleteApi();
+                  setAlert({ ...alert, open: false });
+                },
+              });
+            }}
+          >
+            {deleteLoading ? (
+              <CircularProgress size={16} color="secondary" />
+            ) : (
+              <DeleteRounded color="error" />
+            )}
+          </IconButton>
+        )}
+      </Grid2>
     </Grid2>
   );
 };

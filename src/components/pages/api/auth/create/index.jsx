@@ -13,7 +13,7 @@ import { showNotification } from "@/components/common/notification";
 import { createAuthApi } from "@/utilities/api/authApiApi";
 import Face2RoundedIcon from "@mui/icons-material/Face2Rounded";
 
-const Create = ({ projectId, refetch = () => {} }) => {
+const Create = ({ projectId, refetch = () => {}, shared = false, permission }) => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -58,7 +58,7 @@ const Create = ({ projectId, refetch = () => {} }) => {
         variant="contained"
         endIcon={loading && <CircularProgress size={16} color="loading" />}
         onClick={handleCreateApi}
-        disabled={loading}
+        disabled={loading || shared && permission !== "admin"}
       >
         Create
       </Button>

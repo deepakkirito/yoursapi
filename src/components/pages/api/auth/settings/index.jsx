@@ -21,10 +21,11 @@ const toggleOptions = [
   { label: "Disabled", value: false },
 ];
 
-const Settings = ({ data }) => {
+const Settings = ({ data, shared = false, permission }) => {
   const [loading, setLoading] = useState({});
   const [authData, setAuthData] = useState({});
   const [tokenAge, setTokenAge] = useState(0);
+  const getPermission = shared ? permission !== "read" : true;
 
   useEffect(() => {
     getAuthApiData();
@@ -107,6 +108,7 @@ const Settings = ({ data }) => {
                 }[authData.authType]
               }
               onChange={(event, value) =>
+                getPermission &&
                 handleUpdateAuthApiData(
                   "authType",
                   {
@@ -175,7 +177,8 @@ const Settings = ({ data }) => {
                             disabled={
                               loading["tokenAge"] ||
                               !tokenAge ||
-                              Number(tokenAge) === authData.tokenAge
+                              Number(tokenAge) === authData.tokenAge ||
+                              !getPermission
                             }
                           >
                             <SaveRounded />
@@ -201,6 +204,7 @@ const Settings = ({ data }) => {
               <CustomToggle
                 options={toggleOptions}
                 value={authData.captcha}
+                disabled={!getPermission}
                 handleChange={(value) => {
                   if (value !== null) {
                     handleUpdateAuthApiData("captcha", value);
@@ -271,6 +275,7 @@ const Settings = ({ data }) => {
                           <CustomToggle
                             options={toggleOptions}
                             value={authData[key].active}
+                            disabled={!getPermission}
                             handleChange={(value) => {
                               if (
                                 authData[key].active !== value &&

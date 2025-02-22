@@ -18,6 +18,7 @@ const CustomMenu = ({
   tooltipPlacement = "right",
   menuPosition = "left",
   options = [],
+  children,
   getUser = () => {},
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -64,6 +65,7 @@ const CustomMenu = ({
           },
         })}
       >
+        {children}
         {options?.length ? (
           options.map((item, index) => (
             <MenuItem
@@ -73,7 +75,7 @@ const CustomMenu = ({
                 getUser(item.email);
                 item.onClick && item.onClick();
               }}
-              className="flex gap-2 items-center"
+              className="flex gap-2 items-center py-3"
               sx={{
                 "&:hover": {
                   backgroundColor: "background.default",

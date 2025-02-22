@@ -21,7 +21,12 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
-const CustomData = ({ schema, refetch = () => {} }) => {
+const CustomData = ({
+  schema,
+  refetch = () => {},
+  shared = false,
+  permission,
+}) => {
   const [dataList, setDataList] = useState([]);
   const [selectedDataList, setSelectedDataList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +38,7 @@ const CustomData = ({ schema, refetch = () => {} }) => {
   const apiId = searchparams.get("id");
   const [updateLoading, setUpdateLoading] = useState(false);
   const window = useCustomWindow();
+  const getPermission = shared ? permission !== "read" : true;
 
   useEffect(() => {
     getDataList();
@@ -150,7 +156,7 @@ const CustomData = ({ schema, refetch = () => {} }) => {
               <Button
                 variant="contained"
                 size="small"
-                disabled={updateLoading}
+                disabled={updateLoading || !getPermission}
                 endIcon={
                   updateLoading && (
                     <CircularProgress size={16} color="loading" />
@@ -168,7 +174,8 @@ const CustomData = ({ schema, refetch = () => {} }) => {
                         {schema !== null && (
                           <Typography>
                             - This api have a schema set, this data may not get
-                            saved if custom data doesn&apos;t matches the schema.
+                            saved if custom data doesn&apos;t matches the
+                            schema.
                           </Typography>
                         )}
                       </Box>
@@ -188,7 +195,7 @@ const CustomData = ({ schema, refetch = () => {} }) => {
               <Button
                 variant="contained"
                 size="small"
-                disabled={updateLoading}
+                disabled={updateLoading || !getPermission}
                 endIcon={
                   updateLoading && (
                     <CircularProgress size={16} color="loading" />
@@ -206,7 +213,8 @@ const CustomData = ({ schema, refetch = () => {} }) => {
                         {schema !== null && (
                           <Typography>
                             - This api have a schema set, this data may not get
-                            saved if custom data doesn&apos;t matches the schema.
+                            saved if custom data doesn&apos;t matches the
+                            schema.
                           </Typography>
                         )}
                       </Box>
