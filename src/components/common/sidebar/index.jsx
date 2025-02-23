@@ -28,6 +28,7 @@ import {
   projectList,
 } from "@/components/assets/constants/barList";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import useCustomWindow from "@/utilities/helpers/hooks/window";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -43,6 +44,7 @@ const Sidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useLocalStorage("sidebar", true);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [isIncluded, setIsIncluded] = useState(false);
+  const window = useCustomWindow();
 
   useEffect(() => {
     if (isMobile) setSidebarOpen(false);

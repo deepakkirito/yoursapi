@@ -10,7 +10,7 @@ export default function Layout({ children }) {
         borderColor: "background.default",
         backgroundColor: "background.foreground",
         height: "calc(100vh - 7rem)",
-        overflow: "auto",
+        // overflow: "auto",
         paddingBottom: "1rem",
       }}
     >
