@@ -16,6 +16,7 @@ import DarkBackground from "@/components/assets/other/darkBackground.jpg";
 import LightBackground from "@/components/assets/other/lightBackground.avif";
 import Alert from "@/components/common/popup/alert";
 import SocketNotification from "@/components/common/notification/socket";
+import CookieConsent from "@/components/common/cookieConsent";
 
 const CustomIcon = (props) => {
   if (props.isLoading) return <CircularProgress />;
@@ -77,6 +78,7 @@ export default function LayoutWrapper({ children }) {
           <SocketNotification />
           <Alert />
           <FullScreenPopup />
+          <CookieConsent />
           {children}
         </ThemeProvider>
       </GoogleOAuthProvider>
