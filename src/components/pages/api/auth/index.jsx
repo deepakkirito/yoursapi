@@ -13,6 +13,8 @@ import { showNotification } from "@/components/common/notification";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import Settings from "./settings";
 import Details from "../details";
+import Lottie from "react-lottie";
+import CreateApi from "@/components/assets/json/createApi.json";
 
 const AuthApi = ({ shared = false }) => {
   const [loading, setLoading] = useState(true);
@@ -25,6 +27,7 @@ const AuthApi = ({ shared = false }) => {
   const project = useLocalStorage("project", "");
   const [open, setOpen] = useLocalStorage(`${project}_open`, false);
   const [permission, setPermission] = useState("read");
+  const [openApi, setOpenApi] = useLocalStorage("openApi", false);
   const Items = useMemo(
     () => [
       {
@@ -131,7 +134,16 @@ const AuthApi = ({ shared = false }) => {
     >
       {loading ? (
         <div className="flex justify-center items-center h-full">
-          <CircularProgress color="secondary" size={24} />
+          {/* <CircularProgress color="secondary" size={24} /> */}
+          <Lottie
+            options={{
+              animationData: CreateApi,
+              loop: true,
+              autoPlay: true,
+            }}
+            height={"100%"}
+            width={"100%"}
+          />
         </div>
       ) : (
         <Box className="flex flex-col gap-4 items-center justify-center h-full overflow-auto">
@@ -145,6 +157,7 @@ const AuthApi = ({ shared = false }) => {
           ) : (
             <Box className="w-full h-full">
               <Navbar
+                title="Auth Api"
                 shared={shared}
                 endpoint="auth"
                 query={false}
@@ -152,7 +165,11 @@ const AuthApi = ({ shared = false }) => {
                   name: authData?.name,
                   id: authData?._id,
                 }}
-                refetch={(loading) => getAuthApiData(projectId.current, loading)}
+                refetch={(loading) =>
+                  getAuthApiData(projectId.current, loading)
+                }
+                openApi={openApi}
+                setOpenApi={setOpenApi}
               />
               <Grid2
                 container

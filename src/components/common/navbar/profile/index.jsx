@@ -34,6 +34,7 @@ const Profile = ({ userData, setLogin, router }) => {
           {
             icon: <AccountCircleRoundedIcon fontSize="small" />,
             name: "Profile Settings",
+            onClick: () => router.push("/profile"),
           },
 
           {

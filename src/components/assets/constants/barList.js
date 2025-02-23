@@ -1,11 +1,12 @@
 import SpaceDashboardRoundedIcon from "@mui/icons-material/SpaceDashboardRounded";
 import AccountTreeRoundedIcon from "@mui/icons-material/AccountTreeRounded";
-import SendRoundedIcon from '@mui/icons-material/SendRounded';
-import StorageRoundedIcon from '@mui/icons-material/StorageRounded';
-import HideSourceRoundedIcon from '@mui/icons-material/HideSourceRounded';
-import DataArrayRoundedIcon from '@mui/icons-material/DataArrayRounded';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
-import StreamRoundedIcon from '@mui/icons-material/StreamRounded';
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import StorageRoundedIcon from "@mui/icons-material/StorageRounded";
+import HideSourceRoundedIcon from "@mui/icons-material/HideSourceRounded";
+import DataArrayRoundedIcon from "@mui/icons-material/DataArrayRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import StreamRoundedIcon from "@mui/icons-material/StreamRounded";
+import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 
 const mainList = [
   {
@@ -39,7 +40,7 @@ const mainList = [
     link: "/settings/database",
     name: "Database",
     icon: <StorageRoundedIcon color="secondary" />,
-  }
+  },
 ];
 
 const projectList = [
@@ -60,6 +61,19 @@ const projectList = [
   },
 ];
 
+const profileList = [
+  {
+    link: "/profile",
+    name: "Profile",
+    icon: <AccountCircleRoundedIcon color="secondary" />,
+  },
+  {
+    link: "/profile/sessions",
+    name: "Sessions",
+    icon: <AccountCircleRoundedIcon color="secondary" />,
+  },
+];
+
 const mainListUrl = mainList.map((item) => item.link);
 
-export { mainList, projectList, mainListUrl };
+export { mainList, projectList, mainListUrl, profileList };

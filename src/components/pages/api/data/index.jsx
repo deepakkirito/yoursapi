@@ -28,6 +28,7 @@ const DataApi = ({ shared = false }) => {
   const [apiData, setApiData] = useState({});
   const router = useRouter();
   const [permission, setPermission] = useState("read");
+  const [openApi, setOpenApi] = useLocalStorage("openApi", false);
 
   useEffect(() => {
     id && getApiDetails(id);
@@ -139,107 +140,112 @@ const DataApi = ({ shared = false }) => {
   };
 
   return (
-    <div>
-      <Box
-        sx={{
-          borderRadius: "1rem",
-          border: "0.2rem solid",
-          borderColor: "background.default",
-          boxShadow: "0 0 1rem background.default",
-          height: "100%",
-          backgroundColor: "background.foreground",
-        }}
-      >
-        <Navbar
-          shared={shared}
-          endpoint="data"
-          query={true}
-          refetch={() => getApiDetails(id, false)}
-        />
-        {!id ? (
-          <div className="flex flex-col items-center justify-center h-[calc(100vh-12.3rem)] gap-4">
-            {loading ? (
-              <CircularProgress color="secondary" size={24} />
-            ) : (
-              <>
-                {/* <Typography variant="h4" sx={{
+    <Box
+      sx={{
+        borderRadius: "1rem",
+        border: "0.2rem solid",
+        borderColor: "background.default",
+        boxShadow: "0 0 1rem background.default",
+        height: "calc(100vh - 7rem)",
+        backgroundColor: "background.foreground",
+        overflow: "auto",
+      }}
+    >
+      <Navbar
+        title="Data Api"
+        shared={shared}
+        endpoint="data"
+        query={true}
+        refetch={() => getApiDetails(id, false)}
+        openApi={openApi}
+        setOpenApi={setOpenApi}
+      />
+      {!id ? (
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-12.3rem)] gap-4">
+          {loading ? (
+            <CircularProgress color="secondary" size={24} />
+          ) : (
+            <>
+              {/* <Typography variant="h4" sx={{
                   transform: "translateY(100%)"
                 }}>
                   Create your first api to get started
                 </Typography> */}
-                <Lottie
-                  options={{
-                    animationData: CreateApi,
-                    loop: true,
-                    autoPlay: true,
-                  }}
-                  height={"100%"}
-                  width={"100%"}
-                />
-              </>
-            )}
-          </div>
-        ) : (
+              <Lottie
+                options={{
+                  animationData: CreateApi,
+                  loop: true,
+                  autoPlay: true,
+                }}
+                height={"100%"}
+                width={"100%"}
+              />
+            </>
+          )}
+        </div>
+      ) : (
+        <Grid2
+          container
+          spacing={2}
+          sx={{
+            padding: "1rem",
+            overflow: "auto",
+            height: {
+              lg: "calc(100vh - 12.3rem)",
+              xs: "100%",
+            },
+            marginBottom: {
+              xs: "5rem",
+              lg: "0rem",
+            },
+            borderRadius: "0 0 0.5rem 0.5rem",
+          }}
+        >
           <Grid2
-            container
-            spacing={2}
-            sx={{
-              padding: "1rem",
-              overflow: "auto",
-              height: {
-                lg: "calc(100vh - 12.3rem)",
-                xs: "100%",
-              },
-
-              borderRadius: "0 0 0.5rem 0.5rem",
-            }}
+            item
+            size={{ xs: 12, lg: open ? 6 : 11, xl: open ? 6 : 11.2 }}
+            sx={{ transition: "all 0.5s" }}
           >
-            <Grid2
-              item
-              size={{ xs: 12, lg: open ? 6 : 11, xl: open ? 6 : 11.2 }}
-              sx={{ transition: "all 0.5s" }}
-            >
-              {loading ? (
-                <Box className="flex justify-center items-center h-full">
-                  <CircularProgress color="secondary" size={24} />
-                </Box>
-              ) : (
-                <DataContent
-                  data={data}
-                  setData={setData}
-                  currentData={currentData}
-                  setLoading={setLoading}
-                  handleUpdateApi={handleUpdateApi}
-                  shared={shared}
-                  permission={permission}
-                />
-              )}
-            </Grid2>
-            <Grid2
-              item
-              size={{ xs: 12, lg: open ? 6 : 1, xl: open ? 6 : 0.8 }}
-              sx={{ transition: "all 0.5s" }}
-            >
-              {loading ? (
-                <Box className="flex justify-center items-center h-full">
-                  <CircularProgress color="secondary" size={24} />
-                </Box>
-              ) : (
-                <ContentBar
-                  setOpen={setOpen}
-                  open={open}
-                  items={Items}
-                  defaultExpanded={"details"}
-                  // hideItems={
-                  //   shared && permission === "read" ? ["schema", "settings"] : []
-                  // }
-                />
-              )}
-            </Grid2>
+            {loading ? (
+              <Box className="flex justify-center items-center h-full">
+                <CircularProgress color="secondary" size={24} />
+              </Box>
+            ) : (
+              <DataContent
+                data={data}
+                setData={setData}
+                currentData={currentData}
+                setLoading={setLoading}
+                handleUpdateApi={handleUpdateApi}
+                shared={shared}
+                permission={permission}
+              />
+            )}
           </Grid2>
-        )}
-      </Box>
-    </div>
+          <Grid2
+            item
+            size={{ xs: 12, lg: open ? 6 : 1, xl: open ? 6 : 0.8 }}
+            sx={{ transition: "all 0.5s" }}
+          >
+            {loading ? (
+              <Box className="flex justify-center items-center h-full">
+                <CircularProgress color="secondary" size={24} />
+              </Box>
+            ) : (
+              <ContentBar
+                setOpen={setOpen}
+                open={open}
+                items={Items}
+                defaultExpanded={"details"}
+                // hideItems={
+                //   shared && permission === "read" ? ["schema", "settings"] : []
+                // }
+              />
+            )}
+          </Grid2>
+        </Grid2>
+      )}
+    </Box>
   );
 };
 

@@ -75,7 +75,7 @@ const ProjectLayout = ({
   const [saveLoading, setSaveLoading] = useState(false);
   const [showEdit, setShowEdit] = useState("");
   const window = useCustomWindow();
-
+  
   useEffect(() => {
     !popup.open && getProject();
   }, [pagination, filter, search, sort, popup]);
@@ -481,7 +481,7 @@ const ProjectLayout = ({
                                       className={style.cardDelete}
                                       onClick={() => {
                                         // setOpen(true);
-                                        // setDeleteId(item._id);
+                                        setDeleteId(item._id);
                                         setAlert({
                                           open: true,
                                           title: "Are you Sure?",

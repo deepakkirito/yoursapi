@@ -4,7 +4,7 @@ const getUsersApi = () => {
   return axiosGet(`/user`);
 };
 
-const updateUserApi = (body) => {
+const updateUsernameApi = (body) => {
   return axiosPut(`/user/username`, body);
 };
 
@@ -12,4 +12,8 @@ const checkOtherUserApi = (id, email) => {
   return axiosGet(`/user/check/${id}/${email}`);
 };
 
-export { getUsersApi, checkOtherUserApi, updateUserApi };
+const updateUserApi = (body) => {
+  return axiosPut(`/user`, body);
+};
+
+export { getUsersApi, checkOtherUserApi, updateUsernameApi, updateUserApi };

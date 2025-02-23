@@ -12,7 +12,7 @@ import SwapCallsOutlinedIcon from "@mui/icons-material/SwapCallsOutlined";
 import { useEffect, useState } from "react";
 import { CheckUsernameApi } from "@/utilities/api/authApi";
 import { InfoOutlined } from "@mui/icons-material";
-import { updateUserApi } from "@/utilities/api/userApi";
+import { updateUsernameApi } from "@/utilities/api/userApi";
 import { catchError } from "@/utilities/helpers/functions";
 import { useRouter } from "next/navigation";
 
@@ -43,7 +43,7 @@ const Username = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    await updateUserApi({
+    await updateUsernameApi({
       username: username,
       referralCode: referralCode,
     })

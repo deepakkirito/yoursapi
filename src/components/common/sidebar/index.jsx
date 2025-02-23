@@ -11,26 +11,22 @@ import {
   ListItemIcon,
   ListItemText,
   styled,
-  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+import TooltipCustom from "../tooltip";
+import { KeyboardArrowLeftRounded } from "@mui/icons-material";
 import {
   mainList,
   mainListUrl,
+  profileList,
   projectList,
 } from "@/components/assets/constants/barList";
-import Link from "next/link";
-import TooltipCustom from "../tooltip";
-import {
-  ArrowLeftRounded,
-  KeyboardArrowLeftRounded,
-} from "@mui/icons-material";
-import { CreateSidebarContext } from "@/utilities/context/sidebar";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -44,35 +40,31 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 const Sidebar = () => {
   const location = usePathname();
   const theme = useTheme();
-  // const { sidebarOpen, setSidebarOpen } = useContext(CreateSidebarContext);
   const [sidebarOpen, setSidebarOpen] = useLocalStorage("sidebar", true);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [isProjectLink, setIsProjectLink] = useState(false);
+  const [isIncluded, setIsIncluded] = useState(false);
 
   useEffect(() => {
-    if (mainListUrl.includes(location)) {
-      setIsProjectLink(true);
-    } else {
-      setIsProjectLink(false);
-    }
-  }, [location]);
-
-  useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
+    if (isMobile) setSidebarOpen(false);
   }, [isMobile]);
 
-  const handleDrawerClose = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
   const data = useMemo(() => {
-    if (isProjectLink) {
+    if (mainListUrl.includes(location)) {
+      setIsIncluded(false);
       return mainList;
     }
+    if (location.includes("/profile")) {
+      setIsIncluded(false);
+      return profileList;
+    }
+    setIsIncluded(true);
     return projectList;
-  }, [isProjectLink]);
+  }, [location]);
+
+  const isProjectLink = useMemo(
+    () => mainListUrl.includes(location),
+    [location]
+  );
 
   return (
     <Box>
@@ -88,8 +80,6 @@ const Sidebar = () => {
             borderRadius: "1rem",
             width: "100%",
             boxSizing: "border-box",
-            transition: "all 500ms",
-            borderRadius: "1rem",
           },
           "& .MuiPaper-root": {
             position: "relative",
@@ -105,36 +95,22 @@ const Sidebar = () => {
             opacity: sidebarOpen ? "1" : "0 !important",
             transition: "all 1000ms, color 10ms",
           },
-          "& .MuiButtonBase-root": {
-            transition: "all 1000ms, color 10ms",
-          },
         }}
         variant="persistent"
-        // anchor="left"
-        open={true}
+        open
       >
         <DrawerHeader>
           <Box
-            className={`w-[100%] flex justify-${
-              mainListUrl.includes(location) ? "end" : "between"
-            }`}
+            className={`w-[100%] flex justify-${isProjectLink ? "end" : "between"}`}
           >
-            {sidebarOpen && !mainListUrl.includes(location) && (
+            {sidebarOpen && !isProjectLink && (
               <TooltipCustom title="Back" placement="right">
-                <Link
-                  href={
-                    location.includes("shared")
-                      ? "/projects/shared"
-                      : "/projects"
-                  }
-                >
-                  <IconButton>
-                    <KeyboardArrowLeftRounded color="secondary" />
-                  </IconButton>
-                </Link>
+                <IconButton onClick={() => window.history.back()}>
+                  <KeyboardArrowLeftRounded color="secondary" />
+                </IconButton>
               </TooltipCustom>
             )}
-            <IconButton onClick={handleDrawerClose}>
+            <IconButton onClick={() => setSidebarOpen(!sidebarOpen)}>
               {sidebarOpen ? (
                 <MenuOpenRoundedIcon color="secondary" />
               ) : (
@@ -146,32 +122,29 @@ const Sidebar = () => {
         <Divider />
         <List>
           {data?.map((item, index) => {
-            if (item.name === "divider") {
+            if (item.name === "divider")
               return <Divider key={index} className="my-2" />;
-            }
             if (item.name === "header") {
-              return (
-                <div key={index}>
-                  {sidebarOpen && (
-                    <InputLabel className="px-4 pb-2">{item.label}</InputLabel>
-                  )}
-                </div>
-              );
+              return sidebarOpen ? (
+                <InputLabel key={index} className="px-4 pb-2">
+                  {item.label}
+                </InputLabel>
+              ) : null;
             }
             return (
               <Link key={index} href={item.link}>
-                <ListItem key={item.link} disablePadding>
+                <ListItem disablePadding>
                   <ListItemButton
                     onClick={() => isMobile && setSidebarOpen(false)}
                     sx={{
-                      backgroundColor: isProjectLink
+                      backgroundColor: !isIncluded
                         ? location === item.link
                           ? "background.inactive"
                           : "transparent"
                         : location.includes(item.link)
                           ? "background.inactive"
                           : "transparent",
-                      boxShadow: isProjectLink
+                      boxShadow: !isIncluded
                         ? location === item.link
                           ? `0 0 1rem ${theme.palette.background.active} inset`
                           : "none"
