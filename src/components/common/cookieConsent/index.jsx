@@ -1,11 +1,11 @@
 "use client";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import { Box, Button, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 
 const CookieConsent = () => {
-  const [consent, setConsent] = useState(() => {
-    return localStorage.getItem("cookieConsent") === "true";
-  });
+  const [consent, setConsent] = useLocalStorage("cookieConsent", false);
+
 
   useEffect(() => {
     if (consent) {
@@ -15,7 +15,6 @@ const CookieConsent = () => {
 
   const acceptCookies = () => {
     setConsent(true);
-    localStorage.setItem("cookieConsent", "true");
   };
 
   return (
