@@ -67,7 +67,7 @@ const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useLocalStorage("sidebar", true);
   const router = useRouter();
   const { navTitle, setNavTitle } = useContext(CreateNavTitleContext);
-  const [profile, setProfile] = useLocalStorage("profile");
+  // const [profile, setProfile] = useLocalStorage("profile");
   const window = useCustomWindow();
 
   useEffect(() => {
@@ -98,7 +98,7 @@ const Navbar = () => {
     setLoading(true);
     getUsersApi()
       .then((res) => {
-        setProfile(res.data.data?.profile);
+        // setProfile(res.data.data?.profile);
         setUserData(res.data.data);
         setUser(res.data.data);
         setLoading(false);

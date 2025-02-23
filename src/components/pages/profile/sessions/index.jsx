@@ -12,7 +12,7 @@ const Map = dynamic(() => import("@/components/common/map"), {
   ssr: false,
 });
 import { DeleteRounded } from "@mui/icons-material";
-import { catchError } from "@/utilities/helpers/functions";
+import { catchError, getDate } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
 
 const Sessions = () => {
@@ -126,6 +126,14 @@ const Sessions = () => {
                         </Typography>
                         <Typography variant="h7">
                           <b>Country: </b> {item?.location?.country}
+                        </Typography>
+                        <Typography variant="h7">
+                          <b>Created at: </b>{" "}
+                          {getDate(item?.createdAt || new Date())}
+                        </Typography>
+                        <Typography variant="h7">
+                          <b>Last active: </b>{" "}
+                          {getDate(item?.lastActive || new Date())}
                         </Typography>
                       </div>
                       {item.current && (

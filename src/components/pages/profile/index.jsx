@@ -169,7 +169,7 @@ const Profile = () => {
                         transition: "all 0.5s",
                       },
                       ".upload": {
-                        transform: "translate(-6.5rem, 3rem)",
+                        transform: "translate(-7rem, 3rem)",
                         zIndex: -1,
                         opacity: 0,
                         transition: "all 0.5s",

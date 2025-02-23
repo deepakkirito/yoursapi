@@ -81,7 +81,7 @@ const NewCustomAiResponse = ({
   handleRetry,
   latestMessage,
 }) => {
-  const [profile] = useLocalStorage("profile");
+  // const [profile] = useLocalStorage("profile");
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to latest message
@@ -95,7 +95,7 @@ const NewCustomAiResponse = ({
         <MessageBubble
           key={index}
           message={message}
-          profile={profile}
+          // profile={profile}
           data={data}
           handleRetry={handleRetry}
         />
@@ -103,7 +103,7 @@ const NewCustomAiResponse = ({
       {latestMessage?.content && (
         <MessageBubble
           message={latestMessage}
-          profile={profile}
+          // profile={profile}
           data={data}
           handleRetry={handleRetry}
         />
