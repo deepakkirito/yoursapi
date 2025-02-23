@@ -128,12 +128,10 @@ const Sessions = () => {
                           <b>Country: </b> {item?.location?.country}
                         </Typography>
                         <Typography variant="h7">
-                          <b>Created at: </b>{" "}
-                          {getDate(item?.createdAt || new Date())}
+                          <b>Created at: </b> {getDate(item?.createdAt)}
                         </Typography>
                         <Typography variant="h7">
-                          <b>Last active: </b>{" "}
-                          {getDate(item?.lastActive || new Date())}
+                          <b>Last active: </b> {getDate(item?.lastActive)}
                         </Typography>
                       </div>
                       {item.current && (
