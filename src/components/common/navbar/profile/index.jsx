@@ -67,11 +67,11 @@ const Profile = ({ userData, setLogin, router }) => {
                 <Typography variant="h6">{userData?.name}</Typography>
                 <TooltipCustom
                   title={
-                    userData.plan === "free" ? (
+                    userData?.plan === "free" ? (
                       ""
                     ) : (
                       <Typography variant="h7">
-                        Expires on {getDate(userData.validity)}
+                        Expires on {getDate(userData?.validity)}
                       </Typography>
                     )
                   }
@@ -81,10 +81,10 @@ const Profile = ({ userData, setLogin, router }) => {
                   <span
                     style={{
                       background:
-                        userData.plan === "free"
+                        userData?.plan === "free"
                           ? "linear-gradient(135deg,rgba(39, 174, 95, 0.84),rgba(46, 204, 112, 0.91))"
                           : "linear-gradient(135deg,rgba(212, 175, 55, 0.3),rgba(241, 196, 15, 0.39))", // Gradient for premium feel
-                      color: userData.plan === "free" ? "#EDEDED" : "#D4AF37",
+                      color: userData?.plan === "free" ? "#EDEDED" : "#D4AF37",
                       padding: "1px 4px",
                       borderRadius: "6px",
                       fontSize: "0.8rem",
@@ -92,7 +92,7 @@ const Profile = ({ userData, setLogin, router }) => {
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
                       border:
-                        userData.plan === "free"
+                        userData?.plan === "free"
                           ? "1px solid rgba(39, 174, 96, 0.8)"
                           : "1px solid rgba(212, 175, 55, 0.8)",
                       boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)", // Adds subtle depth
@@ -101,7 +101,7 @@ const Profile = ({ userData, setLogin, router }) => {
                       gap: "1px",
                     }}
                   >
-                    {userData.plan !== "free" && (
+                    {userData?.plan !== "free" && (
                       <WorkspacePremiumRoundedIcon
                         fontSize="small"
                         sx={{
@@ -109,7 +109,7 @@ const Profile = ({ userData, setLogin, router }) => {
                         }}
                       />
                     )}
-                    {userData.plan}
+                    {userData?.plan}
                   </span>
                 </TooltipCustom>
               </div>

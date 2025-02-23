@@ -39,19 +39,18 @@ const Sessions = () => {
   };
 
   const handleDelete = async (id) => {
-    setDeleteLoading({ [id]: true });
+    setDeleteLoading((prev) => ({ ...prev, [id]: true })); // Preserve existing state
+
     await deleteSessionApi(id)
       .then((res) => {
-        showNotification({
-          content: res.data.message,
-        });
+        showNotification({ content: res.data.message });
         getSessions(false);
       })
       .catch((err) => {
         catchError(err);
       })
       .finally(() => {
-        setDeleteLoading({ [id]: false });
+        setDeleteLoading((prev) => ({ ...prev, [id]: false })); // Preserve existing state
       });
   };
 
@@ -105,7 +104,7 @@ const Sessions = () => {
                         ) : (
                           <IconButton
                             onClick={() => handleDelete(item._id)}
-                            disabled={deleteLoading}
+                            disabled={deleteLoading[item._id]}
                           >
                             <DeleteRounded color="error" />
                           </IconButton>

@@ -707,7 +707,7 @@ const ProjectLayout = ({
               </Grid2>
             )}
           </Box>
-          {projects.length ? (
+          {projects?.length ? (
             <Grid2
               item
               xs={12}
