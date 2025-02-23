@@ -11,8 +11,6 @@ const CookieConsent = ({ backendUrl }) => {
     // Check if user already accepted cookies
     if (!Cookies.get("cookie_consent")) {
       setShowBanner(true);
-    } else {
-      fetchCookies();
     }
   }, []);
 
