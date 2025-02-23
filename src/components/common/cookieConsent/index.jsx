@@ -1,46 +1,48 @@
 "use client";
-import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
-import { Box, Button, Typography } from "@mui/material";
+
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import { Box, Button, Typography } from "@mui/material";
 
-const CookieConsent = () => {
-  const [consent, setConsent] = useLocalStorage("cookieConsent", false);
-
+const CookieConsent = ({ backendUrl }) => {
+  const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    if (consent) {
-      document.cookie = "userConsent=true; path=/; Secure; SameSite=None";
+    // Check if user already accepted cookies
+    if (!Cookies.get("cookie_consent")) {
+      setShowBanner(true);
+    } else {
+      fetchCookies();
     }
-  }, [consent]);
+  }, []);
 
   const acceptCookies = () => {
-    setConsent(true);
+    Cookies.set("cookie_consent", "true", { expires: 365 }); // Save for 1 year
+    setShowBanner(false);
   };
 
-  return (
-    !consent && (
-      <Box
-        className="flex flex-col items-center justify-center gap-4 p-6"
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          width: "100%",
-          backgroundColor: "background.defaultSolid",
-          textAlign: "center",
-          zIndex: 100000,
-          borderTop: "1px solid",
-          borderColor: "background.foreground",
-        }}
-      >
-        <Typography variant="h7">
-          This site uses cookies to improve your experience.
-        </Typography>
-        <Button variant="outlined" onClick={acceptCookies}>
-          Accept
-        </Button>
-      </Box>
-    )
-  );
+  return showBanner ? (
+    <Box
+      className="flex flex-col items-center justify-center gap-4 p-6"
+      sx={{
+        position: "fixed",
+        bottom: 0,
+        width: "100%",
+        backgroundColor: "background.defaultSolid",
+        textAlign: "center",
+        zIndex: 100000,
+        borderTop: "1px solid",
+        borderColor: "background.foreground",
+      }}
+    >
+      <Typography variant="h7">
+        This site uses cookies to improve your experience.
+      </Typography>
+      <Button variant="outlined" onClick={acceptCookies}>
+        Accept
+      </Button>
+    </Box>
+  ) : null;
 };
 
 export default CookieConsent;
