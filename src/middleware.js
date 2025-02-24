@@ -76,10 +76,7 @@ function redirectToLogin(req) {
 }
 
 // Apply middleware to multiple routes
-export const config = {
-  matcher: ["/api/:path*"],
-  runtime: "nodejs",
-  plugins: {
-    tailwindcss: {},
-  },
-};
+// export const config = {
+//   matcher: ["/api/:path*"],
+//   runtime: "nodejs",
+// };
