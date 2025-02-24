@@ -76,7 +76,7 @@ function redirectToLogin(req) {
 }
 
 // Apply middleware to multiple routes
-// export const config = {
-//   matcher: ["/api/:path*"],
-//   runtime: "nodejs",
-// };
+export const config = {
+  matcher: ["/api/:path*"],
+  runtime: "nodejs",
+};
