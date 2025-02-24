@@ -79,4 +79,7 @@ function redirectToLogin(req) {
 export const config = {
   matcher: ["/api/:path*"],
   runtime: "nodejs",
+  plugins: {
+    tailwindcss: {},
+  },
 };
