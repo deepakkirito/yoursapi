@@ -71,13 +71,13 @@ const Map = ({
 
   return (
     <MapContainer
-      center={[clientPosition.lat, clientPosition.lon]}
+      center={[clientPosition.lat || 0, clientPosition.lon || 0]}
       zoom={zoom}
       style={{ height: height, width: width }}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <Marker
-        position={[clientPosition.lat, clientPosition.lon]}
+        position={[clientPosition.lat || 0, clientPosition.lon || 0]}
         icon={customIcon}
       >
         <Popup>A sample location!</Popup>

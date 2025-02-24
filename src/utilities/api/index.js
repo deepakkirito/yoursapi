@@ -20,11 +20,54 @@ const axiosGet = (url) => {
   });
   return promise;
 };
+const axiosGetSelf = (url) => {
+  let promise = new Promise(function (resolve, reject) {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_COMPANY_URL}${url}`, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        if (err.status === 403) {
+          localStorage.removeItem("login");
+          localStorage.removeItem("user");
+          window.location.pathname = "/login";
+        }
+        reject(err);
+      });
+  });
+  return promise;
+};
 
 const axiosPost = (url, body) => {
   let promise = new Promise(function (resolve, reject) {
     axios
       .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}`, body, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        if (err.status === 403) {
+          localStorage.removeItem("login");
+          localStorage.removeItem("user");
+          window.location.pathname = "/login";
+        }
+        reject(err);
+      });
+  });
+  return promise;
+};
+
+const axiosPostSelf = (url, body) => {
+  let promise = new Promise(function (resolve, reject) {
+    console.log({ url });
+
+    axios
+      .post(`${process.env.NEXT_PUBLIC_COMPANY_URL}${url}`, body, {
         withCredentials: true,
       })
       .then((response) => {
@@ -98,4 +141,12 @@ const axiosHead = (url) => {
   return promise;
 };
 
-export { axiosGet, axiosPost, axiosPut, axiosDelete, axiosHead };
+export {
+  axiosGet,
+  axiosPost,
+  axiosPut,
+  axiosDelete,
+  axiosHead,
+  axiosPostSelf,
+  axiosGetSelf,
+};

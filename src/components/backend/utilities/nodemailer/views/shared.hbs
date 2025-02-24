@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Shared Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border: 1px solid #e1e1e1;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      padding: 10px;
+    }
+    .header h1 {
+      font-size: 24px;
+      color: #4CAF50;
+    }
+    .content {
+      font-size: 16px;
+      line-height: 1.6;
+      padding: 10px 20px;
+    }
+    .content .project-details {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+    .cta-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 16px;
+      text-align: center;
+    }
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      padding: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>New Project Shared with You!</h1>
+    </div>
+
+    <div class="content">
+      <p>Hi {{recipientName}},</p>
+
+      <p>{{sharedBy}} has shared a project with you on our platform. Below are the details of the shared project:</p>
+
+      <div class="project-details">
+        <strong>Project Name:</strong> {{projectName}}<br>
+        <strong>Shared By:</strong> {{sharedBy}}
+      </div>
+
+      <p>You can view and collaborate on this project by clicking the link below:</p>
+
+      <a href="{{projectLink}}" class="cta-button">View Project</a>
+    </div>
+
+    <div class="footer">
+      <p>If you have any questions, feel free to reach out to our support team.</p>
+      <p>Thank you for using our platform!</p>
+    </div>
+  </div>
+</body>
+</html>

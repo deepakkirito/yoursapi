@@ -1,7 +1,18 @@
-const { axiosPost, axiosGet, axiosHead, axiosPut } = require("..");
+const {
+  axiosPost,
+  axiosGet,
+  axiosHead,
+  axiosPut,
+  axiosPostSelf,
+  axiosGetSelf,
+} = require("..");
+
+// const LoginApi = (body) => {
+//   return axiosPost("/auth/login", body);
+// };
 
 const LoginApi = (body) => {
-  return axiosPost("/auth/login", body);
+  return axiosPostSelf("api/auth/login", body);
 };
 
 const RegisterApi = (body) => {
@@ -17,8 +28,11 @@ const VerifyApi = (token) => {
 };
 
 const LogoutApi = () => {
-  return axiosGet(`/auth/logout`);
+  return axiosGetSelf(`/api/auth/logout`);
 };
+// const LogoutApi = () => {
+//   return axiosGet(`/auth/logout`);
+// };
 
 const UpdateApi = (body) => {
   return axiosPut(`/auth/update`, body);
@@ -37,8 +51,11 @@ const ResetApi = (token, body) => {
 };
 
 const GoogleApi = (body) => {
-  return axiosPost(`/auth/google`, body);
+  return axiosPostSelf(`/api/auth/google`, body);
 };
+// const GoogleApi = (body) => {
+//   return axiosPost(`/auth/google`, body);
+// };
 
 export {
   LoginApi,
@@ -50,5 +67,5 @@ export {
   ResetApi,
   GoogleApi,
   LogoutApi,
-  CheckUsernameApi
+  CheckUsernameApi,
 };

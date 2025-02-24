@@ -1,0 +1,25 @@
+<div style="font-family: Arial, sans-serif; color: #333;">
+  <h2 style="color: #4CAF50;">New Login Notification</h2>
+  <p>Dear {{username}},</p>
+  <p>We noticed a new login to your account on
+    {{loginDate}}
+    from the following details:</p>
+
+  <ul>
+    <li><strong>Location:</strong> {{location}}</li>
+    <li><strong>Device:</strong> {{device}}</li>
+    <li><strong>Browser:</strong> {{browser}}</li>
+    <li><strong>IP Address:</strong> {{ip}}</li>
+    <li><strong>Operating System:</strong> {{os}}</li>
+  </ul>
+
+  <p>If this was you, no further action is needed. If you did not recognize this
+    activity, please
+    <a href="{{securityLink}}" style="color: #4CAF50;">secure your account</a>
+    immediately.</p>
+
+  <p>Best regards,<br />{{ companyName }} Team</p>
+
+  <p style="font-size: 0.9em; color: #777;">For additional help, visit our
+    support page or reply to this email.</p>
+</div>

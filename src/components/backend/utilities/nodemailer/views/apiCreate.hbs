@@ -1,0 +1,43 @@
+<div style="font-family: Arial, sans-serif; color: #333;">
+  <h2 style="color: #4CAF50;">New Api Created Successfully</h2>
+  <p>Dear {{username}},</p>
+
+  <p>A new API has been created in your project:</p>
+
+  <table style="border-collapse: collapse; margin: 10px 0;">
+    <tr>
+      <td style="padding: 8px; border: 1px solid #ddd;"><strong>Project Name:</strong></td>
+      <td style="padding: 8px; border: 1px solid #ddd;">{{projectName}}</td>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #ddd;"><strong>Api Name:</strong></td>
+      <td style="padding: 8px; border: 1px solid #ddd;">{{apiName}}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #ddd;"><strong>Creation Date:</strong></td>
+      <td style="padding: 8px; border: 1px solid #ddd;">{{creationDate}}</td>
+    </tr>
+  </table>
+
+  <p>You can view and manage your project by clicking the link below:</p>
+
+  <a
+    href="{{apiLink}}"
+    style="
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 10px 0;
+        color: #ffffff;
+        background-color: #4CAF50;
+        text-decoration: none;
+        border-radius: 5px;
+    "
+  >View Api</a>
+
+  <p>If you did not create this project or if you have any questions, please
+    contact our support team immediately.</p>
+
+  <p>Best regards,<br />{{companyName}} Team</p>
+
+  <p style="font-size: 0.9em; color: #777;">Need help? Visit our support page or
+    reply to this email.</p>
+</div>
