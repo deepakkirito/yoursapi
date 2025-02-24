@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import SessionsModel from "./components/backend/api/session/model";
-import { dbConnect } from "./components/backend/utilities/dbConnect";
+// import jwt from "jsonwebtoken";
+// import SessionsModel from "./components/backend/api/session/model";
+// import { dbConnect } from "./components/backend/utilities/dbConnect";
 
 export async function middleware(req) {
   const token = req.cookies.get("accessToken");
@@ -20,45 +20,45 @@ export async function middleware(req) {
       return redirectToLogin(req);
     }
 
-    try {
-      await dbConnect();
+    // try {
+    //   await dbConnect();
 
-      // Verify JWT token
-      const decoded = jwt.verify(token, process.env.JWT_KEY);
-      if (!decoded?.userId && !decoded?.sub) {
-        await SessionsModel.deleteOne({ jwt: token });
-        return redirectToLogin(req);
-      }
+    //   // Verify JWT token
+    //   const decoded = jwt.verify(token, process.env.JWT_KEY);
+    //   if (!decoded?.userId && !decoded?.sub) {
+    //     await SessionsModel.deleteOne({ jwt: token });
+    //     return redirectToLogin(req);
+    //   }
 
-      // Find active user sessions
-      const sessions = await SessionsModel.find({
-        userId: decoded.userId || decoded.sub,
-      });
+    //   // Find active user sessions
+    //   const sessions = await SessionsModel.find({
+    //     userId: decoded.userId || decoded.sub,
+    //   });
 
-      if (!sessions.length) {
-        return redirectToLogin(req);
-      }
+    //   if (!sessions.length) {
+    //     return redirectToLogin(req);
+    //   }
 
-      // Check if any sessions have expired
-      for (const session of sessions) {
-        try {
-          const sessionDecoded = jwt.verify(session.jwt, process.env.JWT_KEY);
+    //   // Check if any sessions have expired
+    //   for (const session of sessions) {
+    //     try {
+    //       const sessionDecoded = jwt.verify(session.jwt, process.env.JWT_KEY);
 
-          if (sessionDecoded.exp < Math.floor(Date.now() / 1000)) {
-            await SessionsModel.deleteOne({ jwt: session.jwt });
+    //       if (sessionDecoded.exp < Math.floor(Date.now() / 1000)) {
+    //         await SessionsModel.deleteOne({ jwt: session.jwt });
 
-            if (session.jwt === token) {
-              return redirectToLogin(req);
-            }
-          }
-        } catch (err) {
-          await SessionsModel.deleteOne({ jwt: session.jwt });
-        }
-      }
-    } catch (err) {
-      console.error("JWT verification error:", err.message);
-      return redirectToLogin(req);
-    }
+    //         if (session.jwt === token) {
+    //           return redirectToLogin(req);
+    //         }
+    //       }
+    //     } catch (err) {
+    //       await SessionsModel.deleteOne({ jwt: session.jwt });
+    //     }
+    //   }
+    // } catch (err) {
+    //   console.error("JWT verification error:", err.message);
+    //   return redirectToLogin(req);
+    // }
   }
 
   return NextResponse.next();
@@ -78,4 +78,5 @@ function redirectToLogin(req) {
 // Apply middleware to multiple routes
 export const config = {
   matcher: ["/api/:path*"],
+  runtime: "nodejs",
 };
