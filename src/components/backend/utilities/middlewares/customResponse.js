@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 
 // Helper function to redirect and clear cookies
 export function redirectToLogin(req) {
-  const response = NextResponse.redirect(new URL("/login", req.url));
+  const response = NextResponse.json(
+    { message: "Please login again" },
+    {
+      status: 401,
+    }
+  );
   response.cookies.set("accessToken", "", {
     path: "/",
     httpOnly: true,

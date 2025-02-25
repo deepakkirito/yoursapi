@@ -68,6 +68,7 @@ export async function POST(request) {
     );
 
     const location = await LocationModel.findOne({ userId: user._id });
+    
     if (location) {
       const session = new SessionsModel({
         jwt: authToken,

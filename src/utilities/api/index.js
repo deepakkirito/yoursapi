@@ -20,6 +20,7 @@ const axiosGet = (url) => {
   });
   return promise;
 };
+
 const axiosGetSelf = (url) => {
   let promise = new Promise(function (resolve, reject) {
     axios
@@ -30,7 +31,7 @@ const axiosGetSelf = (url) => {
         resolve(response);
       })
       .catch((err) => {
-        if (err.status === 403) {
+        if (err.status === 403 || err.status === 401) {
           localStorage.removeItem("login");
           localStorage.removeItem("user");
           window.location.pathname = "/login";
@@ -74,7 +75,7 @@ const axiosPostSelf = (url, body) => {
         resolve(response);
       })
       .catch((err) => {
-        if (err.status === 403) {
+        if (err.status === 403 || err.status === 401) {
           localStorage.removeItem("login");
           localStorage.removeItem("user");
           window.location.pathname = "/login";
@@ -95,7 +96,7 @@ const axiosPut = (url, body) => {
         resolve(response);
       })
       .catch((err) => {
-        if (err.status === 403) {
+        if (err.status === 403 || err.status === 401) {
           localStorage.removeItem("login");
           localStorage.removeItem("user");
           window.location.pathname = "/login";
@@ -116,7 +117,7 @@ const axiosPutSelf = (url, body) => {
         resolve(response);
       })
       .catch((err) => {
-        if (err.status === 403) {
+        if (err.status === 403 || err.status === 401) {
           localStorage.removeItem("login");
           localStorage.removeItem("user");
           window.location.pathname = "/login";
@@ -137,7 +138,7 @@ const axiosDelete = (url) => {
         resolve(response);
       })
       .catch((err) => {
-        if (err.status === 403) {
+        if (err.status === 403 || err.status === 401) {
           localStorage.removeItem("login");
           localStorage.removeItem("user");
           window.location.pathname = "/login";
@@ -158,7 +159,7 @@ const axiosDeleteSelf = (url) => {
         resolve(response);
       })
       .catch((err) => {
-        if (err.status === 403) {
+        if (err.status === 403 || err.status === 401) {
           localStorage.removeItem("login");
           localStorage.removeItem("user");
           window.location.pathname = "/login";
@@ -192,7 +193,14 @@ const axiosHeadSelf = (url) => {
       .then((response) => {
         resolve(response);
       })
-      .catch((err) => reject(err));
+      .catch((err) => {
+        if (err.status === 403 || err.status === 401) {
+          localStorage.removeItem("login");
+          localStorage.removeItem("user");
+          window.location.pathname = "/login";
+        }
+        reject(err);
+      });
   });
   return promise;
 };
@@ -207,7 +215,7 @@ const axiosPatchSelf = (url, body) => {
         resolve(response);
       })
       .catch((err) => {
-        if (err.status === 403) {
+        if (err.status === 403 || err.status === 401) {
           localStorage.removeItem("login");
           localStorage.removeItem("user");
           window.location.pathname = "/login";

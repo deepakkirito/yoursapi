@@ -2,9 +2,9 @@ import UsersModel from "@/components/backend/api/users/model";
 import { dbConnect } from "@/components/backend/utilities/dbConnect";
 import { NextResponse } from "next/server";
 
-export async function HEAD(request) {
+export async function HEAD(request, { params }) {
   try {
-    const username = request.nextUrl.searchParams.get("username");
+    const { username } = params;
 
     await dbConnect();
 

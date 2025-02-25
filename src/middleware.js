@@ -10,6 +10,9 @@ export async function middleware(req) {
     "/profile",
     "/settings",
     "/api/auth/logout",
+    "/api/project",
+    "/api/session",
+    "/api/user",
   ];
 
   // If route is protected, check authentication

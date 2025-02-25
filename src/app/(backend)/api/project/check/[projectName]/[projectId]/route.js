@@ -5,10 +5,9 @@ import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken"
 import { getProjectOwner } from "@/components/backend/utilities/middlewares/getProjectOwner";
 import { NextResponse } from "next/server";
 
-export async function HEAD(request) {
+export async function HEAD(request, { params }) {
   try {
-    const projectName = request.nextUrl.searchParams.get("projectName");
-    const projectId = request.nextUrl.searchParams.get("projectId");
+    const { projectName } = params;
 
     const { userId, token, email, name, role } = await verifyToken(request);
 

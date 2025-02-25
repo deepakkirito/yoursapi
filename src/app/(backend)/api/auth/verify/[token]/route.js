@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
 import { dbConnect } from "@/components/backend/utilities/dbConnect";
 
-export async function GET(request) {
+export async function GET(request, { params }) {
   try {
-    const token = request.nextUrl.searchParams.get("token");
+    const { token } = params;
 
     let decoded = {};
 

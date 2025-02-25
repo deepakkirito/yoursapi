@@ -3,7 +3,7 @@ import { redirectToLogin } from "./customResponse";
 
 const getRequestDetails = async (req) => {
   const token = req.cookies.get("accessToken");
-  
+
   let decoded = {};
 
   try {
@@ -14,8 +14,15 @@ const getRequestDetails = async (req) => {
   const { userId, email, name, role, username } = decoded;
 
   let body = {};
+
   if (req.method !== "GET") {
-    body = await req.json();
+    try {
+      const text = await req.text(); // Read the body as text first
+      body = text ? JSON.parse(text) : {}; // Parse only if body is not empty
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      body = {}; // Default to an empty object if parsing fails
+    }
   }
 
   return {

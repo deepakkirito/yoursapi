@@ -7,9 +7,9 @@ import UsersModel from "@/components/backend/api/users/model";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
 import { dbConnect } from "@/components/backend/utilities/dbConnect";
 
-export async function POST(request) {
+export async function POST(request, { params }) {
   try {
-    const token = request.nextUrl.searchParams.get("token");
+    const { token } = params;    
 
     let decoded = {};
 

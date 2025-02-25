@@ -4,9 +4,9 @@ import { validateRequest } from "@/components/backend/utilities/helpers/validato
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { NextResponse } from "next/server";
 
-export async function HEAD(request) {
+export async function HEAD(request, { params }) {
   try {
-    const projectName = request.nextUrl.searchParams.get("projectName");
+    const { projectName } = params;
 
     const { userId, token, email, name, role } = await verifyToken(request);
 

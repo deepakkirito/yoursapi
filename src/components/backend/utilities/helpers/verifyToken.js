@@ -26,7 +26,7 @@ export async function verifyToken(req) {
     }
 
     await SessionsModel.findOneAndUpdate(
-      { userId: userId },
+      { jwt: token.value },
       { lastActive: new Date() }
     );
 

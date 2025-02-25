@@ -3,10 +3,10 @@ import UsersModel from "@/components/backend/api/users/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { NextResponse } from "next/server";
 
-export default async function GET(request) {
+export default async function GET(request, { params }) {
   try {
-    const projectId = request.nextUrl.searchParams.get("projectId");
-    const userEmail = request.nextUrl.searchParams.get("userEmail");
+    
+    const { projectId, userEmail } = params;
 
     const { userId, token, email, name, role } = await verifyToken(request);
 

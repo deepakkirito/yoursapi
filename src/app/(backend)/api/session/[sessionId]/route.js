@@ -1,14 +1,15 @@
 import SessionsModel from "@/components/backend/api/session/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
+import { redirectToLogin } from "@/components/backend/utilities/middlewares/customResponse";
 import { NextResponse } from "next/server";
 
-export async function DELETE(request) {
+export async function DELETE(request, { params }) {
   try {
     const { userId, token, email, name, role } = await verifyToken(request);
 
-    const sessionId = request.nextUrl.searchParams.get("sessionId");
+    const { sessionId } = params;
 
-    const session = await SessionsModel.findOneAndDelete({ _id: sessionId });
+    const session = await SessionsModel.findOne({ _id: sessionId });
 
     if (!session) {
       return NextResponse.json(
@@ -17,9 +18,13 @@ export async function DELETE(request) {
       );
     }
 
-    const updatedSession = await SessionsModel.findOne({ userId });
+    await SessionsModel.findOneAndDelete({ _id: sessionId });
 
-    return NextResponse.json(updatedSession);
+    if (token.value === session.jwt) {
+      return redirectToLogin(request);
+    }
+
+    return NextResponse.json({ message: "Session deleted successfully" });
   } catch (error) {
     console.log(error);
     return NextResponse.json(
