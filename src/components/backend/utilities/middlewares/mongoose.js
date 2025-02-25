@@ -1,225 +1,294 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const MONGO_STRING = process.env.MONGODB_KEY_MAIN;
+const MONGO_URI = process.env.MONGODB_KEY_MAIN;
 
-if (!MONGO_STRING) {
-  throw new Error("Please define the MONGODB_KEY_MAIN environment variable");
-}
+export const connectDBSelf = async (req, res, next) => {
+  const mongoDbKey = process.env.MONGODB_KEY_MAIN;
+  const userName = req.userName;
+  const schema = req.userSchema || {};
+  const strict = !!req.userSchema; // Simplified strict logic
+  const { projectName, apiName, data } = req.body;
+  const saveInternal = req.saveInternal;
 
-// Global cache to prevent multiple connections
-let cached = global.mongoose || { conn: null, promise: null };
+  if (saveInternal) {
+    // Construct the database name dynamically
+    const dbName = `${userName}_${projectName}`;
+    const dbUri = `${mongoDbKey}${dbName}`;
+    const newDbConnection = mongoose.createConnection(dbUri);
 
-export async function connectToDatabase({ KEY = MONGO_STRING, dbName }) {
-  if (cached.conn) return cached.conn;
-
-  if (!cached.promise) {
-    cached.promise = mongoose
-      .connect(KEY, { dbName, useNewUrlParser: true, useUnifiedTopology: true })
-      .then((conn) => {
-        console.log("MongoDB connected successfully");
-        return conn;
-      })
-      .catch((error) => {
-        console.error("MongoDB connection error:", error);
-        throw error;
-      });
-  }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
-}
-
-export async function safelyCloseConnection({ conn }) {
-  if (conn?.connection?.readyState === 1) {
-    await conn.connection.close();
-    console.log("MongoDB connection closed");
-  }
-}
-
-export async function getCollection({ dbConn, collectionName }) {
-  return dbConn.connection.db.collection(collectionName);
-}
-
-export async function getCollections({ dbConn }) {
-  return dbConn.connection.db.listCollections().toArray();
-}
-
-export async function getCollectionNames({ dbConn }) {
-  const collections = await dbConn.connection.db.listCollections().toArray();
-  return collections.map((collection) => collection.name);
-}
-
-export async function getCollectionSize({ dbConn, collectionName }) {
-  return dbConn.connection.db
-    .collection(collectionName)
-    .estimatedDocumentCount();
-}
-
-export async function getCollectionIndexes({ dbConn, collectionName }) {
-  return dbConn.connection.db.collection(collectionName).indexes();
-}
-
-export async function getCollectionData({
-  dbConn,
-  collectionName,
-  findQuery = {},
-  projectQuery = { _id: 0, __v: 0 },
-}) {
-  return dbConn.connection.db
-    .collection(collectionName)
-    .find(findQuery)
-    .project(projectQuery)
-    .toArray();
-}
-
-export async function updateCollectionData({
-  dbConn,
-  collectionName,
-  data,
-  options = "replace",
-}) {
-  if (!data || !Array.isArray(data) || data.length === 0) {
-    throw new Error("Invalid data provided for updateCollectionData");
-  }
-
-  const collection = dbConn.connection.db.collection(collectionName);
-
-  if (options === "replace") {
-    await collection.deleteMany({});
-  }
-
-  await collection.insertMany(data);
-  console.log(`Updated collection: ${collectionName}`);
-  return true;
-}
-
-export async function copyDocument({
-  oldDbName,
-  newDbName,
-  uri = MONGO_STRING,
-  dropOldDb = true,
-}) {
-  try {
-    const oldConn = await connectToDatabase({ KEY: uri, dbName: oldDbName });
-    const newConn = await connectToDatabase({ KEY: uri, dbName: newDbName });
-
-    console.log(
-      `Connected to databases: Old - ${oldDbName}, New - ${newDbName}`
-    );
-
-    const collections = await oldConn.connection.db.listCollections().toArray();
-
-    if (collections.length === 0) {
-      console.log("No collections found in the old database");
-      return;
-    }
-
-    for (const { name: collectionName } of collections) {
+    // Handle connection events
+    newDbConnection.on("connected", async () => {
       try {
-        console.log(`Copying collection: ${collectionName}`);
-        const data = await oldConn.connection.db
-          .collection(collectionName)
-          .find({})
-          .toArray();
+        console.log(`Connected to database: ${dbName}`);
 
-        if (data.length > 0) {
-          await newConn.connection.db
-            .collection(collectionName)
-            .insertMany(data);
-          console.log(`Collection ${collectionName} copied successfully`);
+        // Define schema with strict mode and explicit collection name
+        const sampleSchema = new mongoose.Schema(schema, {
+          strict,
+          collection: apiName, // Explicit collection name
+        });
+
+        // Create the model
+        const model = newDbConnection.model(apiName, sampleSchema);
+
+        // If data is provided, insert it into the collection
+        if (data) {
+          await model.insertMany(data);
+          console.log(`Data inserted into collection: ${apiName}`);
         } else {
-          console.log(`Collection ${collectionName} is empty`);
+          console.log(`No data provided for collection: ${apiName}`);
         }
-      } catch (error) {
-        console.error(`Error copying collection: ${collectionName}`, error);
+
+        // Close the connection
+        await newDbConnection.close();
+        console.log(`Database connection closed: ${dbName}`);
+        next();
+      } catch (err) {
+        console.error("Error during database operation:", err.message);
+        await safelyCloseConnection(newDbConnection, dbName, res);
+        res
+          .status(500)
+          .send({ message: "Database operation error", error: err.message });
       }
-    }
+    });
 
-    if (dropOldDb) {
-      console.log("Dropping old database");
-      await oldConn.connection.db.dropDatabase();
-      console.log("Old database dropped successfully");
-    }
-
-    await safelyCloseConnection({ conn: oldConn });
-    await safelyCloseConnection({ conn: newConn });
-
-    console.log("Databases copied successfully");
-  } catch (error) {
-    console.error("Error in copyDocument:", error);
-    throw error;
+    // Handle connection error
+    newDbConnection.on("error", (err) => {
+      console.error("Database connection error:", err.message);
+      res
+        .status(500)
+        .send({ message: "Database connection error", error: err.message });
+    });
+  } else {
+    next();
   }
-}
+};
 
-export async function renameCollection({
-  dbName,
-  oldCollectionName,
-  newCollectionName,
-  uri,
-  dropOldCollection = true,
-}) {
-  let dbConn;
+// Helper function to safely close the database connection
+export const safelyCloseConnection = async (connection, dbName) => {
+  try {
+    await connection.close();
+    console.log(`Database connection closed: ${dbName}`);
+  } catch (err) {
+    console.error(`Failed to close database connection: ${err.message}`);
+    // res.status(500).send({
+    //   message: "Failed to close database connection",
+    //   error: err.message,
+    // });
+  }
+};
+
+export const connectDBUser = async (req, res, next) => {
+  const mongoDbKey = req.mongoDbKey;
+  const saveExternal = req.saveExternal;
+  const userName = req.userName;
+  const schema = req.userSchema || null;
+  const strict = !!req.userSchema; // Simplified strict logic
+  const { projectName, apiName, data } = req.body;
+
+  if (mongoDbKey && saveExternal) {
+    // Create a new database connection
+    const newDbConnection = mongoose.createConnection(
+      `${mongoDbKey}${projectName}`
+    );
+
+    newDbConnection.on("connected", async () => {
+      try {
+        // Define the schema with explicit collection name
+        const sampleSchema = new mongoose.Schema(schema || {}, {
+          strict,
+          collection: apiName, // Explicitly set the collection name
+        });
+
+        // Create the model
+        const model = newDbConnection.model(apiName, sampleSchema);
+
+        if (data) {
+          // Insert the data
+          await model.insertMany(data);
+          console.log(`Data inserted into collection: ${apiName}`);
+        } else {
+          console.log(`No data provided for collection: ${apiName}`);
+        }
+
+        // Close the database connection
+        await newDbConnection.close();
+        console.log(`Database connection closed: ${projectName}`);
+        next();
+      } catch (err) {
+        console.error("Error during database operation:", err.message);
+        res
+          .status(500)
+          .send({ message: "Database operation error", error: err.message });
+      }
+    });
+
+    newDbConnection.on("error", (err) => {
+      console.error("Database connection error:", err.message);
+      res
+        .status(500)
+        .send({ message: "Database connection error", error: err.message });
+    });
+  } else {
+    next();
+  }
+};
+
+export const getDB = async (req, res, next) => {
+  const { dbString } = req.body;
+
+  if (!dbString) {
+    next();
+    return;
+  }
 
   try {
-    // Connect to database
-    dbConn = await connectToDatabase({ KEY: uri, dbName });
+    const connection = mongoose.createConnection(dbString);
 
-    const db = dbConn.connection.db;
+    connection.on("connected", async () => {
+      try {
+        const databases = connection.db.admin();
+        const dbList = await databases.listDatabases();
 
-    // Check if the old collection exists
-    const oldCollectionExists = await db
-      .listCollections({ name: oldCollectionName })
-      .toArray();
+        if (!dbList.databases || dbList.databases.length === 0) {
+          return res.status(404).send({ message: "No databases found" });
+        }
 
-    if (oldCollectionExists.length === 0) {
-      console.warn(`❌ Collection "${oldCollectionName}" does not exist.`);
-      return false;
-    }
+        const dbPromises = dbList.databases.map(async (db) => {
+          if (!db.name) return null; // Skip unnamed databases
 
-    // Check if the new collection already exists
-    const newCollectionExists = await db
-      .listCollections({ name: newCollectionName })
-      .toArray();
+          try {
+            // Create a connection to the specific database
+            const dbConnection = mongoose.createConnection(
+              `${dbString}${db.name}`
+            );
 
-    if (newCollectionExists.length > 0) {
-      console.warn(`⚠️ Collection "${newCollectionName}" already exists.`);
-      return false;
-    }
+            // Wait for the connection to establish
+            await dbConnection.asPromise();
 
-    // Fetch all data from the old collection
-    const data = await db.collection(oldCollectionName).find().toArray();
+            // List collections in the database
+            const collections = await dbConnection.db
+              .listCollections()
+              .toArray();
 
-    if (data.length > 0) {
-      // Insert data into the new collection
-      await db.collection(newCollectionName).insertMany(data);
-      console.log(`✅ Copied data to "${newCollectionName}".`);
-    } else {
-      console.log(`ℹ️ Old collection "${oldCollectionName}" is empty.`);
-    }
+            // Close the connection
+            dbConnection.close();
 
-    // Drop old collection if specified
-    if (dropOldCollection) {
-      await db.collection(oldCollectionName).drop();
-      console.log(`🗑️ Dropped old collection: "${oldCollectionName}".`);
-    }
+            return {
+              name: db.name,
+              sizeOnDisk: db.sizeOnDisk,
+              empty: db.empty,
+              collections: collections.map((collection) => collection.name), // Extract collection names
+            };
+          } catch (err) {
+            console.error(
+              `Error listing collections for database ${db.name}:`,
+              err
+            );
+            return null; // Skip databases that couldn't be processed
+          }
+        });
 
-    console.log(
-      `🎉 Successfully renamed collection to "${newCollectionName}".`
-    );
-    return true;
-  } catch (error) {
-    console.error(`❌ Error renaming collection:`, error);
-    return false;
-  } finally {
-    // Ensure connection is closed
-    if (dbConn) {
-      await safelyCloseConnection({ conn: dbConn });
-      console.log(`🔌 Closed database connection.`);
-    }
+        // Resolve all promises and filter out null results
+        const databasesInfo = (await Promise.all(dbPromises)).filter(
+          (db) => db !== null
+        );
+
+        req.databases = databasesInfo;
+        connection.close();
+        next();
+      } catch (err) {
+        console.error("Error retrieving databases:", err);
+        connection.close();
+        res.status(500).send({ message: "Failed to retrieve databases" });
+      }
+    });
+
+    connection.on("error", (err) => {
+      console.error("Connection error:", err);
+      res.status(500).send({ message: "Invalid database connection string" });
+    });
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    res.status(500).send({ message: "Something went wrong" });
   }
-}
+};
 
-export async function migrateProjects({
+export const dropDBUser = async (req, res, next) => {
+  const mongoDbKey = req.mongoDbKey;
+  const saveExternal = req.saveExternal;
+  const projectName = req.projectName;
+  const userName = req.userName;
+
+  if (mongoDbKey && saveExternal) {
+    const connection = mongoose.createConnection(`${mongoDbKey}${projectName}`);
+    connection.on("connected", async () => {
+      try {
+        await connection.db.dropDatabase();
+        await connection
+          .close()
+          .then(() => {
+            next();
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).send({ message: "Database did not close" });
+          });
+      } catch (err) {
+        console.log(err);
+        res.status(500).send({
+          message:
+            "Database did not drop, you may not have given the user of atlas admin or databse admin or owner privileges",
+        });
+      }
+    });
+    connection.on("error", (err) => {
+      console.log(err);
+      res.status(500).send({ message: "Invalid database connection string" });
+    });
+  } else {
+    next();
+  }
+};
+
+export const dropDBSelf = async (req, res, next) => {
+  const mongoDbKey = process.env.MONGODB_KEY_MAIN;
+  const projectName = req.projectName;
+  const userName = req.userName;
+  const saveInternal = req.saveInternal;
+  const dbName = userName + "_" + projectName;
+
+  if (saveInternal) {
+    const connection = mongoose.createConnection(`${mongoDbKey}${dbName}`);
+    connection.on("connected", async () => {
+      try {
+        await connection.db.dropDatabase();
+        await connection
+          .close()
+          .then(() => {
+            next();
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).send({ message: "Database did not close" });
+          });
+      } catch (err) {
+        console.log(err);
+        res.status(500).send({
+          message:
+            "Database did not drop, you may not have given the user of atlas admin or databse admin or owner privileges",
+        });
+      }
+    });
+    connection.on("error", (err) => {
+      console.log(err);
+      res.status(500).send({ message: "Invalid database connection string" });
+    });
+  } else {
+    next();
+  }
+};
+
+export const migrateProjects = async ({
   dbString,
   dbStringOther,
   options,
@@ -229,8 +298,9 @@ export async function migrateProjects({
   migrate,
   schema,
   strict,
-}) {
+}) => {
   try {
+    // Iterate through each project
     for (const project of projects) {
       const sourceDbName = `${dbString}${
         options === "external" ? userName + "_" : ""
@@ -239,44 +309,46 @@ export async function migrateProjects({
         options === "external" ? "" : userName + "_"
       }${project.toLowerCase()}`;
 
-      console.log(`🔄 Migrating project: ${project}`);
-      console.log(`🔹 Source DB: ${sourceDbName}, Target DB: ${targetDbName}`);
+      console.log(`Migrating project: ${project}`);
+      console.log(`Source DB: ${sourceDbName}, Target DB: ${targetDbName}`);
 
-      // Connect to source and target databases
-      const sourceDbConn = await connectToDatabase({
-        KEY: dbString,
-        dbName: sourceDbName,
-      });
-      const targetDbConn = await connectToDatabase({
-        KEY: dbStringOther,
-        dbName: targetDbName,
-      });
+      // Create connections for source and target databases
+      const sourceDbConnection = mongoose.createConnection(sourceDbName);
+      const targetDbConnection = mongoose.createConnection(targetDbName);
 
-      const sourceDb = sourceDbConn.connection.db;
-      const targetDb = targetDbConn.connection.db;
-
-      // Drop target DB if `migrate` is "replace"
+      // Drop the target database if `migrate` is set to "replace"
       if (migrate === "replace") {
-        try {
-          await targetDb.dropDatabase();
-          console.log(`🗑 Dropped target database: ${targetDbName}`);
-        } catch (err) {
-          console.error(`❌ Failed to drop target DB "${targetDbName}":`, err);
-        }
+        await new Promise((resolve, reject) => {
+          targetDbConnection.on("connected", async () => {
+            try {
+              await targetDbConnection.db.dropDatabase();
+              console.log(`Dropped target database: ${targetDbName}`);
+              resolve();
+            } catch (err) {
+              console.error(
+                `Failed to drop target database "${targetDbName}":`,
+                err
+              );
+              reject(err);
+            }
+          });
+        });
       }
 
-      // Migrate all models in API
+      // Migrate all models in the API
       for (const apiModel of api[project]) {
         const modelName = apiModel.toLowerCase();
         const sampleSchema = new mongoose.Schema(schema, {
-          strict,
+          strict: strict,
           collection: modelName,
         });
 
         try {
-          const sourceModel = sourceDbConn.model(modelName, sampleSchema);
-          const targetModel = targetDbConn.model(modelName, sampleSchema);
+          // Define source and target models
+          const sourceModel = sourceDbConnection.model(modelName, sampleSchema);
+          const targetModel = targetDbConnection.model(modelName, sampleSchema);
 
+          // Fetch data from the source and insert into the target
           const documents = await sourceModel.find(
             {},
             { __v: 0, _id: migrate === "replace" ? 1 : 0 }
@@ -285,78 +357,276 @@ export async function migrateProjects({
           if (documents.length > 0) {
             await targetModel.insertMany(documents);
             console.log(
-              `✅ Migrated ${documents.length} documents for model: ${apiModel}`
+              `Migrated ${documents.length} documents for model: ${apiModel}`
             );
           } else {
-            console.log(`⚠️ No documents found for model: ${apiModel}`);
+            console.log(`No documents found for model: ${apiModel}`);
           }
         } catch (err) {
-          console.error(`❌ Error migrating model "${apiModel}":`, err);
+          console.error(`Error migrating model "${apiModel}":`, err);
         }
       }
 
-      // Close connections
-      await safelyCloseConnection({ conn: sourceDbConn });
-      await safelyCloseConnection({ conn: targetDbConn });
+      // Close database connections
+      try {
+        await sourceDbConnection.close();
+        console.log(`Closed source DB connection: ${sourceDbName}`);
+      } catch (err) {
+        console.error(`Failed to close source DB connection:`, err);
+      }
 
-      console.log(`✅ Migration completed for project: ${project}`);
+      try {
+        await targetDbConnection.close();
+        console.log(`Closed target DB connection: ${targetDbName}`);
+      } catch (err) {
+        console.error(`Failed to close target DB connection:`, err);
+      }
+
+      console.log(`Migration completed for project: ${project}`);
     }
 
-    console.log("🎉 All projects migrated successfully!");
+    console.log("All projects migrated successfully!");
   } catch (err) {
-    console.error("❌ Error during project migration:", err);
+    console.error("Error during project migration:", err);
   }
-}
+};
 
-export async function getDB(req, res) {
+export const connectToDatabase = async (uri, dbName = "") => {
+  const connection = mongoose.createConnection(`${uri}${dbName}`);
+  connection.on("error", (err) => {
+    console.error(`Error connecting to database "${dbName}": ${err.message}`);
+  });
+
+  await connection.asPromise(); // Wait for the connection to establish
+  console.log(`Connected to database: ${dbName}`);
+  return connection;
+};
+
+export const copyDatabase = async ({
+  oldDbName,
+  newDbName,
+  uri = MONGO_URI,
+  dropOldDb = true,
+}) => {
+  let oldDbConnection, newDbConnection;
+
   try {
-    const { dbString } = await req.json();
-    if (!dbString) return res.status(400).json({ message: "Missing dbString" });
+    // Connect to old and new databases
+    oldDbConnection = await connectToDatabase(uri, oldDbName);
+    newDbConnection = await connectToDatabase(uri, newDbName);
 
-    console.log("🔌 Connecting to DB:", dbString);
-    const dbConn = await connectToDatabase({ KEY: dbString, dbName: "admin" });
-    const adminDb = dbConn.connection.db.admin();
-
-    const dbList = await adminDb.listDatabases();
-    if (!dbList?.databases?.length) {
-      return res.status(404).json({ message: "No databases found" });
-    }
-
-    const databaseInfo = await Promise.all(
-      dbList.databases.map(async (db) => {
-        if (!db.name) return null;
-
-        try {
-          const dbConn = await connectToDatabase({
-            KEY: dbString,
-            dbName: db.name,
-          });
-          const collections = await dbConn.connection.db
-            .listCollections()
-            .toArray();
-          await safelyCloseConnection({ conn: dbConn });
-
-          return {
-            name: db.name,
-            sizeOnDisk: db.sizeOnDisk,
-            empty: db.empty,
-            collections: collections.map((c) => c.name),
-          };
-        } catch (err) {
-          console.error(`❌ Error fetching collections for ${db.name}:`, err);
-          return null;
-        }
-      })
+    console.log(
+      `Connected to databases: Old - ${oldDbName}, New - ${newDbName}`
     );
 
-    // Filter out any failed database fetches
-    const databasesInfo = databaseInfo.filter((db) => db !== null);
+    // Get collections from the old database
+    const collections = await oldDbConnection.db.listCollections().toArray();
 
-    await safelyCloseConnection({ conn: dbConn });
+    if (collections.length === 0) {
+      console.warn(`No collections found in the old database: ${oldDbName}`);
+      return;
+    }
 
-    return res.json({ databases: databasesInfo });
-  } catch (err) {
-    console.error("❌ Unexpected error in getDB:", err);
-    return res.status(500).json({ message: "Something went wrong" });
+    for (const { name: collectionName } of collections) {
+      try {
+        console.log(`Processing collection: ${collectionName}`);
+
+        // Fetch all documents from the old collection
+        const data = await oldDbConnection.db
+          .collection(collectionName)
+          .find()
+          .toArray();
+
+        if (data.length > 0) {
+          // Insert documents into the corresponding collection in the new database
+          await newDbConnection.db.collection(collectionName).insertMany(data);
+          console.log(`Copied collection: ${collectionName}`);
+        } else {
+          console.log(`Collection "${collectionName}" is empty, skipping.`);
+        }
+      } catch (collectionError) {
+        console.error(
+          `Error copying collection "${collectionName}": ${collectionError.message}`
+        );
+      }
+    }
+
+    // Optionally drop the old database after copying
+    if (dropOldDb) {
+      await oldDbConnection.db.dropDatabase();
+      console.log(`Dropped old database: ${oldDbName}`);
+    }
+
+    console.log(
+      `Database successfully copied from "${oldDbName}" to "${newDbName}".`
+    );
+  } catch (error) {
+    console.error(`Error during database copy: ${error.message}`);
+  } finally {
+    // Ensure connections are closed
+    try {
+      if (oldDbConnection) {
+        await oldDbConnection.close();
+        console.log(`Closed connection to old database: ${oldDbName}`);
+      }
+      if (newDbConnection) {
+        await newDbConnection.close();
+        console.log(`Closed connection to new database: ${newDbName}`);
+      }
+    } catch (closeError) {
+      console.error(
+        `Error closing database connections: ${closeError.message}`
+      );
+    }
   }
-}
+};
+
+export const renameCollection = async ({
+  dbName,
+  oldCollectionName,
+  newCollectionName,
+  uri,
+  dropOldCollection = true,
+}) => {
+  let dbConnection;
+
+  try {
+    // Connect to the database
+    dbConnection = await connectToDatabase(uri, dbName);
+
+    // Check if the old collection exists
+    const oldCollection = await dbConnection.db
+      .listCollections({ name: oldCollectionName })
+      .toArray();
+
+    if (oldCollection.length === 0) {
+      console.warn(
+        `Collection "${oldCollectionName}" does not exist in database "${dbName}".`
+      );
+      return;
+    }
+
+    // Check if the new collection already exists
+    const newCollection = await dbConnection.db
+      .listCollections({ name: newCollectionName })
+      .toArray();
+
+    if (newCollection.length > 0) {
+      console.warn(
+        `Collection "${newCollectionName}" already exists in database "${dbName}".`
+      );
+      return;
+    }
+
+    // Fetch all data from the old collection
+    const data = await dbConnection.db
+      .collection(oldCollectionName)
+      .find()
+      .toArray();
+
+    if (data.length > 0) {
+      // Insert data into the new collection
+      await dbConnection.db.collection(newCollectionName).insertMany(data);
+      console.log(`Copied data to new collection: "${newCollectionName}".`);
+    } else {
+      console.log(
+        `Old collection "${oldCollectionName}" is empty. No data copied.`
+      );
+    }
+
+    // Optionally drop the old collection
+    if (dropOldCollection) {
+      await dbConnection.db.collection(oldCollectionName).drop();
+      console.log(`Dropped old collection: "${oldCollectionName}".`);
+    }
+
+    console.log(
+      `Collection renamed successfully from "${oldCollectionName}" to "${newCollectionName}".`
+    );
+  } catch (error) {
+    console.error(`Error during collection rename: ${error.message}`);
+  } finally {
+    // Ensure the database connection is closed
+    if (dbConnection) {
+      await dbConnection.close();
+      console.log(`Closed connection to database: "${dbName}".`);
+    }
+  }
+};
+
+export const updateModel = async ({
+  dbConnection,
+  collectionName,
+  option = "replace",
+  req,
+  res,
+}) => {
+  const schema = req?.userSchema || {};
+  const strict = !!req?.userSchema;
+  const { data } = req?.body;
+
+  try {
+    // Define the schema with optional strict mode
+    const sampleSchema = new mongoose.Schema(schema, {
+      strict,
+      collection: collectionName,
+    });
+
+    // Create or retrieve the model
+    const model = dbConnection.model(collectionName, sampleSchema);
+
+    // First, delete all existing data in the collection
+    if (option === "replace") {
+      await model.deleteMany({});
+    }
+
+    // Insert new data into the collection if provided
+    if (data && Array.isArray(data) && data.length > 0) {
+      await model.insertMany(data);
+    }
+
+    // Close the database connection and send a success response
+    dbConnection.close();
+    return true;
+  } catch (err) {
+    console.error("Error updating collection:", err.message);
+    req.previousError = err.message;
+
+    // Close the database connection in case of an error
+    if (dbConnection.readyState === 1) {
+      dbConnection.close();
+    }
+
+    // Send an error response
+    return false;
+  }
+};
+
+export const getModelData = async ({
+  dbConnection,
+  collectionName,
+  findOptionOne = {},
+  findOptionTwo = { _id: 0, __v: 0 },
+}) => {
+  try {
+    // Ensure the connection is established
+    if (!dbConnection || !dbConnection.db) {
+      res.status(500).send({ message: "Database connection error" });
+    }
+
+    // Fetch data directly from the collection
+    const data = await dbConnection.db
+      .collection(collectionName)
+      .find(findOptionOne)
+      .project(findOptionTwo)
+      .toArray();
+
+    return data;
+  } catch (err) {
+    console.error(
+      `Error fetching data from collection "${collectionName}":`,
+      err
+    );
+    throw err;
+  }
+};

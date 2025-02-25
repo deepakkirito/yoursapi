@@ -295,88 +295,92 @@ const Profile = () => {
                   <Typography variant="h5" textAlign={"center"}>
                     Edit Profile
                   </Typography>
-                  <Box className="flex gap-2 items-center">
-                    <CustomInput
-                      label="Name"
-                      value={editedUserData?.name || userData?.name}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      onChange={(event) => {
-                        setEditedUserData({
-                          ...editedUserData,
-                          name: event.target.value,
-                        });
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <BadgeOutlinedIcon color="secondary" />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {customLoading?.name ? (
-                              <CircularProgress size={16} color="secondary" />
-                            ) : (
-                              <IconButton
-                                disabled={
-                                  !editedUserData?.name ||
-                                  editedUserData?.name === userData?.name
-                                }
-                                onClick={() =>
-                                  updateUser(
-                                    { name: editedUserData?.name },
-                                    "name"
-                                  )
-                                }
-                              >
-                                <SaveRounded color="secondary" />
-                              </IconButton>
-                            )}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <CustomInput
-                      label="Username"
-                      value={editedUserData?.username || userData?.username}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      onChange={(event) => {
-                        setEditedUserData({
-                          ...editedUserData,
-                          username: event.target.value,
-                        });
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Person4RoundedIcon color="secondary" />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {customLoading?.username ? (
-                              <CircularProgress size={16} color="secondary" />
-                            ) : (
-                              <IconButton
-                                disabled={
-                                  !editedUserData?.username ||
-                                  editedUserData?.username ===
-                                    userData?.username
-                                }
-                                onClick={handleUpdateUsername}
-                              >
-                                <SaveRounded color="secondary" />
-                              </IconButton>
-                            )}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Box>
+                  <Grid2 container spacing={2}>
+                    <Grid2 item size={{ xs: 12, md: 6 }}>
+                      <CustomInput
+                        label="Name"
+                        value={editedUserData?.name || userData?.name}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        onChange={(event) => {
+                          setEditedUserData({
+                            ...editedUserData,
+                            name: event.target.value,
+                          });
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <BadgeOutlinedIcon color="secondary" />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {customLoading?.name ? (
+                                <CircularProgress size={16} color="secondary" />
+                              ) : (
+                                <IconButton
+                                  disabled={
+                                    !editedUserData?.name ||
+                                    editedUserData?.name === userData?.name
+                                  }
+                                  onClick={() =>
+                                    updateUser(
+                                      { name: editedUserData?.name },
+                                      "name"
+                                    )
+                                  }
+                                >
+                                  <SaveRounded color="secondary" />
+                                </IconButton>
+                              )}
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid2>
+                    <Grid2 item size={{ xs: 12, md: 6 }}>
+                      <CustomInput
+                        label="Username"
+                        value={editedUserData?.username || userData?.username}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        onChange={(event) => {
+                          setEditedUserData({
+                            ...editedUserData,
+                            username: event.target.value,
+                          });
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Person4RoundedIcon color="secondary" />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {customLoading?.username ? (
+                                <CircularProgress size={16} color="secondary" />
+                              ) : (
+                                <IconButton
+                                  disabled={
+                                    !editedUserData?.username ||
+                                    editedUserData?.username ===
+                                      userData?.username
+                                  }
+                                  onClick={handleUpdateUsername}
+                                >
+                                  <SaveRounded color="secondary" />
+                                </IconButton>
+                              )}
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid2>
+                  </Grid2>
                 </Grid2>
 
                 <Grid2
@@ -410,69 +414,73 @@ const Profile = () => {
                         ),
                       }}
                     />
-                    <div className="flex gap-2 w-full">
-                      <CustomInput
-                        label="Password"
-                        value={editedUserData?.password}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        onChange={(event) => {
-                          setEditedUserData({
-                            ...editedUserData,
-                            password: event.target.value,
-                          });
-                        }}
-                        type="password"
-                        fullWidth
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Key color="secondary" />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <CustomInput
-                        label="Confirm Password"
-                        value={editedUserData?.confirmPassword}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        onChange={(event) => {
-                          setEditedUserData({
-                            ...editedUserData,
-                            confirmPassword: event.target.value,
-                          });
-                        }}
-                        type={seePassword ? "text" : "password"}
-                        fullWidth
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <Key color="secondary" />
-                            </InputAdornment>
-                          ),
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              {seePassword ? (
-                                <IconButton
-                                  onClick={() => setSeePassword(!seePassword)}
-                                >
-                                  <VisibilityOff color="secondary" />
-                                </IconButton>
-                              ) : (
-                                <IconButton
-                                  onClick={() => setSeePassword(!seePassword)}
-                                >
-                                  <Visibility color="secondary" />
-                                </IconButton>
-                              )}
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </div>
+                    <Grid2 container spacing={2} className="w-full">
+                      <Grid2 item size={{ xs: 12, md: 6 }}>
+                        <CustomInput
+                          label="Password"
+                          value={editedUserData?.password}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          onChange={(event) => {
+                            setEditedUserData({
+                              ...editedUserData,
+                              password: event.target.value,
+                            });
+                          }}
+                          type="password"
+                          fullWidth
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Key color="secondary" />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid2>
+                      <Grid2 item size={{ xs: 12, md: 6 }}>
+                        <CustomInput
+                          label="Confirm Password"
+                          value={editedUserData?.confirmPassword}
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          onChange={(event) => {
+                            setEditedUserData({
+                              ...editedUserData,
+                              confirmPassword: event.target.value,
+                            });
+                          }}
+                          type={seePassword ? "text" : "password"}
+                          fullWidth
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Key color="secondary" />
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                {seePassword ? (
+                                  <IconButton
+                                    onClick={() => setSeePassword(!seePassword)}
+                                  >
+                                    <VisibilityOff color="secondary" />
+                                  </IconButton>
+                                ) : (
+                                  <IconButton
+                                    onClick={() => setSeePassword(!seePassword)}
+                                  >
+                                    <Visibility color="secondary" />
+                                  </IconButton>
+                                )}
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid2>
+                    </Grid2>
                   </Box>
                   <Button
                     variant="contained"

@@ -12,7 +12,7 @@ import { getSessionDetails } from "@/components/backend/utilities/helpers/sessio
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { redirectToLogin } from "@/components/backend/utilities/middlewares/customResponse";
-import { copyDocument } from "@/components/backend/utilities/middlewares/mongoose";
+import { copyDatabase } from "@/components/backend/utilities/middlewares/mongoose";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
@@ -62,7 +62,7 @@ export async function PATCH(request) {
     } = await verifyToken(request);
 
     const validator = await validateRequest(request, updateUserValidator);
-    
+
     if (validator) {
       return validator;
     }
@@ -143,9 +143,9 @@ export async function PATCH(request) {
 
       await Promise.all(
         projects.map(async (project) => {
-          await copyDocument({
-            oldDbName: `${oldUsername}_${project.toLowerCase()}`,
-            newDbName: `${username}_${project.toLowerCase()}`,
+          await copyDatabase({
+            oldDbName: `${oldUsername}_${project.name.toLowerCase()}`,
+            newDbName: `${username}_${project.name.toLowerCase()}`,
             dropOldDb: true,
           });
         })
