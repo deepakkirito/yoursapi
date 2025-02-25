@@ -56,7 +56,7 @@ export default function Layout({ children }) {
                   md: "relative",
                 },
                 overflow: "hidden",
-                zIndex: "10000",
+                zIndex: "1000",
                 height: "fit-content",
               }}
             >

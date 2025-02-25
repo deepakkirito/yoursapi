@@ -61,8 +61,8 @@ export async function PATCH(request) {
       username: oldUsername,
     } = await verifyToken(request);
 
-    const validator = validateRequest(request, updateUserValidator);
-
+    const validator = await validateRequest(request, updateUserValidator);
+    
     if (validator) {
       return validator;
     }
@@ -165,37 +165,11 @@ export async function PATCH(request) {
         process.env.AUTH_EXPIRES_REMEMBER
       );
 
-      const sessionDetails = await getSessionDetails(request);
-
-      const existingLocation = await LocationModel.findOne({
-        userId: userId,
-        ...sessionDetails,
-      });
-
-      if (existingLocation) {
-        await SessionsModel.create({
-          jwt: token,
-          userId: userId,
-          location: existingLocation._id,
-          createdAt: new Date(),
-          lastActive: new Date(),
-        });
-      } else {
-        const newLocation = await LocationModel.create({
-          userId: userId,
-          ...sessionDetails,
-        });
-
-        await SessionsModel.create({
-          jwt: token,
-          userId: userId,
-          location: newLocation._id,
-          createdAt: new Date(),
-          lastActive: new Date(),
-        });
-      }
-
-      await SessionsModel.deleteOne({ jwt: oldToken.value });
+      await SessionsModel.findOneAndUpdate(
+        { jwt: oldToken.value },
+        { $set: { jwt: token } },
+        { new: true }
+      );
 
       const response = NextResponse.json(
         { message: "Username updated successfully" },
@@ -215,8 +189,9 @@ export async function PATCH(request) {
       return response;
     }
 
+    // Default response if no conditions are met
     return NextResponse.json(
-      { message: "Send name, usename, password or profile" },
+      { message: "No valid fields to update" },
       { status: 400, statusText: "Bad Request" }
     );
   } catch (error) {
