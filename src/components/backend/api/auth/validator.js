@@ -30,6 +30,10 @@ export const signupValidator = [
   check("password")
     .exists().withMessage("Please send password")
     .isStrongPassword().withMessage("Password must contain at least one uppercase, one lowercase, one special character, and one number."),
+
+  check("referralCode")
+    .optional()
+    .isString().withMessage("Referral code should be a string"),
 ];
 
 export const loginValidator = [

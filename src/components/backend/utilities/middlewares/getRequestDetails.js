@@ -1,11 +1,17 @@
 import jwt from "jsonwebtoken";
+import { redirectToLogin } from "./customResponse";
 
 const getRequestDetails = async (req) => {
   const token = req.cookies.get("accessToken");
-  console.log(token);
+  
+  let decoded = {};
 
-  const decoded = jwt.verify(token.value, process.env.JWT_KEY);
-  const { userId, email, name, role } = decoded;
+  try {
+    decoded = jwt.verify(token.value, process.env.JWT_KEY);
+  } catch (error) {
+    return redirectToLogin(req);
+  }
+  const { userId, email, name, role, username } = decoded;
 
   let body = {};
   if (req.method !== "GET") {
@@ -19,6 +25,7 @@ const getRequestDetails = async (req) => {
     name,
     role,
     body,
+    username,
   };
 };
 

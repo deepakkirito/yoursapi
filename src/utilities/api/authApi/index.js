@@ -1,68 +1,46 @@
-const {
-  axiosPost,
-  axiosGet,
-  axiosHead,
-  axiosPut,
-  axiosPostSelf,
-  axiosGetSelf,
-} = require("..");
-
-// const LoginApi = (body) => {
-//   return axiosPost("/auth/login", body);
-// };
+const { axiosPostSelf, axiosGetSelf, axiosHeadSelf } = require("..");
 
 const LoginApi = (body) => {
-  return axiosPostSelf("api/auth/login", body);
+  return axiosPostSelf("auth/login", body);
 };
 
 const RegisterApi = (body) => {
-  return axiosPost("/auth/signup", body);
+  return axiosPostSelf("auth/signup", body);
 };
 
 const ForgotApi = (email) => {
-  return axiosGet(`/auth/forgot/${email}`);
+  return axiosPostSelf(`auth/forgot`, { email });
 };
 
 const VerifyApi = (token) => {
-  return axiosGet(`/auth/verify/${token}`);
+  return axiosGetSelf(`auth/verify/${token}`);
 };
 
 const LogoutApi = () => {
-  return axiosGetSelf(`/api/auth/logout`);
-};
-// const LogoutApi = () => {
-//   return axiosGet(`/auth/logout`);
-// };
-
-const UpdateApi = (body) => {
-  return axiosPut(`/auth/update`, body);
-};
-
-const CheckEmailApi = (email) => {
-  return axiosHead(`/auth/check/email/${email}`);
-};
-
-const CheckUsernameApi = (username) => {
-  return axiosHead(`/auth/check/username/${username}`);
-};
-
-const ResetApi = (token, body) => {
-  return axiosPost(`/auth/reset/${token}`, body);
+  return axiosGetSelf(`auth/logout`);
 };
 
 const GoogleApi = (body) => {
-  return axiosPostSelf(`/api/auth/google`, body);
+  return axiosPostSelf(`auth/google`, body);
 };
-// const GoogleApi = (body) => {
-//   return axiosPost(`/auth/google`, body);
-// };
+
+const ResetApi = (token, body) => {
+  return axiosPostSelf(`auth/forgot/${token}`, body);
+};
+
+const CheckEmailApi = (email) => {
+  return axiosHeadSelf(`auth/email/${email}`);
+};
+
+const CheckUsernameApi = (username) => {
+  return axiosHeadSelf(`auth/username/${username}`);
+};
 
 export {
   LoginApi,
   RegisterApi,
   ForgotApi,
   VerifyApi,
-  UpdateApi,
   CheckEmailApi,
   ResetApi,
   GoogleApi,

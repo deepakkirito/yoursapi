@@ -1,11 +1,11 @@
-const { axiosGet, axiosPost, axiosDelete, axiosHead, axiosPut } = require("..");
+const { axiosGetSelf, axiosDeleteSelf } = require("..");
 
 const getSessionsApi = () => {
-  return axiosGet(`/session`);
+  return axiosGetSelf(`/session`);
 };
 
 const deleteSessionApi = (id) => {
-  return axiosDelete(`/session/${id}`);
+  return axiosDeleteSelf(`/session/${id}`);
 };
 
 export { getSessionsApi, deleteSessionApi };

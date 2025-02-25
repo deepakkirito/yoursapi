@@ -23,7 +23,7 @@ const axiosGet = (url) => {
 const axiosGetSelf = (url) => {
   let promise = new Promise(function (resolve, reject) {
     axios
-      .get(`${process.env.NEXT_PUBLIC_COMPANY_URL}${url}`, {
+      .get(`${process.env.NEXT_PUBLIC_COMPANY_URL}api/${url}`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -67,7 +67,7 @@ const axiosPostSelf = (url, body) => {
     console.log({ url });
 
     axios
-      .post(`${process.env.NEXT_PUBLIC_COMPANY_URL}${url}`, body, {
+      .post(`${process.env.NEXT_PUBLIC_COMPANY_URL}api/${url}`, body, {
         withCredentials: true,
       })
       .then((response) => {
@@ -106,10 +106,52 @@ const axiosPut = (url, body) => {
   return promise;
 };
 
+const axiosPutSelf = (url, body) => {
+  let promise = new Promise(function (resolve, reject) {
+    axios
+      .put(`${process.env.NEXT_PUBLIC_COMPANY_URL}api/${url}`, body, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        if (err.status === 403) {
+          localStorage.removeItem("login");
+          localStorage.removeItem("user");
+          window.location.pathname = "/login";
+        }
+        reject(err);
+      });
+  });
+  return promise;
+};
+
 const axiosDelete = (url) => {
   let promise = new Promise(function (resolve, reject) {
     axios
       .delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}`, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        if (err.status === 403) {
+          localStorage.removeItem("login");
+          localStorage.removeItem("user");
+          window.location.pathname = "/login";
+        }
+        reject(err);
+      });
+  });
+  return promise;
+};
+
+const axiosDeleteSelf = (url) => {
+  let promise = new Promise(function (resolve, reject) {
+    axios
+      .delete(`${process.env.NEXT_PUBLIC_COMPANY_URL}api/${url}`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -141,6 +183,41 @@ const axiosHead = (url) => {
   return promise;
 };
 
+const axiosHeadSelf = (url) => {
+  let promise = new Promise(function (resolve, reject) {
+    axios
+      .head(`${process.env.NEXT_PUBLIC_COMPANY_URL}api/${url}`, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => reject(err));
+  });
+  return promise;
+};
+
+const axiosPatchSelf = (url, body) => {
+  let promise = new Promise(function (resolve, reject) {
+    axios
+      .patch(`${process.env.NEXT_PUBLIC_COMPANY_URL}api/${url}`, body, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        if (err.status === 403) {
+          localStorage.removeItem("login");
+          localStorage.removeItem("user");
+          window.location.pathname = "/login";
+        }
+        reject(err);
+      });
+  });
+  return promise;
+};
+
 export {
   axiosGet,
   axiosPost,
@@ -149,4 +226,8 @@ export {
   axiosHead,
   axiosPostSelf,
   axiosGetSelf,
+  axiosPutSelf,
+  axiosDeleteSelf,
+  axiosHeadSelf,
+  axiosPatchSelf,
 };

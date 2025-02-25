@@ -10,102 +10,107 @@ const referralCode = generator.generate({
   numbers: true,
 });
 
-const usersSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  username: {
-    type: String,
-    default: "",
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  plan: {
-    type: String,
-    default: "free",
-  },
-  validity: {
-    type: Date,
-    default: Date.now,
-  },
-  role: {
-    type: String,
-    default: "user",
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  profile: {
-    type: String,
-    default: "https://cdn-icons-png.freepik.com/512/11390/11390805.png",
-  },
-  totalReq: {
-    type: Number,
-    default: 300,
-  },
-  usedReq: {
-    type: Number,
-    default: 0,
-  },
-  additionalReq: {
-    type: Number,
-    default: 0,
-  },
-  referralCode: {
-    type: String,
-    default: referralCode,
-  },
-  referredBy: { type: Schema.Types.ObjectId, ref: "users", default: null },
-  mongoDbKey: {
-    type: String,
-    default: null,
-  },
-  saveInternal: {
-    type: Boolean,
-    default: true,
-  },
-  saveExternal: {
-    type: Boolean,
-    default: false,
-  },
-  fetchData: {
-    type: String,
-    default: "self",
-    enum: ["self", "user"],
-  },
-  project: [{ type: Schema.Types.ObjectId, ref: "projects" }],
-  trash: [{ type: Schema.Types.ObjectId, ref: "projects" }],
-  shared: [
-    {
-      permission: {
-        type: String,
-        default: "read",
-        enum: ["read", "write", "admin"],
-      },
-      project: { type: Schema.Types.ObjectId, ref: "projects" },
-      owner: { type: Schema.Types.ObjectId, ref: "users" },
-      sharedBy: { type: Schema.Types.ObjectId, ref: "users" },
+const usersSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-  ],
-  sharedUsers: [{ type: Schema.Types.ObjectId, ref: "users" }],
-});
+    username: {
+      type: String,
+      default: "",
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    plan: {
+      type: String,
+      default: "free",
+    },
+    validity: {
+      type: Date,
+      default: Date.now,
+    },
+    role: {
+      type: String,
+      default: "user",
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    profile: {
+      type: String,
+      default: "https://cdn-icons-png.freepik.com/512/11390/11390805.png",
+    },
+    totalReq: {
+      type: Number,
+      default: 300,
+    },
+    usedReq: {
+      type: Number,
+      default: 0,
+    },
+    additionalReq: {
+      type: Number,
+      default: 0,
+    },
+    referralCode: {
+      type: String,
+      default: referralCode,
+    },
+    referredBy: { type: Schema.Types.ObjectId, ref: "users", default: null },
+    mongoDbKey: {
+      type: String,
+      default: null,
+    },
+    saveInternal: {
+      type: Boolean,
+      default: true,
+    },
+    saveExternal: {
+      type: Boolean,
+      default: false,
+    },
+    fetchData: {
+      type: String,
+      default: "self",
+      enum: ["self", "user"],
+    },
+    project: [{ type: Schema.Types.ObjectId, ref: "projects" }],
+    trash: [{ type: Schema.Types.ObjectId, ref: "projects" }],
+    shared: [
+      {
+        permission: {
+          type: String,
+          default: "read",
+          enum: ["read", "write", "admin"],
+        },
+        project: { type: Schema.Types.ObjectId, ref: "projects" },
+        owner: { type: Schema.Types.ObjectId, ref: "users" },
+        sharedBy: { type: Schema.Types.ObjectId, ref: "users" },
+      },
+    ],
+    sharedUsers: [{ type: Schema.Types.ObjectId, ref: "users" }],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 usersSchema.index({ email: "text", referralCode: "text", username: "text" });
 

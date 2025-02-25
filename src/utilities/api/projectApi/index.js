@@ -1,11 +1,23 @@
-const { axiosGet, axiosPost, axiosDelete, axiosHead, axiosPut } = require("..");
+const {
+  axiosGet,
+  axiosPost,
+  axiosDelete,
+  axiosHead,
+  axiosPut,
+  axiosHeadSelf,
+  axiosGetSelf,
+} = require("..");
 
 const checkProjectExistApi = (projectName) => {
-  return axiosHead(`/project/${projectName}`);
+  return axiosHeadSelf(`/project/check/${projectName}`);
+};
+
+export const checkProjectExistAllApi = (projectName, projectId) => {
+  return axiosHeadSelf(`/project/check/${projectName}/${projectId}`);
 };
 
 const getProjectApi = (pagination, search, filter, sort) => {
-  return axiosGet(
+  return axiosGetSelf(
     `/project?page=${pagination.page}&rows=${pagination.rowsPerPage}${search ? `&search=${search}` : ""}${filter ? `&filter=${filter}&sort=${sort}` : ""}`
   );
 };
@@ -81,5 +93,5 @@ export {
   updatePermissionApi,
   getSingleProjectApi,
   updateProjectNameApi,
-  updateSharedProjectNameApi
+  updateSharedProjectNameApi,
 };
