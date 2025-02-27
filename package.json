@@ -19,6 +19,7 @@
     "@react-oauth/google": "^0.12.1",
     "@tailwindcss/postcss": "^4.0.9",
     "@toolpad/core": "^0.12.0",
+    "autoprefixer": "^10.4.20",
     "axios": "^1.8.1",
     "bcryptjs": "^3.0.2",
     "crypto-js": "^4.2.0",
@@ -55,7 +56,6 @@
     "useragent": "^2.3.0"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.2.0",
     "postcss": "^8.5.3"
