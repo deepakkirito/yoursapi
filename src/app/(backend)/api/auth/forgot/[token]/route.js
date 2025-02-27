@@ -13,6 +13,8 @@ export async function POST(request, { params }) {
 
     let decoded = {};
 
+    const body = await request.json();
+
     try {
       decoded = jwt.verify(token, process.env.JWT_KEY);
       if (decoded.exp < Math.floor(Date.now() / 1000)) {
@@ -28,7 +30,7 @@ export async function POST(request, { params }) {
       );
     }
 
-    const validation = validateRequest(request, resetValidator);
+    const validation = await validateRequest({...request, body}, resetValidator);
 
     if (validation) {
       return validation;

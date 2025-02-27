@@ -3,8 +3,7 @@ import ProjectsModel from "../../api/project/model";
 import { decrypt } from "@/utilities/helpers/encryption";
 import UsersModel from "../../api/users/model";
 
-export const getProjectOwner = async (request, userId) => {
-  const projectId = request.nextUrl.searchParams.get("projectId");
+export const getProjectOwner = async (request, userId, projectId) => {
 
   const project = await ProjectsModel.findOne({ _id: projectId }).populate(
     "userId"

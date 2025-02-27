@@ -61,7 +61,7 @@ export async function PATCH(request) {
       username: oldUsername,
     } = await verifyToken(request);
 
-    const validator = await validateRequest(request, updateUserValidator);
+    const validator = await validateRequest({...request, body}, updateUserValidator);
 
     if (validator) {
       return validator;

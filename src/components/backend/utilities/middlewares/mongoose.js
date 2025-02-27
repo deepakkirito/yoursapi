@@ -391,7 +391,7 @@ export const migrateProjects = async ({
   }
 };
 
-export const connectToDatabase = async (uri, dbName = "") => {
+export const connectToDatabase = async (uri = MONGO_URI, dbName = "") => {
   const connection = mongoose.createConnection(`${uri}${dbName}`);
   connection.on("error", (err) => {
     console.error(`Error connecting to database "${dbName}": ${err.message}`);
@@ -558,12 +558,10 @@ export const updateModel = async ({
   dbConnection,
   collectionName,
   option = "replace",
-  req,
-  res,
+  schema = {},
+  data,
 }) => {
-  const schema = req?.userSchema || {};
-  const strict = !!req?.userSchema;
-  const { data } = req?.body;
+  const strict = !!schema;
 
   try {
     // Define the schema with optional strict mode
@@ -590,7 +588,6 @@ export const updateModel = async ({
     return true;
   } catch (err) {
     console.error("Error updating collection:", err.message);
-    req.previousError = err.message;
 
     // Close the database connection in case of an error
     if (dbConnection.readyState === 1) {
@@ -598,7 +595,7 @@ export const updateModel = async ({
     }
 
     // Send an error response
-    return false;
+    return err.message;
   }
 };
 

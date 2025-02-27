@@ -4,6 +4,13 @@ import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken"
 import { NextResponse } from "next/server";
 import ApisModel from "@/components/backend/api/api/model";
 import { redirectToLogin } from "@/components/backend/utilities/middlewares/customResponse";
+import { validateRequest } from "@/components/backend/utilities/helpers/validator";
+import { validateProjectName } from "@/components/backend/api/project/validator";
+import { validateApiName } from "@/components/backend/api/api/validator";
+import { validateData } from "@/components/backend/utilities/middlewares/dataValidator";
+import { decrypt } from "@/utilities/helpers/encryption";
+import { saveData } from "@/components/backend/utilities/middlewares/saveData";
+import { sendMail } from "@/components/backend/utilities/nodemailer";
 
 export async function GET(request) {
   try {
@@ -30,7 +37,7 @@ export async function GET(request) {
       name: { $regex: search, $options: "i" },
     };
 
-    const totalCount = await UsersModel.countDocuments(query);
+    const totalCount = await ProjectsModel.countDocuments(query);
 
     const projects = await ProjectsModel.find(query, {
       name: 1,
@@ -68,6 +75,131 @@ export async function GET(request) {
       data,
       totalCount,
     });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request) {
+  try {
+    const { userId, token, email, name, role, body, username } =
+      await verifyToken(request);
+
+    const validateProject = await validateRequest(
+      { ...request, body },
+      validateProjectName
+    );
+
+    if (validateProject) {
+      return validateProject;
+    }
+
+    const validateApi = await validateRequest(
+      { ...request, body },
+      validateApiName
+    );
+
+    if (validateApi) {
+      return validateApi;
+    }
+
+    const data = await validateData(body?.data || "[]");
+
+    const project = await ProjectsModel.findOne({
+      name: body.projectName,
+      userId,
+    });
+
+    if (project) {
+      return NextResponse.json(
+        { message: "Project already exists" },
+        { status: 400 }
+      );
+    }
+
+    const user = await UsersModel.findOne({ _id: userId }).lean();
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 401, statusText: "Unauthorized" }
+      );
+    }
+
+    await saveData({
+      data,
+      saveInternal: user.saveInternal,
+      saveExternal: user.saveExternal,
+      mongoDbKey: decrypt(user.mongoDbKey),
+      projectName: body.projectName,
+      apiName: body.apiName,
+      schema: user.schema,
+      username: username,
+    });
+
+    const newProject = await ProjectsModel.create({
+      name: body.projectName,
+      userId,
+      updatedBy: userId,
+      createdBy: userId,
+    });
+
+    const newApi = await ApisModel.create({
+      name: body.apiName,
+      projectId: newProject._id,
+      userId,
+      createdBy: userId,
+      updatedBy: userId,
+    });
+
+    await ProjectsModel.updateOne(
+      { _id: newProject._id },
+      {
+        $push: {
+          apiIds: newApi._id,
+        },
+      }
+    );
+
+    const userUpdate = await UsersModel.updateOne(
+      { _id: userId },
+      {
+        $push: {
+          project: newProject._id,
+        },
+      },
+      { new: true }
+    );
+
+    if (!userUpdate) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 401, statusText: "Unauthorized" }
+      );
+    }
+
+    await sendMail({
+      to: email,
+      subject: "New Project Created",
+      template: "projectCreate",
+      context: {
+        username: name,
+        projectName: body.projectName,
+        creationDate: new Date(),
+        projectLink: `${process.env.COMPANY_URL}project/${newProject._id}`,
+      },
+    });
+
+    return NextResponse.json(
+      { message: "Project created successfully" },
+      {
+        status: 201,
+      }
+    );
   } catch (error) {
     console.log(error);
     return NextResponse.json(

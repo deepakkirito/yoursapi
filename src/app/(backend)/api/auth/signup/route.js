@@ -11,7 +11,7 @@ export async function POST(request) {
   try {
     const body = await request.json();
 
-    const validator = validateRequest({ ...request, body }, signupValidator);
+    const validator = await validateRequest({ ...request, body }, signupValidator);
 
     if (validator) {
       return validator;

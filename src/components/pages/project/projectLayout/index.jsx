@@ -509,7 +509,7 @@ const ProjectLayout = ({
                             <TooltipCustom
                               title={
                                 <div className="min-h-auto max-h-[15rem] overflow-auto">
-                                  {item.shared.length
+                                  {item?.shared?.length
                                     ? item.shared?.map((data, index) =>
                                         renderMembers(
                                           data.name,
@@ -646,12 +646,12 @@ const ProjectLayout = ({
                                 <TooltipCustom
                                   title={renderMembers(
                                     item.owner?.name + " (owner)",
-                                    item.owner.email
+                                    item.owner?.email
                                   )}
                                   placement="top"
                                 >
                                   <Image
-                                    src={item.owner.profile}
+                                    src={item?.owner?.profile}
                                     alt="profile"
                                     width={30}
                                     height={30}
@@ -684,13 +684,13 @@ const ProjectLayout = ({
                               </TooltipCustom>
                               <TooltipCustom
                                 title={renderMembers(
-                                  item.updatedBy.name + " (last modified)",
-                                  item.updatedBy.email
+                                  item?.updatedBy?.name + " (last modified)",
+                                  item?.updatedBy?.email
                                 )}
                                 placement="bottom"
                               >
                                 <Image
-                                  src={item.updatedBy.profile}
+                                  src={item?.updatedBy?.profile}
                                   alt="profile"
                                   width={30}
                                   height={30}

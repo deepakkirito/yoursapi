@@ -10,15 +10,9 @@ export async function HEAD(request, { params }) {
 
     const { userId, token, email, name, role } = await verifyToken(request);
 
-    const validation = validateRequest(request, validateProjectName);
+    const projects = await ProjectsModel.findOne({ name: projectName, userId });
 
-    if (validation) {
-      return validation;
-    }
-
-    const projects = await ProjectsModel.find({ name: projectName, userId });
-
-    if (projects) {
+    if (!projects) {
       return NextResponse.json({ message: "Project found" }, { status: 400 });
     }
 
