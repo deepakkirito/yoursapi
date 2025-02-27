@@ -18,7 +18,10 @@ const nextConfig = {
     ],
   },
   webpack: (config) => {
-    config.cache = false; // Disable cache
+    config.cache = {
+      type: "memory", // Stores cache in RAM (faster than disk)
+      maxGenerations: 1, // Clears cache after every build
+    };
     return config;
   },
 };

@@ -18,16 +18,18 @@ const Profile = ({ userData, setLogin, router }) => {
         tooltipPlacement="left"
         menuPosition="right"
         icon={
-          <Image
-            src={userData?.profile}
-            alt="profile"
-            width={32}
-            height={0}
-            style={{
-              height: "auto",
-              borderRadius: "2rem",
-            }}
-          />
+          userData?.profile && (
+            <Image
+              src={userData?.profile}
+              alt="profile"
+              width={32}
+              height={0}
+              style={{
+                height: "auto",
+                borderRadius: "2rem",
+              }}
+            />
+          )
         }
         tooltipTitle={"Profile Menu"}
         options={[

@@ -1,77 +1,54 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-export const useLocalStorage = (
-  key,
-  initialValue
-) => {
-  const valueRef = useRef(null);
-
+export const useLocalStorage = (key, initialValue) => {
+  // State to store the value
   const [storedValue, setStoredValue] = useState(() => {
-    if (typeof window === "undefined") return initialValue;
-    const existing = window.localStorage.getItem(key);
+    if (typeof window === "undefined") return initialValue; // Prevent issues in SSR
+
     try {
-      valueRef.current = existing;
-      const res = valueRef.current ? JSON.parse(valueRef.current) : initialValue;
-      return res;
-    } catch (e) {
-      // JSON.parse hit error, Then mostly its a plain string, In that case we just return value, what we get. once we use this hook all the places ref. line no:29
-      valueRef.current = existing || initialValue || "";
-      return existing || initialValue || '';
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.warn(`Error reading localStorage key "${key}":`, error);
+      return initialValue;
     }
   });
 
+  // Effect to update localStorage whenever storedValue changes
   useEffect(() => {
-    
     if (typeof window === "undefined") return;
 
-      if (storedValue !== undefined) {
-        // Ignore the stringify, if it is already a string is temparory, will change this, once this hook is used all the places.
-        const newValue = typeof(storedValue) === "string" ? storedValue : JSON.stringify(storedValue);
-        const oldValue = valueRef.current;
-        valueRef.current = newValue;
-
-        window.localStorage.setItem(key, newValue);
-        window.dispatchEvent(
-          new StorageEvent("storage", {
-            storageArea: window.localStorage,
-            url: window.location.href,
-            key,
-            newValue,
-            oldValue,
-          })
-        );
-      } else {
+    try {
+      if (storedValue === undefined || storedValue === null) {
         window.localStorage.removeItem(key);
-        window.dispatchEvent(
-          new StorageEvent("storage", {
-            storageArea: window.localStorage,
-            url: window.location.href,
-            key,
-          })
-        );
+      } else {
+        window.localStorage.setItem(key, JSON.stringify(storedValue));
       }
 
-  }, [storedValue, key]);
+      // Dispatch a storage event for cross-tab sync
+      window.dispatchEvent(new StorageEvent("storage", { key }));
+    } catch (error) {
+      console.warn(`Error setting localStorage key "${key}":`, error);
+    }
+  }, [key, storedValue]);
 
+  // Sync changes across tabs/windows
   useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key !== key || e.storageArea !== window.localStorage) return;
+    if (typeof window === "undefined") return;
 
-      try {
-        if (e.newValue !== valueRef.current) {
-          valueRef.current = e.newValue;
-          setStoredValue(e.newValue ? JSON.parse(e.newValue) : undefined);
+    const handleStorageChange = (event) => {
+      if (event.key === key) {
+        try {
+          setStoredValue(event.newValue ? JSON.parse(event.newValue) : initialValue);
+        } catch (error) {
+          console.warn(`Error parsing localStorage event for key "${key}":`, error);
         }
-      } catch (e) {
-        console.log(e);
       }
     };
 
-    if (typeof window === "undefined") return;
-
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [key]);
+  }, [key, initialValue]);
 
   return [storedValue, setStoredValue];
-}
+};

@@ -175,7 +175,7 @@ const ProjectLayout = ({
 
   const renderMembers = (name, email, profile, index = 0, length = 1) => {
     return (
-      <div>
+      <div key={index}>
         <div className="flex gap-2 items-center my-2">
           {profile && (
             <Image
@@ -646,7 +646,9 @@ const ProjectLayout = ({
                                 <TooltipCustom
                                   title={renderMembers(
                                     item.owner?.name + " (owner)",
-                                    item.owner?.email
+                                    item.owner?.email,
+                                    null,
+                                    index
                                   )}
                                   placement="top"
                                 >
@@ -685,7 +687,9 @@ const ProjectLayout = ({
                               <TooltipCustom
                                 title={renderMembers(
                                   item?.updatedBy?.name + " (last modified)",
-                                  item?.updatedBy?.email
+                                  item?.updatedBy?.email,
+                                  null,
+                                  index
                                 )}
                                 placement="bottom"
                               >
