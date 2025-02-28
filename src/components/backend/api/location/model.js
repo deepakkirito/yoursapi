@@ -7,7 +7,6 @@ const locationSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "users",
     required: true,
-    unique: true,
   },
   ip: { type: String },
   browser: { type: String },
