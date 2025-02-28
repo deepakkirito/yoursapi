@@ -89,7 +89,13 @@ export async function POST(request) {
       });
     } else {
       const newLocation = await LocationModel.create({
-        ...sessionDetails,
+        ip: sessionDetails.ip,
+        browser: sessionDetails.browser,
+        os: sessionDetails.os,
+        device: sessionDetails.device,
+        country: sessionDetails.country,
+        region: sessionDetails.region,
+        city: sessionDetails.city,
         userId: user._id,
       });
 
