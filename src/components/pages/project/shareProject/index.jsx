@@ -4,12 +4,12 @@ import CustomSelect from "@/components/common/customSelect";
 import CustomInput from "@/components/common/customTextField";
 import { showNotification } from "@/components/common/notification";
 import {
+  checkOtherUserApi,
   getSingleShareProjectAccessApi,
   revokeSharedProjectApi,
   shareProjectApi,
   updatePermissionApi,
 } from "@/utilities/api/projectApi";
-import { checkOtherUserApi } from "@/utilities/api/userApi";
 import { CreatePopupContext } from "@/utilities/context/popup";
 import { catchError } from "@/utilities/helpers/functions";
 import { VerifiedUserRounded } from "@mui/icons-material";
@@ -108,7 +108,7 @@ const ShareProject = ({ id }) => {
         catchError(err);
       })
       .finally(() => {
-        // setRevokeLoading(false);
+        setRevokeLoading(false);
       });
   };
 

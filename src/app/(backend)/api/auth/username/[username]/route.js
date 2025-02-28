@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function HEAD(request, { params }) {
   try {
-    const { username } = params;
+    const { username } = await params;
 
     await dbConnect();
 
@@ -13,7 +13,7 @@ export async function HEAD(request, { params }) {
     if (usernameExists) {
       return NextResponse.json(
         { message: "Username not found" },
-        { status: 401, statusText: "Unauthorized" }
+        { status: 400 }
       );
     }
 

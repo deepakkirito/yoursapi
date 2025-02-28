@@ -21,7 +21,7 @@ export async function POST(request) {
       );
     }
 
-    const token = generateToken(user, process.env.VERIFY_EXPIRES, "signup");
+    const token = generateToken(checkEmail, process.env.VERIFY_EXPIRES, "signup");
 
     await sendMail({
       to: email,

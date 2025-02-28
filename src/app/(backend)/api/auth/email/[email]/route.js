@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function HEAD(request, { params }) {
   try {
-    const { email } = params;
+    const { email } = await params;
 
     await dbConnect();
 

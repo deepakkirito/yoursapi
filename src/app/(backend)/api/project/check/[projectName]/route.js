@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function HEAD(request, { params }) {
   try {
-    const { projectName } = params;
+    const { projectName } = await params;
 
     const { userId, token, email, name, role } = await verifyToken(request);
 

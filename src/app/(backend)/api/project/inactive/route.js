@@ -22,7 +22,7 @@ export async function GET(request) {
       return redirectToLogin(request);
     }
 
-    const projectsIds = user.trash;
+    const projectIds = user.trash;
 
     const query = {
       _id: { $in: projectIds },

@@ -1,58 +1,54 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-export const useLocalStorage = (
-  key,
-  initialValue
-) => {
+export const useLocalStorage = (key, initialValue) => {
   const valueRef = useRef(null);
 
+  // Initialize state with value from localStorage
   const [storedValue, setStoredValue] = useState(() => {
     if (typeof window === "undefined") return initialValue;
-    const existing = window.localStorage.getItem(key);
+
     try {
+      const existing = window.localStorage.getItem(key);
       valueRef.current = existing;
-      const res = valueRef.current ? JSON.parse(valueRef.current) : initialValue;
-      return res;
-    } catch (e) {
-      // JSON.parse hit error, Then mostly its a plain string, In that case we just return value, what we get. once we use this hook all the places ref. line no:29
-      valueRef.current = existing || initialValue || "";
-      return existing || initialValue || '';
+      return existing ? JSON.parse(existing) : initialValue;
+    } catch {
+      return initialValue;
     }
   });
 
+  // Update localStorage when storedValue changes
   useEffect(() => {
-    
     if (typeof window === "undefined") return;
 
+    try {
       if (storedValue !== undefined) {
-        // Ignore the stringify, if it is already a string is temparory, will change this, once this hook is used all the places.
-        const newValue = typeof(storedValue) === "string" ? storedValue : JSON.stringify(storedValue);
+        const newValue =
+          typeof storedValue === "string"
+            ? storedValue
+            : JSON.stringify(storedValue);
         const oldValue = valueRef.current;
-        valueRef.current = newValue;
 
+        valueRef.current = newValue;
         window.localStorage.setItem(key, newValue);
+
+        // Trigger a storage event for other tabs
         window.dispatchEvent(
           new StorageEvent("storage", {
-            storageArea: window.localStorage,
-            url: window.location.href,
             key,
-            newValue,
             oldValue,
+            newValue,
+            storageArea: window.localStorage,
           })
         );
       } else {
         window.localStorage.removeItem(key);
-        window.dispatchEvent(
-          new StorageEvent("storage", {
-            storageArea: window.localStorage,
-            url: window.location.href,
-            key,
-          })
-        );
       }
-
+    } catch (error) {
+      console.error("Error updating localStorage:", error);
+    }
   }, [storedValue, key]);
 
+  // Sync state with storage changes from other tabs
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key !== key || e.storageArea !== window.localStorage) return;
@@ -62,8 +58,8 @@ export const useLocalStorage = (
           valueRef.current = e.newValue;
           setStoredValue(e.newValue ? JSON.parse(e.newValue) : undefined);
         }
-      } catch (e) {
-        console.log(e);
+      } catch (error) {
+        console.error("Error parsing localStorage change:", error);
       }
     };
 
@@ -73,5 +69,12 @@ export const useLocalStorage = (
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [key]);
 
-  return [storedValue, setStoredValue];
-}
+  // Memoized setter function to avoid unnecessary re-renders
+  const updateValue = useCallback((newValue) => {
+    setStoredValue((prevValue) =>
+      typeof newValue === "function" ? newValue(prevValue) : newValue
+    );
+  }, []);
+
+  return [storedValue, updateValue];
+};

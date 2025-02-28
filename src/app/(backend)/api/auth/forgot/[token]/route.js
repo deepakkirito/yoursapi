@@ -9,7 +9,7 @@ import { dbConnect } from "@/components/backend/utilities/dbConnect";
 
 export async function POST(request, { params }) {
   try {
-    const { token } = params;    
+    const { token } = await params;    
 
     let decoded = {};
 
@@ -36,16 +36,16 @@ export async function POST(request, { params }) {
       return validation;
     }
 
-    const { newPassword } = await request.json();
+    const { newPassword } = body;
 
     const password = await hashPassword(newPassword);
 
     await dbConnect();
 
-    const user = await UsersModel.updateOne(
+    const user = await UsersModel.findOneAndUpdate(
       { _id: decoded.userId },
       { $set: { password } },
-      { new: true }
+      { new: true, lean: true }
     );
 
     if (!user) {

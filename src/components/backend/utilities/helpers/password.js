@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import generator from "generate-password";
 
 export async function hashPassword(password) {
-  const salt = await bcrypt.genSalt(process.env.SALT || 13);
+  const salt = await bcrypt.genSalt(Number(process.env.SALT) || 13);
   const hashedPassword = await bcrypt.hash(password, salt);
   return hashedPassword;
 }

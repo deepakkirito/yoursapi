@@ -6,7 +6,7 @@ import { dbConnect } from "@/components/backend/utilities/dbConnect";
 
 export async function GET(request, { params }) {
   try {
-    const { token } = params;
+    const { token } = await params;
 
     let decoded = {};
 
@@ -23,12 +23,13 @@ export async function GET(request, { params }) {
         { message: "Verify link expired. Please login to get a new link" },
         { status: 401, statusText: "Unauthorized" }
       );
-    }
+    }    
 
     await dbConnect();
 
     const user = await UsersModel.findOne({ _id: decoded.userId });
-
+    console.log(user);
+    
     if (!user) {
       return NextResponse.json(
         { message: "Verify token expired" },
@@ -36,23 +37,24 @@ export async function GET(request, { params }) {
       );
     }
 
-    if (user.isVerified) {
-      return NextResponse.json(
-        { message: "Email already verified" },
-        { status: 401, statusText: "Unauthorized" }
-      );
-    }
+    // if (user.isVerified) {
+    //   return NextResponse.json(
+    //     { message: "Email already verified" },
+    //     { status: 401, statusText: "Unauthorized" }
+    //   );
+    // }
 
-    if (decoded.type !== "signup") {
+    if (decoded.type !== "signup" && decoded.type !== "login") {
       return NextResponse.json(
         { message: "Verify token expired" },
-        { status: 401, statusText: "Unauthorized" }
+        { status: 400 }
       );
     }
 
-    await UsersModel.updateOne(
+    await UsersModel.findOneAndUpdate(
       { _id: user._id },
-      { $set: { isVerified: true } }
+      { $set: { isVerified: true } },
+      { new: true, lean: true }
     );
 
     sendMail({

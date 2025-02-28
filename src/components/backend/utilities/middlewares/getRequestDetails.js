@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { redirectToLogin } from "./customResponse";
+import mongoose from "mongoose";
 
 const getRequestDetails = async (req) => {
   const token = req.cookies.get("accessToken");
@@ -15,7 +16,7 @@ const getRequestDetails = async (req) => {
 
   let body = {};
 
-  if (req.method !== "GET") {
+  if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "DELETE") {
     try {
       const text = await req.text(); // Read the body as text first
       body = text ? JSON.parse(text) : {}; // Parse only if body is not empty
@@ -27,7 +28,7 @@ const getRequestDetails = async (req) => {
 
   return {
     token,
-    userId,
+    userId: new mongoose.Types.ObjectId(userId),
     email,
     name,
     role,

@@ -156,23 +156,24 @@ export async function POST(request) {
       updatedBy: userId,
     });
 
-    await ProjectsModel.updateOne(
+    await ProjectsModel.findOneAndUpdate(
       { _id: newProject._id },
       {
         $push: {
           apiIds: newApi._id,
         },
-      }
+      },
+      { new: true, lean: true }
     );
 
-    const userUpdate = await UsersModel.updateOne(
+    const userUpdate = await UsersModel.findOneAndUpdate(
       { _id: userId },
       {
         $push: {
           project: newProject._id,
         },
       },
-      { new: true }
+      { new: true, lean: true }
     );
 
     if (!userUpdate) {

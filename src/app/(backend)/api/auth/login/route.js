@@ -50,7 +50,7 @@ export async function POST(request) {
 
       return NextResponse.json(
         { message: "Please verify your email before login!!!" },
-        { status: 401, statusText: "Unauthorized" }
+        { status: 400 }
       );
     }
 

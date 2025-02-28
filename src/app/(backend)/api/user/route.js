@@ -61,7 +61,10 @@ export async function PATCH(request) {
       username: oldUsername,
     } = await verifyToken(request);
 
-    const validator = await validateRequest({...request, body}, updateUserValidator);
+    const validator = await validateRequest(
+      { ...request, body },
+      updateUserValidator
+    );
 
     if (validator) {
       return validator;
@@ -97,7 +100,11 @@ export async function PATCH(request) {
 
       const password = await hashPassword(newPassword);
 
-      await UsersModel.updateOne({ _id: userId }, { $set: { password } });
+      await UsersModel.findOneAndUpdate(
+        { _id: user._id },
+        { $set: { password } },
+        { new: true, lean: true }
+      );
 
       return NextResponse.json(
         { message: "Password updated successfully" },
@@ -109,14 +116,15 @@ export async function PATCH(request) {
 
     // Update profile picture or name
     if (profile || newName) {
-      const updatedUser = await UsersModel.updateOne(
+      const updatedUser = await UsersModel.findOneAndUpdate(
         { _id: userId },
         {
           $set: {
             profile: profile || user.profile,
             name: newName || user.name,
           },
-        }
+        },
+        { new: true, lean: true }
       );
 
       return NextResponse.json(
@@ -129,27 +137,29 @@ export async function PATCH(request) {
 
     // Update username
     if (username) {
-      const projects = await ProjectsModel.find(
-        { userId },
-        { name: 1, apiIds: 1 }
-      ).populate("apiIds");
+      if (user.username !== "") {
+        const projects = await ProjectsModel.find(
+          { userId },
+          { name: 1, apiIds: 1 }
+        ).populate("apiIds");
 
-      if (!projects?.length) {
-        return NextResponse.json(
-          { message: "Projects not found" },
-          { status: 400 }
+        if (!projects?.length) {
+          return NextResponse.json(
+            { message: "Projects not found" },
+            { status: 400 }
+          );
+        }
+
+        await Promise.all(
+          projects.map(async (project) => {
+            await copyDatabase({
+              oldDbName: `${oldUsername}_${project.name.toLowerCase()}`,
+              newDbName: `${username}_${project.name.toLowerCase()}`,
+              dropOldDb: true,
+            });
+          })
         );
       }
-
-      await Promise.all(
-        projects.map(async (project) => {
-          await copyDatabase({
-            oldDbName: `${oldUsername}_${project.name.toLowerCase()}`,
-            newDbName: `${username}_${project.name.toLowerCase()}`,
-            dropOldDb: true,
-          });
-        })
-      );
 
       const updatedUser = await UsersModel.findOneAndUpdate(
         { _id: userId },

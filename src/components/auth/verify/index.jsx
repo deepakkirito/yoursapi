@@ -90,8 +90,8 @@ const Verify = ({ token, redirect }) => {
 
   const verify = () => {
     VerifyApi(token)
-      .then((res) => res.status === 200 && setVerifyStatus("verified"))
-      .catch((err) => err.status === 410 && setVerifyStatus("failed"));
+      .then((res) => setVerifyStatus("verified"))
+      .catch((err) => setVerifyStatus("failed"));
   };
 
   return (

@@ -7,6 +7,9 @@ const {
   axiosHeadSelf,
   axiosGetSelf,
   axiosPostSelf,
+  axiosPatchSelf,
+  axiosDeleteSelf,
+  axiosPutSelf,
 } = require("..");
 
 const checkProjectExistApi = (projectName) => {
@@ -47,31 +50,33 @@ const createProjectApi = (body) => {
   return axiosPostSelf(`project`, body);
 };
 
-const restoreProjectApi = (id) => {
-  return axiosPost(`/project/restore/${id}`);
+const updatePermissionApi = (id, body) => {
+  return axiosPatchSelf(`project/access/${id}`, body);
 };
 
-const inactiveProjectApi = (id) => {
-  return axiosDelete(`/project/inactive/${id}`);
+export const checkOtherUserApi = (id, email) => {
+  return axiosGetSelf(`project/access/${id}/${email}`);
 };
-
-const deleteProjectApi = (id) => {
-  return axiosDelete(`/project/${id}`);
-};
-
 
 const shareProjectApi = (id, body) => {
-  return axiosPost(`/project/share/${id}`, body);
+  return axiosPostSelf(`project/access/${id}`, body);
 };
 
 const revokeSharedProjectApi = (id, body) => {
-  return axiosPost(`/project/revoke/${id}`, body);
+  return axiosPutSelf(`project/access/${id}`, body);
 };
 
-const updatePermissionApi = (id, body) => {
-  return axiosPost(`/project/update/permission/${id}`, body);
+const restoreProjectApi = (id) => {
+  return axiosPutSelf(`project/${id}`);
 };
 
+const inactiveProjectApi = (id) => {
+  return axiosDeleteSelf(`project/${id}?soft=true`);
+};
+
+const deleteProjectApi = (id) => {
+  return axiosDeleteSelf(`project/${id}?soft=false`);
+};
 
 const updateProjectNameApi = (id, body) => {
   return axiosPut(`/project/${id}`, body);

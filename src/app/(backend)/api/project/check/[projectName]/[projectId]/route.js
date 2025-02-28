@@ -7,10 +7,9 @@ import { NextResponse } from "next/server";
 
 export async function HEAD(request, { params }) {
   try {
-    const { projectName, projectId } = params;
+    const { projectName, projectId } = await params;
 
-    const { userId, token, email, name, role } =
-      await verifyToken(request);
+    const { userId, token, email, name, role } = await verifyToken(request);
 
     const validation = await validateRequest(
       { ...request, body: { projectName } },
@@ -22,7 +21,7 @@ export async function HEAD(request, { params }) {
     }
 
     const { ownerUserId, ownerUsername, ownerEmail, ownerName } =
-      await getProjectOwner(userId, projectId);
+      await getProjectOwner({ userId, projectId });
 
     const projects = await ProjectsModel.find({
       name: projectName,

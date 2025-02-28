@@ -2,67 +2,6 @@ const mongoose = require("mongoose");
 
 const MONGO_URI = process.env.MONGODB_KEY_MAIN;
 
-export const connectDBSelf = async (req, res, next) => {
-  const mongoDbKey = process.env.MONGODB_KEY_MAIN;
-  const userName = req.userName;
-  const schema = req.userSchema || {};
-  const strict = !!req.userSchema; // Simplified strict logic
-  const { projectName, apiName, data } = req.body;
-  const saveInternal = req.saveInternal;
-
-  if (saveInternal) {
-    // Construct the database name dynamically
-    const dbName = `${userName}_${projectName}`;
-    const dbUri = `${mongoDbKey}${dbName}`;
-    const newDbConnection = mongoose.createConnection(dbUri);
-
-    // Handle connection events
-    newDbConnection.on("connected", async () => {
-      try {
-        console.log(`Connected to database: ${dbName}`);
-
-        // Define schema with strict mode and explicit collection name
-        const sampleSchema = new mongoose.Schema(schema, {
-          strict,
-          collection: apiName, // Explicit collection name
-        });
-
-        // Create the model
-        const model = newDbConnection.model(apiName, sampleSchema);
-
-        // If data is provided, insert it into the collection
-        if (data) {
-          await model.insertMany(data);
-          console.log(`Data inserted into collection: ${apiName}`);
-        } else {
-          console.log(`No data provided for collection: ${apiName}`);
-        }
-
-        // Close the connection
-        await newDbConnection.close();
-        console.log(`Database connection closed: ${dbName}`);
-        next();
-      } catch (err) {
-        console.error("Error during database operation:", err.message);
-        await safelyCloseConnection(newDbConnection, dbName, res);
-        res
-          .status(500)
-          .send({ message: "Database operation error", error: err.message });
-      }
-    });
-
-    // Handle connection error
-    newDbConnection.on("error", (err) => {
-      console.error("Database connection error:", err.message);
-      res
-        .status(500)
-        .send({ message: "Database connection error", error: err.message });
-    });
-  } else {
-    next();
-  }
-};
-
 // Helper function to safely close the database connection
 export const safelyCloseConnection = async (connection, dbName) => {
   try {
@@ -213,78 +152,31 @@ export const getDB = async (req, res, next) => {
   }
 };
 
-export const dropDBUser = async (req, res, next) => {
-  const mongoDbKey = req.mongoDbKey;
-  const saveExternal = req.saveExternal;
-  const projectName = req.projectName;
-  const userName = req.userName;
+export const dropDb = async ({
+  uri = MONGO_URI,
+  projectName,
+  userName,
+  saveInternal,
+  saveExternal,
+}) => {
+  try {
+    if (saveInternal) {
+      const dbName = `${userName}_${projectName}`;
+      const connection = await connectToDatabase(MONGO_URI, dbName);
+      await connection.db.dropDatabase();
+      await connection.close();
+      console.log(`Dropped internal database: ${dbName}`);
+    }
 
-  if (mongoDbKey && saveExternal) {
-    const connection = mongoose.createConnection(`${mongoDbKey}${projectName}`);
-    connection.on("connected", async () => {
-      try {
-        await connection.db.dropDatabase();
-        await connection
-          .close()
-          .then(() => {
-            next();
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(500).send({ message: "Database did not close" });
-          });
-      } catch (err) {
-        console.log(err);
-        res.status(500).send({
-          message:
-            "Database did not drop, you may not have given the user of atlas admin or databse admin or owner privileges",
-        });
-      }
-    });
-    connection.on("error", (err) => {
-      console.log(err);
-      res.status(500).send({ message: "Invalid database connection string" });
-    });
-  } else {
-    next();
-  }
-};
-
-export const dropDBSelf = async (req, res, next) => {
-  const mongoDbKey = process.env.MONGODB_KEY_MAIN;
-  const projectName = req.projectName;
-  const userName = req.userName;
-  const saveInternal = req.saveInternal;
-  const dbName = userName + "_" + projectName;
-
-  if (saveInternal) {
-    const connection = mongoose.createConnection(`${mongoDbKey}${dbName}`);
-    connection.on("connected", async () => {
-      try {
-        await connection.db.dropDatabase();
-        await connection
-          .close()
-          .then(() => {
-            next();
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(500).send({ message: "Database did not close" });
-          });
-      } catch (err) {
-        console.log(err);
-        res.status(500).send({
-          message:
-            "Database did not drop, you may not have given the user of atlas admin or databse admin or owner privileges",
-        });
-      }
-    });
-    connection.on("error", (err) => {
-      console.log(err);
-      res.status(500).send({ message: "Invalid database connection string" });
-    });
-  } else {
-    next();
+    if (saveExternal && uri) {
+      const dbName = projectName;
+      const connection = await connectToDatabase(uri, dbName);
+      await connection.db.dropDatabase();
+      await connection.close();
+      console.log(`Dropped external database: ${dbName}`);
+    }
+  } catch (error) {
+    console.error("Error dropping database:", error);
   }
 };
 
@@ -561,7 +453,7 @@ export const updateModel = async ({
   schema = {},
   data,
 }) => {
-  const strict = !!schema;
+  const strict = Object.keys(schema)?.length > 0;
 
   try {
     // Define the schema with optional strict mode

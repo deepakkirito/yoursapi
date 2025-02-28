@@ -2,8 +2,8 @@
 
 import Verify from "@/components/auth/verify";
 
-const Page = ({params}) => {
-  const { token } = params;
+const Page = async ({params}) => {
+  const { token } = await params;
   
   return <Verify token={token} redirect="/login" />;
 };
