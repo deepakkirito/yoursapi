@@ -59,6 +59,7 @@ const Settings = ({
             "putRequest",
             "deleteRequest",
             "headRequest",
+            "patchRequest",
           ].includes(key)
         ) {
           return (

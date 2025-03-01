@@ -4,9 +4,14 @@ import ApisModel from "@/components/backend/api/api/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { NextResponse } from "next/server";
 import { getProjectOwner } from "@/components/backend/utilities/middlewares/getProjectOwner";
-import { dropDb } from "@/components/backend/utilities/middlewares/mongoose";
+import {
+  copyDatabase,
+  dropDb,
+} from "@/components/backend/utilities/middlewares/mongoose";
 import { decrypt } from "@/utilities/helpers/encryption";
 import AuthsModel from "@/components/backend/api/authApi/model";
+import { validateRequest } from "@/components/backend/utilities/helpers/validator";
+import { validateProjectName } from "@/components/backend/api/project/validator";
 
 export async function GET(request, { params }) {
   try {
@@ -18,7 +23,7 @@ export async function GET(request, { params }) {
       await getProjectOwner({ userId, projectId });
 
     const project = await ProjectsModel.findOne(
-      { _id: projectId, userId },
+      { _id: projectId },
       { apiIds: 1, name: 1 }
     )
       .populate("apiIds")
@@ -237,12 +242,63 @@ export async function PATCH(request, { params }) {
 
     const { projectId } = await params;
 
-    const { projectname } = body;
+    const { projectName } = body;
 
-    const { ownerUserId, ownerUsername, ownerEmail, ownerName } =
-      await getProjectOwner({ userId, projectId });
+    const {
+      ownerUserId,
+      ownerUsername,
+      ownerEmail,
+      ownerName,
+      saveExternal,
+      saveInternal,
+      mongoDbKey,
+      ownerProjectName,
+    } = await getProjectOwner({ userId, projectId });
 
-    
+    if (ownerProjectName === projectName) {
+      return NextResponse.json(
+        { message: "Project name can not be same as before" },
+        { status: 400 }
+      );
+    }
+
+    const validator = await validateRequest(
+      { ...request, body },
+      validateProjectName
+    );
+
+    if (validator) {
+      return validator;
+    }
+
+    if (saveInternal) {
+      await copyDatabase({
+        oldDbName: `${ownerUsername}_${ownerProjectName}`,
+        newDbName: `${ownerUsername}_${projectName}`,
+      });
+    }
+
+    if (saveExternal && mongoDbKey) {
+      await copyDatabase({
+        oldDbName: ownerProjectName,
+        newDbName: projectName,
+        mongoDbKey,
+      });
+    }
+
+    await ProjectsModel.findOneAndUpdate(
+      {
+        _id: projectId,
+      },
+      {
+        name: projectName,
+        updatedAt: new Date(),
+        updatedBy: userId,
+      },
+      { new: true }
+    );
+
+    return NextResponse.json({ message: "Project name updated successfully" });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

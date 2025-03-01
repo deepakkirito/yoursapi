@@ -16,6 +16,10 @@ const checkProjectExistApi = (projectName) => {
   return axiosHeadSelf(`project/check/${projectName}`);
 };
 
+export const checkOwnerProjectExistApi = (projectName, projectId) => {
+  return axiosHeadSelf(`project/check/${projectName}/${projectId}`);
+};
+
 export const checkProjectExistAllApi = (projectName, projectId) => {
   return axiosHeadSelf(`project/check/${projectName}/${projectId}`);
 };
@@ -79,11 +83,11 @@ const deleteProjectApi = (id) => {
 };
 
 const updateProjectNameApi = (id, body) => {
-  return axiosPut(`/project/${id}`, body);
+  return axiosPatchSelf(`project/${id}`, body);
 };
 
 const updateSharedProjectNameApi = (id, body) => {
-  return axiosPut(`/project/share/${id}`, body);
+  return axiosPatchSelf(`project/${id}`, body);
 };
 
 export {

@@ -18,7 +18,7 @@ const SaveDatabase = ({ fetchData = () => {} }) => {
     if (dbString[dbString.length - 1] !== "/") {
       updatedString = dbString + "/";
     }
-
+        
     const encrypted = encrypt(updatedString);
 
     await saveDBStringApi({

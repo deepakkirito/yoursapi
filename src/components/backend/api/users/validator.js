@@ -9,7 +9,8 @@ export const updateUserValidator = [
     .isLength({ min: 5, max: 30 })
     .withMessage("Username should be between 5 to 30 characters")
     .matches(/^[A-Za-z0-9]+$/)
-    .withMessage("Username can only contain letters, numbers"),
+    .withMessage("Username can only contain letters, numbers")
+    .toLowerCase(),
 
   check("name")
     .optional()
@@ -17,6 +18,7 @@ export const updateUserValidator = [
     .withMessage("Name should be a string")
     .isLength({ min: 2, max: 40 })
     .withMessage("Name should be between 2 to 40 characters"),
+    
 
   check("newPassword")
     .optional()

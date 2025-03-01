@@ -68,6 +68,16 @@ const apisSchema = new Schema(
         default: true,
       },
     },
+    patchRequest: {
+      used: {
+        type: Number,
+        default: 0,
+      },
+      active: {
+        type: Boolean,
+        default: true,
+      },
+    },
     schema: {
       type: Object,
       default: null,

@@ -27,6 +27,7 @@ import {
 import { usePathname, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import {
+  checkOwnerProjectExistApi,
   checkProjectExistApi,
   getSingleProjectApi,
   updateProjectNameApi,
@@ -144,23 +145,26 @@ const Navbar = ({
   }, [project]);
 
   const handleCheckProjectName = async () => {
-    await checkProjectExistApi(project)
+    await checkOwnerProjectExistApi(project, projectId)
       .then((res) => {
-        setProjectExists(true);
-        showNotification({
-          content: "Project name already exists",
-          type: "error",
-        });
+        setProjectExists(false);
       })
       .catch((err) => {
-        setProjectExists(false);
+        setProjectExists(true);
+        showNotification({
+          content:
+            err.status === 422
+              ? "Project name not valid"
+              : "Project name already exists",
+          type: "error",
+        });
       });
   };
 
   const handleUpdateProjectName = async (id) => {
     setSaveProjectLoading(true);
     await updateProjectNameApi(id, {
-      projectname: project,
+      projectName: project,
     })
       .then((res) => {
         showNotification({

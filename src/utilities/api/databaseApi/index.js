@@ -1,19 +1,19 @@
-const { axiosGet, axiosPost, axiosPut, axiosDelete } = require("..");
+const { axiosGet, axiosPost, axiosPut, axiosDelete, axiosGetSelf, axiosPostSelf } = require("..");
 
 const getDatabaseInfoApi = () => {
-  return axiosGet(`/database`);
+  return axiosGetSelf(`database`);
 };
 
 const getMigrateDataApi = (option) => {
-  return axiosGet(`/database/migrate/${option}`);
+  return axiosGetSelf(`database/${option}`);
 };
 
 const postMigrateDataApi = (option, body) => {
-  return axiosPost(`/database/migrate/${option}`, body);
+  return axiosPostSelf(`/database/${option}`, body);
 };
 
 const saveDBStringApi = (body) => {
-  return axiosPost(`/database/save`, body);
+  return axiosPostSelf(`database`, body);
 };
 
 export {

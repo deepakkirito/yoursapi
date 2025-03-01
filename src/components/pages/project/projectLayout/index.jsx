@@ -133,7 +133,7 @@ const ProjectLayout = ({
   const handleUpdateProjectName = async (id) => {
     setSaveLoading(true);
     await updateProjectNameApi(id, {
-      projectname: projectName,
+      projectName: projectName,
     })
       .then((res) => {
         showNotification({
@@ -358,6 +358,7 @@ const ProjectLayout = ({
                           {showEdit === item._id && (
                             <CustomInput
                               fullWidth
+                              size="small"
                               value={projectName}
                               label="Project Name"
                               type="text"

@@ -96,6 +96,8 @@ export async function POST(request) {
         country: sessionDetails.country,
         region: sessionDetails.region,
         city: sessionDetails.city,
+        lat: sessionDetails.lat,
+        lon: sessionDetails.lon,
         userId: user._id,
       });
 

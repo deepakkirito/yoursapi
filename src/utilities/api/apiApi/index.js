@@ -1,15 +1,15 @@
-const { axiosHead, axiosGet, axiosPost, axiosPut, axiosDelete } = require("..");
+const { axiosHead, axiosGet, axiosPost, axiosPut, axiosDelete, axiosHeadSelf, axiosGetSelf, axiosPostSelf } = require("..");
 
 const checkApiExistApi = (projectId, apiName) => {
-  return axiosHead(`/api/${projectId}/${apiName}`);
+  return axiosHeadSelf(`dataapi/${apiName}/${projectId}`);
 };
 
 const getApiDetailsApi = (apiId) => {
-  return axiosGet(`/api/${apiId}`);
+  return axiosGetSelf(`dataapi/${apiId}`);
 };
 
 const createApiApi = (projectId, body) => {
-  return axiosPost(`/api/${projectId}`, body);
+  return axiosPostSelf(`dataapi/${projectId}`, body);
 };
 
 const updateApiNameApi = (apiId, body) => {

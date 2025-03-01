@@ -72,18 +72,18 @@ const DataApi = ({ shared = false }) => {
           />
         ),
       },
-      {
-        id: "custom",
-        title: "Custom Data",
-        content: (
-          <CustomData
-            schema={apiData.schema}
-            refetch={() => getApiDetails(id)}
-            shared={shared}
-            permission={permission}
-          />
-        ),
-      },
+      // {
+      //   id: "custom",
+      //   title: "Custom Data",
+      //   content: (
+      //     <CustomData
+      //       schema={apiData.schema}
+      //       refetch={() => getApiDetails(id)}
+      //       shared={shared}
+      //       permission={permission}
+      //     />
+      //   ),
+      // },
       {
         id: "ai",
         title: "Youpi AI",

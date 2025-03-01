@@ -9,146 +9,7 @@ export const safelyCloseConnection = async (connection, dbName) => {
     console.log(`Database connection closed: ${dbName}`);
   } catch (err) {
     console.error(`Failed to close database connection: ${err.message}`);
-    // res.status(500).send({
-    //   message: "Failed to close database connection",
-    //   error: err.message,
-    // });
-  }
-};
-
-export const connectDBUser = async (req, res, next) => {
-  const mongoDbKey = req.mongoDbKey;
-  const saveExternal = req.saveExternal;
-  const userName = req.userName;
-  const schema = req.userSchema || null;
-  const strict = !!req.userSchema; // Simplified strict logic
-  const { projectName, apiName, data } = req.body;
-
-  if (mongoDbKey && saveExternal) {
-    // Create a new database connection
-    const newDbConnection = mongoose.createConnection(
-      `${mongoDbKey}${projectName}`
-    );
-
-    newDbConnection.on("connected", async () => {
-      try {
-        // Define the schema with explicit collection name
-        const sampleSchema = new mongoose.Schema(schema || {}, {
-          strict,
-          collection: apiName, // Explicitly set the collection name
-        });
-
-        // Create the model
-        const model = newDbConnection.model(apiName, sampleSchema);
-
-        if (data) {
-          // Insert the data
-          await model.insertMany(data);
-          console.log(`Data inserted into collection: ${apiName}`);
-        } else {
-          console.log(`No data provided for collection: ${apiName}`);
-        }
-
-        // Close the database connection
-        await newDbConnection.close();
-        console.log(`Database connection closed: ${projectName}`);
-        next();
-      } catch (err) {
-        console.error("Error during database operation:", err.message);
-        res
-          .status(500)
-          .send({ message: "Database operation error", error: err.message });
-      }
-    });
-
-    newDbConnection.on("error", (err) => {
-      console.error("Database connection error:", err.message);
-      res
-        .status(500)
-        .send({ message: "Database connection error", error: err.message });
-    });
-  } else {
-    next();
-  }
-};
-
-export const getDB = async (req, res, next) => {
-  const { dbString } = req.body;
-
-  if (!dbString) {
-    next();
-    return;
-  }
-
-  try {
-    const connection = mongoose.createConnection(dbString);
-
-    connection.on("connected", async () => {
-      try {
-        const databases = connection.db.admin();
-        const dbList = await databases.listDatabases();
-
-        if (!dbList.databases || dbList.databases.length === 0) {
-          return res.status(404).send({ message: "No databases found" });
-        }
-
-        const dbPromises = dbList.databases.map(async (db) => {
-          if (!db.name) return null; // Skip unnamed databases
-
-          try {
-            // Create a connection to the specific database
-            const dbConnection = mongoose.createConnection(
-              `${dbString}${db.name}`
-            );
-
-            // Wait for the connection to establish
-            await dbConnection.asPromise();
-
-            // List collections in the database
-            const collections = await dbConnection.db
-              .listCollections()
-              .toArray();
-
-            // Close the connection
-            dbConnection.close();
-
-            return {
-              name: db.name,
-              sizeOnDisk: db.sizeOnDisk,
-              empty: db.empty,
-              collections: collections.map((collection) => collection.name), // Extract collection names
-            };
-          } catch (err) {
-            console.error(
-              `Error listing collections for database ${db.name}:`,
-              err
-            );
-            return null; // Skip databases that couldn't be processed
-          }
-        });
-
-        // Resolve all promises and filter out null results
-        const databasesInfo = (await Promise.all(dbPromises)).filter(
-          (db) => db !== null
-        );
-
-        req.databases = databasesInfo;
-        connection.close();
-        next();
-      } catch (err) {
-        console.error("Error retrieving databases:", err);
-        connection.close();
-        res.status(500).send({ message: "Failed to retrieve databases" });
-      }
-    });
-
-    connection.on("error", (err) => {
-      console.error("Connection error:", err);
-      res.status(500).send({ message: "Invalid database connection string" });
-    });
-  } catch (err) {
-    console.error("Unexpected error:", err);
-    res.status(500).send({ message: "Something went wrong" });
+    throw new Error("Failed to close database connection");
   }
 };
 
@@ -186,10 +47,10 @@ export const migrateProjects = async ({
   options,
   userName,
   projects,
-  api,
+  apis,
   migrate,
-  schema,
-  strict,
+  schema = {},
+  strict = false,
 }) => {
   try {
     // Iterate through each project
@@ -228,7 +89,7 @@ export const migrateProjects = async ({
       }
 
       // Migrate all models in the API
-      for (const apiModel of api[project]) {
+      for (const apiModel of apis[project]) {
         const modelName = apiModel.toLowerCase();
         const sampleSchema = new mongoose.Schema(schema, {
           strict: strict,

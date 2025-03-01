@@ -10,7 +10,7 @@ export const getProjectOwner = async ({ userId, projectId }) => {
     );
 
     if (!project) {
-      throw new Error("Project not found");
+      throw new Error("Project not foundq");
     }
 
     const user = project.userId;
@@ -39,6 +39,7 @@ export const getProjectOwner = async ({ userId, projectId }) => {
       saveExternal: user.saveExternal,
       fetchData: user.fetchData,
       mongoDbKey: user.mongoDbKey ? decrypt(user.mongoDbKey) : null,
+      ownerProjectName: project.name,
     };
   } catch (error) {
     console.error("Error in getProjectOwner:", error);

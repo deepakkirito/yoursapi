@@ -230,6 +230,7 @@ const Settings = ({ data, shared = false, permission }) => {
                     "putRequest",
                     "deleteRequest",
                     "headRequest",
+                    "patchRequest",
                   ].includes(key)
                 ) {
                   return (

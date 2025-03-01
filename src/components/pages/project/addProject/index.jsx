@@ -51,25 +51,25 @@ const AddProject = ({
       data.projectName &&
       checkProjectExistApi(data.projectName)
         .then((res) => {
-          setProjectValidator({
-            name: "projectName",
-            msg: "Project name already exist",
-          });
+          setProjectValidator("");
         })
         .catch((err) => {
-          setProjectValidator("");
+          setProjectValidator({
+            name: "projectName",
+            msg: "Project name already exist or invalid",
+          });
         });
     project &&
       data.apiName &&
       checkApiExistApi(projectId, data.apiName)
         .then((res) => {
-          setApiValidator({
-            name: "apiName",
-            msg: "Api name already exist",
-          });
+          setApiValidator("");
         })
         .catch((err) => {
-          setApiValidator("");
+          setApiValidator({
+            name: "apiName",
+            msg: "Api name already exist or invalid",
+          });
         });
   }, [data]);
 
@@ -112,7 +112,6 @@ const AddProject = ({
             project && handleCreateApi(data.apiName, data.data);
           } catch (err) {
             console.log(err);
-
             setLoading(false);
             showNotification({
               content: "Data is not in valid format",

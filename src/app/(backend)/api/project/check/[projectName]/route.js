@@ -12,7 +12,7 @@ export async function HEAD(request, { params }) {
 
     const projects = await ProjectsModel.findOne({ name: projectName, userId });
 
-    if (!projects) {
+    if (projects) {
       return NextResponse.json({ message: "Project found" }, { status: 400 });
     }
 

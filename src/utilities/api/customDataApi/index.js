@@ -1,7 +1,7 @@
-const { axiosGet, axiosPost, axiosPut, axiosDelete } = require("..");
+const { axiosGet, axiosPost, axiosPut, axiosDelete, axiosGetSelf } = require("..");
 
 const getCustomDataApi = (query) => {
-  return axiosGet(`/customdata${query ? `?${query}` : ""}`);
+  return axiosGetSelf(`customdata${query ? `?${query}` : ""}`);
 };
 
 const postCustomDataApi = (id, body) => {

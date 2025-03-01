@@ -52,7 +52,7 @@ const decrypt = (data) => {
       throw new Error("Decryption failed. No valid bytes found.");
     }
 
-    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);    
 
     // Handle parsing if data is serialized
     return decryptedData.split(`"`)?.length === 1

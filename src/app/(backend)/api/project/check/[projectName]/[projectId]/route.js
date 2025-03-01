@@ -23,7 +23,7 @@ export async function HEAD(request, { params }) {
     const { ownerUserId, ownerUsername, ownerEmail, ownerName } =
       await getProjectOwner({ userId, projectId });
 
-    const projects = await ProjectsModel.find({
+    const projects = await ProjectsModel.findOne({
       name: projectName,
       userId: ownerUserId,
     });
