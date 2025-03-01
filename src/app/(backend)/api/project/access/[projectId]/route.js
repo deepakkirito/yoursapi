@@ -212,7 +212,7 @@ export async function POST(request, { params }) {
         recipientName: sharedUser.name,
         projectName: updateProject.name,
         sharedBy: `${name} ${email}`,
-        projectLink: `${process.env.COMPANY_URL}project/shared/${updateProject._id}`,
+        projectLink: `${process.env.COMPANY_URL}projects/shared/${updateProject._id}`,
       },
     });
 

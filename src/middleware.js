@@ -13,6 +13,9 @@ export async function middleware(req) {
     "/api/project",
     "/api/session",
     "/api/user",
+    "/api/database",
+    "/api/dataapi",
+    "/api/authapi",
   ];
 
   // If route is protected, check authentication
@@ -27,6 +30,5 @@ export async function middleware(req) {
 
 // Apply middleware to multiple routes
 export const config = {
-  matcher: ["/api/:path*"],
-  runtime: "nodejs",
+  matcher: ["/api/:path*", "/v1/:path*"]
 };

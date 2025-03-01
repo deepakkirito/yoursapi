@@ -11,6 +11,7 @@ const CustomInput = ({
   formSX = {}, 
   autoComplete, 
   name,
+  paddingLeft,
   ...props
 }) => {
   return (
@@ -36,6 +37,7 @@ const CustomInput = ({
         autoComplete={autoComplete}
         sx={{
           ...props.sx,
+          paddingLeft: paddingLeft || "0.5rem",
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: "divider",
           },

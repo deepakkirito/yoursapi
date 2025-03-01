@@ -84,7 +84,7 @@ const CustomAccordion = ({ items, defaultExpanded, onChange, hideItems }) => {
               <Typography component="span">{item.title}</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography>{item.content}</Typography>
+              <div>{item.content}</div>
             </AccordionDetails>
           </Accordion>
         );

@@ -191,7 +191,7 @@ export async function POST(request) {
         username: name,
         projectName: body.projectName,
         creationDate: new Date(),
-        projectLink: `${process.env.COMPANY_URL}project/${newProject._id}`,
+        projectLink: `${process.env.COMPANY_URL}projects/${newProject._id}`,
       },
     });
 

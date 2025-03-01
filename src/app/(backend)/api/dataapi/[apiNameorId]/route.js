@@ -297,7 +297,7 @@ export async function PATCH(request, { params }) {
         { _id: apiNameorId },
         {
           $set: {
-            [key]: { ...apiData.toObject()[key], status: Boolean(value) },
+            [key]: { ...apiData.toObject()[key], active: Boolean(value) },
             updatedAt: Date.now(),
             updatedBy: userId,
           },

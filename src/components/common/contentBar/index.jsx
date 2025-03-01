@@ -1,3 +1,4 @@
+"use client";
 import { ArrowBack, Fullscreen, FullscreenExit } from "@mui/icons-material";
 import { Box, IconButton, Typography, useMediaQuery } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -17,7 +18,7 @@ const ContentBar = ({
   const [fullScreen, setFullScreen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 1200px)");
   const location = usePathname();
-  useState(() => {
+  useEffect(() => {
     if (isMobile) {
       setOpen(true);
     }

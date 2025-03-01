@@ -411,7 +411,7 @@ const AddSchema = ({
           )}
           {Object.keys(schemaLayout)?.map((schema, index) => {
             return (
-              <>
+              <div key={index}>
                 <Divider />
                 <br />
                 <Box
@@ -499,7 +499,7 @@ const AddSchema = ({
                 </Box>
                 <br />
                 <Divider />
-              </>
+              </div>
             );
           })}
           {!editorRefresh && Object.keys(schemaLayout)?.length !== 0 && (

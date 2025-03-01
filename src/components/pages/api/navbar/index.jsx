@@ -92,7 +92,7 @@ const Navbar = ({
 
   useEffect(() => {
     if (apiData?.label) {
-      router.push(
+      router.replace(
         `/projects/${shared ? "shared/" : ""}${projectId}/${endpoint}${query ? `?api=${apiData.label}&id=${apiData.value}` : ""}`,
         undefined,
         {
@@ -442,7 +442,7 @@ const Navbar = ({
               >
                 Your Api:
               </Typography>
-              <Typography>{window?.location.origin}/</Typography>
+              <Typography>{window?.location.origin}/v1/</Typography>
               <CustomInput
                 fullWidth
                 value={username}
@@ -604,7 +604,7 @@ const Navbar = ({
                 <IconButton
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      `${window?.location.origin}/${username}/${project}/${apiData.label}`
+                      `${window?.location.origin}/v1/${username}/${project}/${apiData.label}`
                     );
                     showNotification({
                       content: "Link copied to clipboard",

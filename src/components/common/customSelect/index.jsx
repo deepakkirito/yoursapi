@@ -38,6 +38,7 @@ const CustomSelect = ({
   size = "small",
   fullWidth = true,
   buttonDisable = false,
+  paddingLeft = "0.5rem",
   ...props
 }) => {
   return (
@@ -58,6 +59,7 @@ const CustomSelect = ({
           disabled={disabled}
           sx={{
             ...props.sx,
+            paddingLeft: paddingLeft || "0.5rem",
             "& .MuiOutlinedInput-notchedOutline": {
               borderColor: "divider",
             },

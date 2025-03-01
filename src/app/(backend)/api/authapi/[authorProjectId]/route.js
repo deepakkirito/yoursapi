@@ -158,7 +158,7 @@ export async function POST(request, { params }) {
         apiName: apiName,
         projectName: ownerProjectName,
         creationDate: new Date(),
-        apiLink: `${process.env.COMPANY_URL}${projectId}/data`,
+        apiLink: `${process.env.COMPANY_URL}projects/${projectId}/data`,
       },
     });
 

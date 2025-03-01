@@ -69,7 +69,6 @@ const AuthApi = ({ shared = false }) => {
   }, []);
 
   const getAuthApiData = (id, loading = true) => {
-    console.log(id);
     loading && setLoading(true);
     getAuthApi(id)
       .then((res) => {
