@@ -1,4 +1,4 @@
-const { axiosHead, axiosGet, axiosPost, axiosPut, axiosDelete, axiosHeadSelf, axiosGetSelf, axiosPostSelf } = require("..");
+const { axiosHead, axiosGet, axiosPost, axiosPut, axiosDelete, axiosHeadSelf, axiosGetSelf, axiosPostSelf, axiosPatchSelf, axiosDeleteSelf } = require("..");
 
 const checkApiExistApi = (projectId, apiName) => {
   return axiosHeadSelf(`dataapi/${apiName}/${projectId}`);
@@ -13,23 +13,23 @@ const createApiApi = (projectId, body) => {
 };
 
 const updateApiNameApi = (apiId, body) => {
-  return axiosPut(`/api/${apiId}`, body);
+  return axiosPatchSelf(`dataapi/${apiId}`, body);
 };
 
 const updateApiDataApi = (apiId, body) => {
-  return axiosPut(`/api/data/${apiId}`, body);
+  return axiosPatchSelf(`dataapi/${apiId}`, body);
 };
 
 const updateApiStatusApi = (apiId, body) => {
-  return axiosPut(`/api/status/${apiId}`, body);
+  return axiosPatchSelf(`dataapi/${apiId}`, body);
 };
 
 const updateApiSchemaApi = (apiId, body) => {
-  return axiosPut(`/api/schema/${apiId}`, body);
+  return axiosPatchSelf(`dataapi/${apiId}`, body);
 };
 
 const deleteApiApi = (apiId) => {
-  return axiosDelete(`/api/${apiId}`);
+  return axiosDeleteSelf(`dataapi/${apiId}`);
 };
 
 export {

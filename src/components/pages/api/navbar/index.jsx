@@ -273,15 +273,15 @@ const Navbar = ({
     await checkApiExistApi(projectId, apiName)
       .then((res) => {
         if (res.status === 200) {
-          setApiExists(true);
-          showNotification({
-            content: "Api name already exists",
-            type: "error",
-          });
+          setApiExists(false);
         }
       })
       .catch((err) => {
-        setApiExists(false);
+        setApiExists(true);
+        showNotification({
+          content: "Api name already exists or invalid",
+          type: "error",
+        });
       });
   };
 

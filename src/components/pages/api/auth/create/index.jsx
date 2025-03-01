@@ -23,7 +23,7 @@ const Create = ({ projectId, refetch = () => {}, shared = false, permission }) =
       name: name,
       projectId: projectId,
     };
-    createAuthApi(body)
+    createAuthApi(projectId, body)
       .then((res) => {
         setLoading(false);
         showNotification({
@@ -46,6 +46,7 @@ const Create = ({ projectId, refetch = () => {}, shared = false, permission }) =
         label="Api Name (default: auth)"
         value={name}
         onChange={(event) => setName(event.target.value)}
+        placeholder="auth"
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
