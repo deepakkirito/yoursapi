@@ -4,16 +4,12 @@ import { connectToDatabase } from "@/components/backend/utilities/middlewares/mo
 import { decrypt } from "@/utilities/helpers/encryption";
 import { isValidJson } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
-import { writeFile } from "fs/promises";
-import path from "path";
-import os from "os";
 
 export async function GET(req, { params }) {
   try {
-    const { username, projectname, apiname } = await params;
+    const { username, projectname, apiname } = params;
 
-    // Check if the request is valid
+    // Validate the request
     const check = await checkRequest({
       username,
       projectname,
@@ -21,35 +17,22 @@ export async function GET(req, { params }) {
       reqType: "getRequest",
     });
 
-    if (check) {
-      return check;
-    }
+    if (check) return check;
 
     // Extract query params
     const { searchParams } = new URL(req.url);
     const page = Math.max(0, parseInt(searchParams.get("page") || "0"));
     const rows = Math.max(0, parseInt(searchParams.get("rows") || "0"));
 
+    // Extract search and logical operator
+    const searchParam = searchParams.get("search") || "{}";
+    const searchMode =
+      searchParams.get("searchMode")?.toUpperCase() === "OR" ? "$or" : "$and"; // Default is AND
+
     // Parse JSON parameters safely
-    const parsedSearch = isValidJson(searchParams.get("search") || "{}");
+    const parsedSearch = isValidJson(searchParam);
     const parsedSort = isValidJson(searchParams.get("sort") || "{}");
     const parsedProject = isValidJson(searchParams.get("project") || "{}");
-
-    // Validate search query
-    if (!parsedSearch.valid) {
-      return NextResponse.json(
-        { message: "Invalid search query format" },
-        { status: 400 }
-      );
-    }
-
-    // Validate sort query
-    if (!parsedSort.valid) {
-      return NextResponse.json(
-        { message: "Invalid sort query format" },
-        { status: 400 }
-      );
-    }
 
     // Validate project (field selection) query
     if (!parsedProject.valid) {
@@ -58,32 +41,6 @@ export async function GET(req, { params }) {
         { status: 400 }
       );
     }
-
-    // Construct search query dynamically
-    let query = {};
-    if (Object.keys(parsedSearch.content)?.length) {
-      query = Object.entries(parsedSearch.content).reduce(
-        (acc, [key, value]) => {
-          acc[key] = { $regex: value, $options: "i" }; // Case-insensitive regex search
-          return acc;
-        },
-        {}
-      );
-    }
-
-    // Construct sorting object
-    const sortOptions =
-      Object.keys(parsedSort.content)?.length > 0
-        ? {
-            [parsedSort.content.key]:
-              parsedSort.content.value === "desc" ? -1 : 1,
-          }
-        : {};
-
-    // Construct projection object
-    const projectionFields = Object.keys(parsedProject.content)?.length
-      ? parsedProject.content
-      : {};
 
     // Fetch user data
     const user = await UsersModel.findOne({ username }).lean();
@@ -102,6 +59,59 @@ export async function GET(req, { params }) {
 
     const connection = await connectToDatabase(dbString, dbName);
     const collection = connection.db.collection(apiname);
+
+    // Construct search query
+    let query = {};
+
+    if (parsedSearch.valid && Object.keys(parsedSearch.content).length) {
+      // Structured field-based search (AND/OR)
+      const conditions = Object.entries(parsedSearch.content).map(
+        ([key, value]) => ({
+          [key]: { $regex: value, $options: "i" }, // Case-insensitive regex search
+        })
+      );
+
+      query = { [searchMode]: conditions };
+    } else {
+      // Global search across all fields
+      const globalSearchText = searchParams.get("search")?.trim();
+
+      if (globalSearchText) {
+        const isNumber = !isNaN(globalSearchText); // Check if input is a number
+        const schemaFields = await collection.findOne(); // Get one document to infer field names
+
+        if (schemaFields) {
+          const textSearchQuery = {
+            $or: Object.keys(schemaFields)
+              .map((key) => {
+                const fieldValue = schemaFields[key];
+                if (typeof fieldValue === "string") {
+                  return { [key]: { $regex: globalSearchText, $options: "i" } }; // String search
+                } else if (typeof fieldValue === "number" && isNumber) {
+                  return { [key]: parseFloat(globalSearchText) }; // Exact number search
+                }
+                return null;
+              })
+              .filter(Boolean), // Remove null values
+          };
+          query = textSearchQuery;
+        }
+      }
+    }
+
+    // Construct sorting object
+    const sortOptions =
+      Object.keys(parsedSort.content)?.length > 0
+        ? {
+            [parsedSort.content.key]:
+              parsedSort.content.value === "desc" ? -1 : 1,
+          }
+        : {};
+
+    // Construct projection object
+    const projectionFields = Object.keys(parsedProject.content)?.length
+      ? parsedProject.content
+      : {};
 
     // Run queries in parallel for better performance
     const [data, filteredCount, totalCount] = await Promise.all([

@@ -106,13 +106,15 @@ const usersSchema = new Schema(
       },
     ],
     sharedUsers: [{ type: Schema.Types.ObjectId, ref: "users" }],
+    lastReset: { type: Date, default: new Date() }, // Track last reset time
   },
   {
     timestamps: true,
   }
 );
 
-usersSchema.index({ email: "text", referralCode: "text", username: "text" });
+usersSchema.index({ email: "text", referralCode: "text", username: "text" }); // Full-text search index
+usersSchema.index({ lastReset: 1 }, { expireAfterSeconds: 86400 }); // TTL index
 
 const UsersModel =
   mongoose.models?.users || mongoose.model("users", usersSchema);
