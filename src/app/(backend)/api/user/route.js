@@ -1,4 +1,5 @@
 import LocationModel from "@/components/backend/api/location/model";
+import LoggersModel from "@/components/backend/api/logger";
 import ProjectsModel from "@/components/backend/api/project/model";
 import SessionsModel from "@/components/backend/api/session/model";
 import UsersModel from "@/components/backend/api/users/model";
@@ -198,6 +199,33 @@ export async function PATCH(request) {
 
       return response;
     }
+
+    const getMessage = () => {
+      if (newName) {
+        return `Name ${user.name} updated to ${newName}`;
+      }
+
+      if (profile) {
+        return `Profile updated`;
+      }
+
+      if (newPassword) {
+        return `Password updated`;
+      }
+
+      if (username) {
+        return `Username ${user.username} updated to ${username}`;
+      }
+
+      return "Invalid option triggered";
+    };
+
+    await LoggersModel.create({
+      userId: userId,
+      type: "user",
+      createdBy: userId,
+      message: getMessage(),
+    });
 
     // Default response if no conditions are met
     return NextResponse.json(

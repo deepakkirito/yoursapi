@@ -1,6 +1,7 @@
 import ApisModel from "@/components/backend/api/api/model";
 import AuthsModel from "@/components/backend/api/authApi/model";
 import { validateAuthApi } from "@/components/backend/api/authApi/validator";
+import LoggersModel from "@/components/backend/api/logger";
 import ProjectsModel from "@/components/backend/api/project/model";
 import UsersModel from "@/components/backend/api/users/model";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
@@ -107,7 +108,10 @@ export async function POST(request, { params }) {
 
     const { name: apiName } = body;
 
-    const validator = await validateRequest({ ...request, body }, validateAuthApi);
+    const validator = await validateRequest(
+      { ...request, body },
+      validateAuthApi
+    );
 
     if (validator) {
       return validator;
@@ -148,6 +152,15 @@ export async function POST(request, { params }) {
       },
       { new: true, lean: true }
     );
+
+    await LoggersModel.create({
+      userId: ownerUserId,
+      log: `Auth API ${newAuth.name} created`,
+      type: "auth",
+      projectId: projectId,
+      authId: newAuth._id,
+      createdBy: userId,
+    });
 
     sendMail({
       to: ownerEmail,
@@ -215,7 +228,10 @@ export async function PATCH(request, { params }) {
     } = await getProjectOwner({ userId, projectId: authData.projectId });
 
     if (apiName) {
-      const validator = await validateRequest({ ...request, body }, validateAuthApi);
+      const validator = await validateRequest(
+        { ...request, body },
+        validateAuthApi
+      );
 
       if (validator) {
         return validator;
@@ -323,6 +339,15 @@ export async function PATCH(request, { params }) {
         });
       }
 
+      await LoggersModel.create({
+        userId: ownerUserId,
+        log: `Auth API ${authData.name} updated to ${apiName}`,
+        type: "auth",
+        projectId: authData.projectId,
+        authId: authData._id,
+        createdBy: userId,
+      });
+
       return NextResponse.json({
         message: "Api name updated successfully",
       });
@@ -359,6 +384,33 @@ export async function PATCH(request, { params }) {
         },
         { new: true, lean: true }
       );
+
+      const getMessage = () => {
+        if (authType) {
+          return `Auth API ${newAuthapi.name} auth type updated to ${authType} from ${newAuthapi.authType}`;
+        }
+        if (schema) {
+          return `Auth API ${newAuthapi.name} schema updated to ~${String(schema)}~ from ~${String(newAuthapi.schema)}~`;
+        }
+        if (tokenAge) {
+          return `Auth API ${newAuthapi.name} token age updated to ${tokenAge} from ${newAuthapi.tokenAge}`;
+        }
+        if (reqType && reqValue !== undefined) {
+          return `Auth API ${newAuthapi.name} request type ${reqType} status updated to ${reqValue} from ${newAuthapi[reqType].active}`;
+        }
+        if (captcha !== undefined) {
+          return `Auth API ${newAuthapi.name} captcha updated to ${captcha} from ${newAuthapi.captcha}`;
+        }
+      };
+
+      await LoggersModel.create({
+        userId: ownerUserId,
+        log: getMessage(),
+        type: "auth",
+        projectId: authData.projectId,
+        authId: authData._id,
+        createdBy: userId,
+      });
 
       return NextResponse.json({
         message: "Auth API updated successfully",
@@ -444,6 +496,15 @@ export async function DELETE(request, { params }) {
       },
       { new: true, lean: true }
     );
+
+    await LoggersModel.create({
+      userId: ownerUserId,
+      log: `Auth API ${authData.name} deleted`,
+      type: "auth",
+      projectId: authData.projectId,
+      authId: authData._id,
+      createdBy: userId,
+    });
 
     return NextResponse.json({ message: "Auth API deleted successfully" });
   } catch (error) {

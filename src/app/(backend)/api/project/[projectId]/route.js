@@ -12,6 +12,7 @@ import { decrypt } from "@/utilities/helpers/encryption";
 import AuthsModel from "@/components/backend/api/authApi/model";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
 import { validateProjectName } from "@/components/backend/api/project/validator";
+import LoggersModel from "@/components/backend/api/logger";
 
 export async function GET(request, { params }) {
   try {
@@ -103,6 +104,14 @@ export async function PUT(request, { params }) {
       { new: true, lean: true }
     );
 
+    await LoggersModel.create({
+      userId: ownerUserId,
+      type: "project",
+      createdBy: userId,
+      projectId,
+      message: `Project ${project.name} restored`,
+    });
+
     return NextResponse.json({
       message: "Project restored successfully",
     });
@@ -136,7 +145,7 @@ export async function DELETE(request, { params }) {
     }
 
     if (soft === "true") {
-      const { ownerUserId, ownerUsername, ownerEmail, ownerName } =
+      var { ownerUserId, ownerUsername, ownerEmail, ownerName } =
         await getProjectOwner({ userId, projectId });
 
       const updatedUser = await UsersModel.findByIdAndUpdate(
@@ -225,6 +234,14 @@ export async function DELETE(request, { params }) {
       });
     }
 
+    await LoggersModel.create({
+      userId: ownerUserId || userId,
+      type: "project",
+      createdBy: userId,
+      projectId,
+      message: `Project ${project.name} ${soft ? "soft" : "hard"} deleted`,
+    });
+
     return NextResponse.json({ message: "Invalid request" }, { status: 400 });
   } catch (error) {
     console.log(error);
@@ -297,6 +314,14 @@ export async function PATCH(request, { params }) {
       },
       { new: true }
     );
+
+    await LoggersModel.create({
+      userId: userId,
+      type: "project",
+      createdBy: userId,
+      projectId,
+      message: `Project ${project.name} name updated to ${projectName}`,
+    });
 
     return NextResponse.json({ message: "Project name updated successfully" });
   } catch (error) {

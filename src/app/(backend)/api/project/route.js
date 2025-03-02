@@ -11,6 +11,7 @@ import { validateData } from "@/components/backend/utilities/middlewares/dataVal
 import { decrypt } from "@/utilities/helpers/encryption";
 import { saveData } from "@/components/backend/utilities/middlewares/saveData";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
+import LoggersModel from "@/components/backend/api/logger";
 
 export async function GET(request) {
   try {
@@ -182,6 +183,23 @@ export async function POST(request) {
         { status: 401, statusText: "Unauthorized" }
       );
     }
+
+    await LoggersModel.create({
+      userId: userId,
+      type: "project",
+      createdBy: userId,
+      projectId: newProject._id,
+      message: `Project ${body.projectName} created`,
+    });
+
+    await LoggersModel.create({
+      userId: userId,
+      type: "api",
+      createdBy: userId,
+      projectId: newProject._id,
+      apiId: newApi._id,
+      message: `New api creted ${newApi.name} for project ${newProject.name}`,
+    });
 
     await sendMail({
       to: email,

@@ -94,7 +94,7 @@ const apisSchema = new Schema(
   }
 );
 
-apisSchema.index({ name: "text", userId: "text" });
+apisSchema.index({ name: "text", userId: 1 });
 
 const ApisModel = mongoose.models.apis || mongoose.model("apis", apisSchema);
 

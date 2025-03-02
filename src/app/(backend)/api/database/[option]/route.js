@@ -1,5 +1,6 @@
 import ApisModel from "@/components/backend/api/api/model";
 import AuthsModel from "@/components/backend/api/authApi/model";
+import LoggersModel from "@/components/backend/api/logger";
 import ProjectsModel from "@/components/backend/api/project/model";
 import UsersModel from "@/components/backend/api/users/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
@@ -93,10 +94,10 @@ export async function GET(request, { params }) {
 }
 
 export async function POST(request, { params }) {
+  const { userId, username, body } = await verifyToken(request);
+
   try {
     const { option } = await params;
-
-    const { userId, username, body } = await verifyToken(request);
 
     const { project, api, migrate } = body;
 
@@ -195,11 +196,35 @@ export async function POST(request, { params }) {
       }
     }
 
+    const getMessage = () => {
+      if (option === "internal") {
+        return `Data migrated from your database to our database ~${String(apiIds)}~`;
+      } else if (option === "external") {
+        return "Data migrated from our database to your database";
+      } else {
+        return "Invalid option triggered";
+      }
+    };
+
+    await LoggersModel.create({
+      userId: user._id,
+      type: "user",
+      createdBy: user._id,
+      message: getMessage(),
+    });
+
     return NextResponse.json({
       message: "Data migrated successfully",
     });
   } catch (error) {
     console.error(error);
+    await LoggersModel.create({
+      userId: userId,
+      type: "user",
+      createdBy: userId,
+      message: "Error migrating data: " + error.message,
+      status: "error",
+    });
     return NextResponse.json(
       {
         message: "Error migrating data: " + error.message,

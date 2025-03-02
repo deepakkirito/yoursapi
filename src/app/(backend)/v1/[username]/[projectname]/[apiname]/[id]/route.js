@@ -1,14 +1,46 @@
 import UsersModel from "@/components/backend/api/users/model";
 import { checkRequest } from "@/components/backend/utilities/middlewares/checkRequest";
-import { connectToDatabase } from "@/components/backend/utilities/middlewares/mongoose";
-import { decrypt } from "@/utilities/helpers/encryption";
-import { isValidJson } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb"; // Import ObjectId to handle MongoDB IDs
+import { getDataDynamicHandler } from "@/components/backend/controller/data/get";
+import { headDataDynamicHandler } from "@/components/backend/controller/data/head";
+import { putDataDynamicHandler } from "@/components/backend/controller/data/put";
+import { patchDataDynamicHandler } from "@/components/backend/controller/data/patch";
+import { deleteDataDynamicHandler } from "@/components/backend/controller/data/delete";
+
+export async function HEAD(req, { params }) {
+  try {
+    const { username, projectname, apiname, id } = await params;
+
+    // Validate request
+    const check = await checkRequest({
+      username,
+      projectname,
+      apiname,
+      reqType: "headRequest",
+    });
+
+    if (!["auth", "data"].includes(check)) return check;
+
+    if (check === "data")
+      return await headDataDynamicHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+        id,
+      });
+  } catch (error) {
+    console.error("HEAD API Error:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error", error: error.message },
+      { status: 500 }
+    );
+  }
+}
 
 export async function GET(req, { params }) {
   try {
-    const { username, projectname, apiname, id } = params;
+    const { username, projectname, apiname, id } = await params;
 
     // ✅ Check request validity
     const check = await checkRequest({
@@ -18,70 +50,16 @@ export async function GET(req, { params }) {
       reqType: "getRequest",
     });
 
-    if (check) {
-      return check; // Return error if checkRequest fails
-    }
+    if (!["auth", "data"].includes(check)) return check;
 
-    // ✅ Extract query params
-    const { searchParams } = new URL(req.url);
-    const parsedProject = isValidJson(searchParams.get("project") || "{}");
-
-    // ✅ Validate project (field selection) query
-    if (!parsedProject.valid) {
-      return NextResponse.json(
-        { message: "Invalid project query format" },
-        { status: 400 }
-      );
-    }
-
-    // ✅ Validate MongoDB ObjectId format
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { message: "Invalid document ID" },
-        { status: 400 }
-      );
-    }
-
-    // ✅ Construct projection object
-    const projectionFields = Object.keys(parsedProject.content)?.length
-      ? parsedProject.content
-      : {};
-
-    // ✅ Fetch user data
-    const user = await UsersModel.findOne({ username }).lean();
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
-
-    // ✅ Determine database connection
-    const dbString =
-      user.fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : decrypt(user.mongoDbKey);
-
-    const dbName =
-      user.fetchData === "self" ? `${username}_${projectname}` : projectname;
-
-    const connection = await connectToDatabase(dbString, dbName);
-    const collection = connection.db.collection(apiname);
-
-    // ✅ Fetch the document
-    const document = await collection.findOne(
-      { _id: new ObjectId(id) },
-      { projection: projectionFields }
-    );
-
-    await connection.close();
-
-    // ✅ Check if document exists
-    if (!document) {
-      return NextResponse.json(
-        { message: "Document not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(document);
+    if (check === "data")
+      return await getDataDynamicHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+        id,
+      });
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json(
@@ -93,43 +71,23 @@ export async function GET(req, { params }) {
 
 export async function PUT(req, { params }) {
   try {
-    const { username, projectname, apiname, id } = params;
+    const { username, projectname, apiname, id } = await params;
     const check = await checkRequest({
       username,
       projectname,
       apiname,
       reqType: "putRequest",
     });
-    if (check) return check;
+    if (!["auth", "data"].includes(check)) return check;
 
-    const body = await req.json();
-    if (!body || Object.keys(body).length === 0) {
-      return NextResponse.json(
-        { message: "Request body cannot be empty" },
-        { status: 400 }
-      );
-    }
-
-    const user = await UsersModel.findOne({ username }).lean();
-    if (!user)
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-
-    const dbString =
-      user.fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : decrypt(user.mongoDbKey);
-    const dbName =
-      user.fetchData === "self" ? `${username}_${projectname}` : projectname;
-    const connection = await connectToDatabase(dbString, dbName);
-    const collection = connection.db.collection(apiname);
-
-    const result = await collection.replaceOne({ _id: new ObjectId(id) }, body);
-    await connection.close();
-
-    return NextResponse.json({
-      message: "Document updated successfully",
-      modifiedCount: result.modifiedCount,
-    });
+    if (check === "data")
+      return await putDataDynamicHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+        id,
+      });
   } catch (error) {
     return NextResponse.json(
       { message: "Internal Server Error", error: error.message },
@@ -140,46 +98,23 @@ export async function PUT(req, { params }) {
 
 export async function PATCH(req, { params }) {
   try {
-    const { username, projectname, apiname, id } = params;
+    const { username, projectname, apiname, id } = await params;
     const check = await checkRequest({
       username,
       projectname,
       apiname,
       reqType: "patchRequest",
     });
-    if (check) return check;
+    if (!["auth", "data"].includes(check)) return check;
 
-    const body = await req.json();
-    if (!body || Object.keys(body).length === 0) {
-      return NextResponse.json(
-        { message: "Request body cannot be empty" },
-        { status: 400 }
-      );
-    }
-
-    const user = await UsersModel.findOne({ username }).lean();
-    if (!user)
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-
-    const dbString =
-      user.fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : decrypt(user.mongoDbKey);
-    const dbName =
-      user.fetchData === "self" ? `${username}_${projectname}` : projectname;
-    const connection = await connectToDatabase(dbString, dbName);
-    const collection = connection.db.collection(apiname);
-
-    const result = await collection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: body }
-    );
-    await connection.close();
-
-    return NextResponse.json({
-      message: "Document patched successfully",
-      modifiedCount: result.modifiedCount,
-    });
+    if (check === "data")
+      return await patchDataDynamicHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+        id,
+      });
   } catch (error) {
     return NextResponse.json(
       { message: "Internal Server Error", error: error.message },
@@ -190,25 +125,23 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const { username, projectname, apiname, id } = params;
+    const { username, projectname, apiname, id } = await params;
     const check = await checkRequest({
       username,
       projectname,
       apiname,
       reqType: "deleteRequest",
     });
-    if (check) return check;
+    if (!["auth", "data"].includes(check)) return check;
 
-    const connection = await connectToDatabase(
-      process.env.MONGODB_KEY_MAIN,
-      projectname
-    );
-    const collection = connection.db.collection(apiname);
-
-    await collection.deleteOne({ _id: new ObjectId(id) });
-    await connection.close();
-
-    return NextResponse.json({ message: "Document deleted successfully" });
+    if (check === "data")
+      return await deleteDataDynamicHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+        id,
+      });
   } catch (error) {
     return NextResponse.json(
       { message: "Internal Server Error", error: error.message },

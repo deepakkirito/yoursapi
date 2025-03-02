@@ -24,7 +24,7 @@ const projectsSchema = new Schema({
   timestamps: true,
 });
 
-projectsSchema.index({ name: "text", userId: "text" });
+projectsSchema.index({ name: "text", userId: 1 });
 
 const ProjectsModel =
   mongoose.models.projects || mongoose.model("projects", projectsSchema);

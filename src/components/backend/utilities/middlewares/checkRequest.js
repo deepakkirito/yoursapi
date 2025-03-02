@@ -3,6 +3,8 @@ import ApisModel from "../../api/api/model";
 import UsersModel from "../../api/users/model";
 import ProjectsModel from "../../api/project/model";
 import AuthsModel from "../../api/authApi/model";
+import StatisticsModel from "../../api/statistics/model";
+import LoggersModel from "../../api/logger";
 
 export const checkRequest = async ({
   username,
@@ -32,11 +34,20 @@ export const checkRequest = async ({
       );
     }
 
-    const api = await ApisModel.findOne({
-      projectId: project._id,
-      name: apiname,
-      userId: user._id,
-    }).lean();
+    const [apiData, authData] = await Promise.all([
+      ApisModel.findOne({
+        projectId: project._id,
+        name: apiname,
+        userId: user._id,
+      }).lean(),
+      AuthsModel.findOne({
+        projectId: project._id,
+        name: apiname,
+        userId: user._id,
+      }).lean(),
+    ]);
+
+    const api = apiData || authData;
 
     if (!api) {
       return NextResponse.json({ message: "Invalid API" }, { status: 404 });
@@ -51,7 +62,48 @@ export const checkRequest = async ({
       const userProjects = await ProjectsModel.find({
         userId: user._id,
       }).lean();
-      const projectIds = userProjects.map((p) => p._id);
+
+      const projectsUsed = await Promise.all(
+        userProjects.map(async (project) => {
+          const apis = await ApisModel.find({
+            projectId: project._id,
+          }).lean();
+
+          const auths = await AuthsModel.findOne({
+            projectId: project._id,
+          }).lean();
+
+          return {
+            name: project._id,
+            apiUsed: apis.map((api) => ({
+              name: api._id,
+              headUsed: api.headRequest?.used || 0,
+              getUsed: api.getRequest?.used || 0,
+              postUsed: api.postRequest?.used || 0,
+              putUsed: api.putRequest?.used || 0,
+              patchUsed: api.patchRequest?.used || 0,
+              deleteUsed: api.deleteRequest?.used || 0,
+            })),
+            authUsed: auths
+              ? {
+                  name: auths._id,
+                  headUsed: auths.headRequest?.used || 0,
+                  getUsed: auths.getRequest?.used || 0,
+                  postUsed: auths.postRequest?.used || 0,
+                  putUsed: auths.putRequest?.used || 0,
+                  patchUsed: auths.patchRequest?.used || 0,
+                  deleteUsed: auths.deleteRequest?.used || 0,
+                }
+              : undefined,
+          };
+        })
+      );
+
+      await StatisticsModel.create({
+        userId: user._id,
+        totalUsed: user.usedReq,
+        projectsUsed,
+      });
 
       // Reset user request count
       await UsersModel.updateOne(
@@ -91,6 +143,19 @@ export const checkRequest = async ({
 
     // ✅ Check API usage limit after reset
     if (user.totalReq <= user.usedReq) {
+      const log = await LoggersModel.findOne({
+        userId: user._id,
+        type: "user",
+        createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 60 * 24) },
+      });
+      if (!log) {
+        await LoggersModel.create({
+          userId: user._id,
+          type: "user",
+          createdBy: user._id,
+          message: `You have reached your request limit`,
+        });
+      }
       return NextResponse.json(
         { message: "You have reached your request limit" },
         { status: 403 }
@@ -110,7 +175,7 @@ export const checkRequest = async ({
       UsersModel.updateOne({ _id: user._id }, { $inc: { usedReq: 1 } }),
     ];
 
-    if (!auth) {
+    if (apiData) {
       updatePromises.push(
         ApisModel.updateOne(
           { _id: api._id },
@@ -119,7 +184,7 @@ export const checkRequest = async ({
       );
     }
 
-    if (auth) {
+    if (authData) {
       updatePromises.push(
         AuthsModel.updateOne({ _id: auth._id }, { $inc: { used: 1 } })
       );
@@ -128,7 +193,7 @@ export const checkRequest = async ({
     // ✅ Ensures only valid promises are executed
     await Promise.all(updatePromises);
 
-    return null;
+    return (authData && "auth") || (apiData && "data") || null;
   } catch (error) {
     console.error("Error in checkRequest:", error);
     return NextResponse.json(

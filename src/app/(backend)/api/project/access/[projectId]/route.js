@@ -5,6 +5,7 @@ import { getProjectOwner } from "@/components/backend/utilities/middlewares/getP
 import { sendMail } from "@/components/backend/utilities/nodemailer";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import LoggersModel from "@/components/backend/api/logger";
 
 export async function GET(request, { params }) {
   try {
@@ -96,6 +97,14 @@ export async function PATCH(request, { params }) {
       { updatedAt: Date.now(), updatedBy: userId },
       { new: true, lean: true }
     );
+
+    await LoggersModel.create({
+      userId: ownerUserId,
+      type: "project",
+      createdBy: userId,
+      projectId,
+      message: `Project ${project.name} permission for ${shareEmail} updated to ${permission}`,
+    });
 
     return NextResponse.json({
       message: "Project permission updated successfully",
@@ -204,6 +213,14 @@ export async function POST(request, { params }) {
       );
     }
 
+    await LoggersModel.create({
+      userId: ownerUserId,
+      type: "project",
+      createdBy: userId,
+      projectId,
+      message: `Project ${updateProject.name} shared with ${shareEmail} with permission ${permission}`,
+    });
+
     sendMail({
       to: shareEmail,
       subject: "New Project Shared",
@@ -284,6 +301,14 @@ export async function PUT(request, { params }) {
         { status: 400, statusText: "Bad Request" }
       );
     }
+
+    await LoggersModel.create({
+      userId: ownerUserId,
+      type: "project",
+      createdBy: userId,
+      projectId,
+      message: `Project ${updateProject.name} revoked from ${shareEmail}`,
+    });
 
     return NextResponse.json({
       message: "Project revoked successfully",

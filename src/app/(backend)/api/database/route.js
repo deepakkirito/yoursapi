@@ -1,3 +1,4 @@
+import LoggersModel from "@/components/backend/api/logger";
 import UsersModel from "@/components/backend/api/users/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { connectToDatabase } from "@/components/backend/utilities/middlewares/mongoose";
@@ -47,7 +48,7 @@ export async function POST(request) {
       }
     }
 
-    await UsersModel.findOneAndUpdate(
+    const updatedData = await UsersModel.findOneAndUpdate(
       {
         _id: userId,
       },
@@ -66,8 +67,35 @@ export async function POST(request) {
         updatedAt: new Date(),
         updatedBy: userId,
       },
-      { new: true }
+      { new: true, lean: true }
     );
+
+    const getMessage = () => {
+      if (saveInternal) {
+        return `Our database status updated to ${updatedData.saveInternal} from ${!updatedData.saveInternal}`;
+      }
+
+      if (saveExternal) {
+        return `Your database status updated to ${updatedData.saveExternal} from ${!updatedData.saveExternal}`;
+      }
+
+      if (dbString) {
+        return `Database dbString updated to ${decrypt(dbString)}`;
+      }
+
+      if (fetchData) {
+        return `Database fetchData updated to ${updatedData.fetchData}`;
+      }
+
+      return "Invalid option triggered";
+    };
+
+    await LoggersModel.create({
+      userId: userId,
+      type: "user",
+      createdBy: userId,
+      message: getMessage(),
+    });
 
     return NextResponse.json({ message: "Database updated successfully" });
   } catch (error) {

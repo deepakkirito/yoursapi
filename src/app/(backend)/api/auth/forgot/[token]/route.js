@@ -55,6 +55,13 @@ export async function POST(request, { params }) {
       );
     }
 
+    await LoggersModel.create({
+      userId: user._id,
+      log: "Password reset",
+      type: "user",
+      createdBy: user._id,
+    });
+
     sendMail({
       to: user.email,
       subject: "Your password has been reset",

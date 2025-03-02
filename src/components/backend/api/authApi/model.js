@@ -109,7 +109,7 @@ const authsSchema = new Schema(
   }
 );
 
-authsSchema.index({ name: "text", userId: "text" });
+authsSchema.index({ name: "text", userId: 1 });
 
 const AuthsModel = mongoose.models.auths || mongoose.model("auths", authsSchema);
 

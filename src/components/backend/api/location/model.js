@@ -20,7 +20,7 @@ const locationSchema = new Schema({
 });
 
 locationSchema.index({
-  userId: "text",
+  userId: 1,
   ip: "text",
   browser: "text",
   os: "text",

@@ -13,7 +13,7 @@ const sessionsSchema = new Schema({
   lastActive: { type: Date, default: Date.now },
 });
 
-sessionsSchema.index({ jwt: "text", userId: "text" });
+sessionsSchema.index({ jwt: "text", userId: 1 });
 
 const SessionsModel =
   mongoose.models?.sessions || mongoose.model("sessions", sessionsSchema);

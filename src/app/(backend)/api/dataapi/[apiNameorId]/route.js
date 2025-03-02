@@ -1,6 +1,7 @@
 import ApisModel from "@/components/backend/api/api/model";
 import { validateApiName } from "@/components/backend/api/api/validator";
 import AuthsModel from "@/components/backend/api/authApi/model";
+import LoggersModel from "@/components/backend/api/logger";
 import ProjectsModel from "@/components/backend/api/project/model";
 import UsersModel from "@/components/backend/api/users/model";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
@@ -224,6 +225,15 @@ export async function POST(request, { params }) {
       { new: true, lean: true }
     );
 
+    await LoggersModel.create({
+      userId: ownerUserId,
+      log: `Data API ${newApi.name} created`,
+      type: "data",
+      projectId: projectId,
+      apiId: newApi._id,
+      createdBy: userId,
+    });
+
     return NextResponse.json({ message: "API created successfully" });
   } catch (error) {
     console.error(error);
@@ -287,6 +297,15 @@ export async function PATCH(request, { params }) {
         { new: true, lean: true }
       );
 
+      await LoggersModel.create({
+        userId: ownerUserId,
+        log: `Data API ${apiData.name} schema updated to ~${String(schema)}~ from ~${String(apiData.schema)}~`,
+        type: "data",
+        projectId: apiData.projectId,
+        apiId: apiData._id,
+        createdBy: userId,
+      });
+
       return NextResponse.json({
         message: "Schema updated successfully",
       });
@@ -304,6 +323,15 @@ export async function PATCH(request, { params }) {
         },
         { new: true, lean: true }
       );
+
+      await LoggersModel.create({
+        userId: ownerUserId,
+        log: `Data API ${apiData.name} status updated to ${value} from ${apiData[key].active}`,
+        type: "data",
+        projectId: apiData.projectId,
+        apiId: apiData._id,
+        createdBy: userId,
+      });
 
       return NextResponse.json({
         message: "Status updated successfully",
@@ -372,6 +400,15 @@ export async function PATCH(request, { params }) {
         { new: true, lean: true }
       );
 
+      await LoggersModel.create({
+        userId: ownerUserId,
+        log: `Data API ${apiData.name} name updated to ${newApiName} from ${apiData.name}`,
+        type: "data",
+        projectId: apiData.projectId,
+        apiId: apiData._id,
+        createdBy: userId,
+      });
+
       return NextResponse.json({
         message: "Api name updated successfully",
       });
@@ -408,6 +445,15 @@ export async function PATCH(request, { params }) {
 
         await connection.close();
       }
+
+      await LoggersModel.create({
+        userId: ownerUserId,
+        log: `Data API ${apiData.name} data updated`,
+        type: "data",
+        projectId: apiData.projectId,
+        apiId: apiData._id,
+        createdBy: userId,
+      });
 
       return NextResponse.json({
         message: "Data updated successfully",
@@ -488,6 +534,15 @@ export async function DELETE(request, { params }) {
       },
       { new: true, lean: true }
     );
+
+    await LoggersModel.create({
+      userId: ownerUserId,
+      log: `Data API ${apiData.name} deleted`,
+      type: "data",
+      projectId: apiData.projectId,
+      apiId: apiData._id,
+      createdBy: userId,
+    });
 
     return NextResponse.json({ message: "API deleted successfully" });
   } catch (error) {

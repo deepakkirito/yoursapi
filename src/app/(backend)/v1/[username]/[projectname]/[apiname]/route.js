@@ -1,13 +1,44 @@
-import UsersModel from "@/components/backend/api/users/model";
+import { deleteDataHandler } from "@/components/backend/controller/data/delete";
+import { getDataHandler } from "@/components/backend/controller/data/get";
+import { headDataHandler } from "@/components/backend/controller/data/head";
+import { patchDataHandler } from "@/components/backend/controller/data/patch";
+import { postDataHandler } from "@/components/backend/controller/data/post";
+import { putDataHandler } from "@/components/backend/controller/data/put";
 import { checkRequest } from "@/components/backend/utilities/middlewares/checkRequest";
-import { connectToDatabase } from "@/components/backend/utilities/middlewares/mongoose";
-import { decrypt } from "@/utilities/helpers/encryption";
-import { isValidJson } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
+
+export async function HEAD(req, { params }) {
+  try {
+    const { username, projectname, apiname } = await params;
+
+    // Validate request
+    const check = await checkRequest({
+      username,
+      projectname,
+      apiname,
+      reqType: "headRequest",
+    });
+    if (!["auth", "data"].includes(check)) return check;
+
+    if (check === "data")
+      return await headDataHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+      });
+  } catch (error) {
+    console.error("HEAD API Error:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error", error: error.message },
+      { status: 500 }
+    );
+  }
+}
 
 export async function GET(req, { params }) {
   try {
-    const { username, projectname, apiname } = params;
+    const { username, projectname, apiname } = await params;
 
     // Validate the request
     const check = await checkRequest({
@@ -17,118 +48,15 @@ export async function GET(req, { params }) {
       reqType: "getRequest",
     });
 
-    if (check) return check;
+    if (!["auth", "data"].includes(check)) return check;
 
-    // Extract query params
-    const { searchParams } = new URL(req.url);
-    const page = Math.max(0, parseInt(searchParams.get("page") || "0"));
-    const rows = Math.max(0, parseInt(searchParams.get("rows") || "0"));
-
-    // Extract search and logical operator
-    const searchParam = searchParams.get("search") || "{}";
-    const searchMode =
-      searchParams.get("searchMode")?.toUpperCase() === "OR" ? "$or" : "$and"; // Default is AND
-
-    // Parse JSON parameters safely
-    const parsedSearch = isValidJson(searchParam);
-    const parsedSort = isValidJson(searchParams.get("sort") || "{}");
-    const parsedProject = isValidJson(searchParams.get("project") || "{}");
-
-    // Validate project (field selection) query
-    if (!parsedProject.valid) {
-      return NextResponse.json(
-        { message: "Invalid project query format" },
-        { status: 400 }
-      );
-    }
-
-    // Fetch user data
-    const user = await UsersModel.findOne({ username }).lean();
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
-
-    // Determine database connection
-    const dbString =
-      user.fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : decrypt(user.mongoDbKey);
-
-    const dbName =
-      user.fetchData === "self" ? `${username}_${projectname}` : projectname;
-
-    const connection = await connectToDatabase(dbString, dbName);
-    const collection = connection.db.collection(apiname);
-
-    // Construct search query
-    let query = {};
-
-    if (parsedSearch.valid && Object.keys(parsedSearch.content).length) {
-      // Structured field-based search (AND/OR)
-      const conditions = Object.entries(parsedSearch.content).map(
-        ([key, value]) => ({
-          [key]: { $regex: value, $options: "i" }, // Case-insensitive regex search
-        })
-      );
-
-      query = { [searchMode]: conditions };
-    } else {
-      // Global search across all fields
-      const globalSearchText = searchParams.get("search")?.trim();
-
-      if (globalSearchText) {
-        const isNumber = !isNaN(globalSearchText); // Check if input is a number
-        const schemaFields = await collection.findOne(); // Get one document to infer field names
-
-        if (schemaFields) {
-          const textSearchQuery = {
-            $or: Object.keys(schemaFields)
-              .map((key) => {
-                const fieldValue = schemaFields[key];
-                if (typeof fieldValue === "string") {
-                  return { [key]: { $regex: globalSearchText, $options: "i" } }; // String search
-                } else if (typeof fieldValue === "number" && isNumber) {
-                  return { [key]: parseFloat(globalSearchText) }; // Exact number search
-                }
-                return null;
-              })
-              .filter(Boolean), // Remove null values
-          };
-          query = textSearchQuery;
-        }
-      }
-    }
-
-    // Construct sorting object
-    const sortOptions =
-      Object.keys(parsedSort.content)?.length > 0
-        ? {
-            [parsedSort.content.key]:
-              parsedSort.content.value === "desc" ? -1 : 1,
-          }
-        : {};
-
-    // Construct projection object
-    const projectionFields = Object.keys(parsedProject.content)?.length
-      ? parsedProject.content
-      : {};
-
-    // Run queries in parallel for better performance
-    const [data, filteredCount, totalCount] = await Promise.all([
-      collection
-        .find(query)
-        .project(projectionFields)
-        .sort(sortOptions)
-        .skip(rows > 0 ? page * rows : 0)
-        .limit(rows > 0 ? rows : 0) // If rows = 0, return all matching documents
-        .toArray(),
-      collection.countDocuments(query),
-      collection.estimatedDocumentCount(),
-    ]);
-
-    await connection.close();
-
-    return NextResponse.json({ data, filteredCount, totalCount });
+    if (check === "data")
+      return await getDataHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+      });
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json(
@@ -140,7 +68,7 @@ export async function GET(req, { params }) {
 
 export async function POST(req, { params }) {
   try {
-    const { username, projectname, apiname } = params;
+    const { username, projectname, apiname } = await params;
 
     // Validate request
     const check = await checkRequest({
@@ -149,86 +77,16 @@ export async function POST(req, { params }) {
       apiname,
       reqType: "postRequest",
     });
-    if (check) return check;
 
-    const contentType = req.headers.get("content-type") || "";
+    if (!["auth", "data"].includes(check)) return check;
 
-    let data = [];
-
-    // Handle JSON requests (single or multiple document inserts)
-    if (contentType.includes("application/json")) {
-      const body = await req.json();
-
-      // Ensure data is either an object (single doc) or an array (multiple docs)
-      if (!body || (Array.isArray(body) && body.length === 0)) {
-        return NextResponse.json(
-          { message: "Request body cannot be empty" },
-          { status: 400 }
-        );
-      }
-
-      data = Array.isArray(body) ? body : [body]; // Normalize to an array
-    }
-    // Handle FormData (multipart/form-data) for files & fields
-    else if (contentType.includes("multipart/form-data")) {
-      const formData = await req.formData();
-      let fileData = [];
-
-      for (const entry of formData.entries()) {
-        const [key, value] = entry;
-
-        if (value instanceof Blob) {
-          // Handle file upload
-          const buffer = Buffer.from(await value.arrayBuffer());
-          const tempDir = path.join(os.tmpdir(), "uploads");
-          await writeFile(path.join(tempDir, value.name), buffer);
-          fileData.push({
-            filename: value.name,
-            size: value.size,
-            mimetype: value.type,
-            path: path.join(tempDir, value.name),
-          });
-        } else {
-          // Handle form fields
-          data.push({ [key]: value });
-        }
-      }
-
-      // Merge file data with form data
-      if (fileData.length > 0) {
-        data.push({ files: fileData });
-      }
-    } else {
-      return NextResponse.json(
-        { message: "Unsupported content type" },
-        { status: 400 }
-      );
-    }
-
-    // Fetch user details
-    const user = await UsersModel.findOne({ username }).lean();
-    if (!user)
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-
-    // Determine database connection
-    const dbString =
-      user.fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : decrypt(user.mongoDbKey);
-    const dbName =
-      user.fetchData === "self" ? `${username}_${projectname}` : projectname;
-    const connection = await connectToDatabase(dbString, dbName);
-    const collection = connection.db.collection(apiname);
-
-    // Insert data into MongoDB
-    const result = await collection.insertMany(data);
-    await connection.close();
-
-    return NextResponse.json({
-      message: "Documents inserted successfully",
-      insertedCount: result.insertedCount,
-      insertedIds: Object.values(result.insertedIds),
-    });
+    if (check === "data")
+      return await postDataHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+      });
   } catch (error) {
     console.error("Insert Error:", error);
     return NextResponse.json(
@@ -240,7 +98,7 @@ export async function POST(req, { params }) {
 
 export async function PUT(req, { params }) {
   try {
-    const { username, projectname, apiname } = params;
+    const { username, projectname, apiname } = await params;
 
     // Validate request
     const check = await checkRequest({
@@ -249,94 +107,16 @@ export async function PUT(req, { params }) {
       apiname,
       reqType: "putRequest",
     });
-    if (check) return check;
 
-    // Extract query params
-    const { searchParams } = new URL(req.url);
-    const all = searchParams.get("all") === "true";
-    const idsParam = searchParams.get("ids") || "[]";
+    if (!["auth", "data"].includes(check)) return check;
 
-    // Parse JSON safely
-    const parsedIds = isValidJson(idsParam);
-    const body = await req.json();
-
-    // Validate request body
-    if (!body || Object.keys(body).length === 0) {
-      return NextResponse.json(
-        { message: "Request body cannot be empty" },
-        { status: 400 }
-      );
-    }
-
-    // Fetch user details
-    const user = await UsersModel.findOne({ username }).lean();
-    if (!user)
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-
-    // Determine database connection
-    const dbString =
-      user.fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : decrypt(user.mongoDbKey);
-    const dbName =
-      user.fetchData === "self" ? `${username}_${projectname}` : projectname;
-    const connection = await connectToDatabase(dbString, dbName);
-    const collection = connection.db.collection(apiname);
-
-    let query = {};
-
-    // If "all=true" replace all documents
-    if (all) {
-      query = {}; // No filter, replace all
-    }
-    // If an array of IDs is provided, replace specific documents
-    else if (parsedIds.valid && parsedIds.content.length > 0) {
-      const objectIds = parsedIds.content.map((id) => new ObjectId(id));
-      query = { _id: { $in: objectIds } };
-    }
-    // If neither "all" nor valid "ids", return an error
-    else {
-      await connection.close();
-      return NextResponse.json(
-        {
-          message:
-            "Invalid request. Provide 'all=true' or a valid 'ids' array.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Fetch documents to be replaced
-    const documentsToReplace = await collection.find(query).toArray();
-
-    if (documentsToReplace.length === 0) {
-      await connection.close();
-      return NextResponse.json(
-        { message: "No documents found to replace" },
-        { status: 404 }
-      );
-    }
-
-    // Perform replacement
-    const updateOperations = documentsToReplace.map((doc) =>
-      collection.replaceOne({ _id: doc._id }, body)
-    );
-
-    const results = await Promise.all(updateOperations);
-    await connection.close();
-
-    const modifiedCount = results.reduce(
-      (sum, res) => sum + res.modifiedCount,
-      0
-    );
-
-    return NextResponse.json({
-      message:
-        modifiedCount > 0
-          ? "Documents replaced successfully"
-          : "No documents modified",
-      modifiedCount,
-    });
+    if (check === "data")
+      return await putDataHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+      });
   } catch (error) {
     console.error("Replace Error:", error);
     return NextResponse.json(
@@ -348,7 +128,7 @@ export async function PUT(req, { params }) {
 
 export async function PATCH(req, { params }) {
   try {
-    const { username, projectname, apiname } = params;
+    const { username, projectname, apiname } = await params;
 
     // Validate request
     const check = await checkRequest({
@@ -357,74 +137,16 @@ export async function PATCH(req, { params }) {
       apiname,
       reqType: "patchRequest",
     });
-    if (check) return check;
 
-    // Extract query params
-    const { searchParams } = new URL(req.url);
-    const all = searchParams.get("all") === "true";
-    const idsParam = searchParams.get("ids") || "[]";
+    if (!["auth", "data"].includes(check)) return check;
 
-    // Parse JSON safely
-    const parsedIds = isValidJson(idsParam);
-    const body = await req.json();
-
-    // Validate request body
-    if (!body || Object.keys(body).length === 0) {
-      return NextResponse.json(
-        { message: "Request body cannot be empty" },
-        { status: 400 }
-      );
-    }
-
-    // Fetch user details
-    const user = await UsersModel.findOne({ username }).lean();
-    if (!user)
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-
-    // Determine database connection
-    const dbString =
-      user.fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : decrypt(user.mongoDbKey);
-    const dbName =
-      user.fetchData === "self" ? `${username}_${projectname}` : projectname;
-    const connection = await connectToDatabase(dbString, dbName);
-    const collection = connection.db.collection(apiname);
-
-    let query = {};
-
-    // If "all=true" update all documents
-    if (all) {
-      query = {}; // No filter, update all
-    }
-    // If an array of IDs is provided, update specific documents
-    else if (parsedIds.valid && parsedIds.content.length > 0) {
-      const objectIds = parsedIds.content.map((id) => new ObjectId(id));
-      query = { _id: { $in: objectIds } };
-    }
-    // If neither "all" nor valid "ids", return an error
-    else {
-      await connection.close();
-      return NextResponse.json(
-        {
-          message:
-            "Invalid request. Provide 'all=true' or a valid 'ids' array.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Perform update
-    const result = await collection.updateMany(query, { $set: body });
-    await connection.close();
-
-    return NextResponse.json({
-      message:
-        result.modifiedCount > 0
-          ? "Documents updated successfully"
-          : "No documents found to update",
-      modifiedCount: result.modifiedCount,
-    });
+    if (check === "data")
+      return await patchDataHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+      });
   } catch (error) {
     console.error("Update Error:", error);
     return NextResponse.json(
@@ -436,7 +158,7 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const { username, projectname, apiname } = params;
+    const { username, projectname, apiname } = await params;
 
     // Validate request
     const check = await checkRequest({
@@ -445,58 +167,16 @@ export async function DELETE(req, { params }) {
       apiname,
       reqType: "deleteRequest",
     });
-    if (check?.status !== 200) return check;
 
-    // Extract query params
-    const { searchParams } = new URL(req.url);
-    const idsParam = searchParams.get("ids"); // Get `ids` parameter directly without defaulting
+    if (!["auth", "data"].includes(check)) return check;
 
-    let query = {}; // Default: delete all documents
-
-    if (idsParam) {
-      // Parse JSON safely
-      const parsedIds = isValidJson(idsParam);
-      if (!parsedIds.valid) {
-        return NextResponse.json(
-          { message: "Invalid IDs format" },
-          { status: 400 }
-        );
-      }
-
-      if (parsedIds.content.length > 0) {
-        // Convert string IDs to ObjectId
-        const objectIds = parsedIds.content.map((id) => new ObjectId(id));
-        query = { _id: { $in: objectIds } };
-      }
-    }
-
-    // Fetch user details
-    const user = await UsersModel.findOne({ username }).lean();
-    if (!user)
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-
-    // Determine database connection
-    const dbString =
-      user.fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : decrypt(user.mongoDbKey);
-    const dbName =
-      user.fetchData === "self" ? `${username}_${projectname}` : projectname;
-    const connection = await connectToDatabase(dbString, dbName);
-    const collection = connection.db.collection(apiname);
-
-    // Delete documents (all or specific)
-    const result = await collection.deleteMany(query);
-
-    await connection.close();
-
-    return NextResponse.json({
-      message:
-        result.deletedCount > 0
-          ? "Documents deleted successfully"
-          : "No documents found",
-      deletedCount: result.deletedCount,
-    });
+    if (check === "data")
+      return await deleteDataHandler({
+        req,
+        username,
+        projectname,
+        apiname,
+      });
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json(
