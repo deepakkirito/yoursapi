@@ -186,7 +186,10 @@ export const checkRequest = async ({
 
     if (authData) {
       updatePromises.push(
-        AuthsModel.updateOne({ _id: auth._id }, { $inc: { used: 1 } })
+        AuthsModel.updateOne(
+          { _id: auth._id },
+          { $inc: { [`${reqType}.used`]: 1 } }
+        )
       );
     }
 
