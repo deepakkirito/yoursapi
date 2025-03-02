@@ -153,7 +153,7 @@ export const checkRequest = async ({
           userId: user._id,
           type: "user",
           createdBy: user._id,
-          message: `You have reached your request limit`,
+          log: `You have reached your request limit`,
         });
       }
       return NextResponse.json(

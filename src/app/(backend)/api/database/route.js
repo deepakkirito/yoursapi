@@ -94,7 +94,7 @@ export async function POST(request) {
       userId: userId,
       type: "user",
       createdBy: userId,
-      message: getMessage(),
+      log: getMessage(),
     });
 
     return NextResponse.json({ message: "Database updated successfully" });

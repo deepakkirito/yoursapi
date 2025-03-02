@@ -103,7 +103,7 @@ export async function PATCH(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      message: `Project ${project.name} permission for ${shareEmail} updated to ${permission}`,
+      log: `Project ${project.name} permission for ${shareEmail} updated to ${permission}`,
     });
 
     return NextResponse.json({
@@ -218,7 +218,7 @@ export async function POST(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      message: `Project ${updateProject.name} shared with ${shareEmail} with permission ${permission}`,
+      log: `Project ${updateProject.name} shared with ${shareEmail} with permission ${permission}`,
     });
 
     sendMail({
@@ -307,7 +307,7 @@ export async function PUT(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      message: `Project ${updateProject.name} revoked from ${shareEmail}`,
+      log: `Project ${updateProject.name} revoked from ${shareEmail}`,
     });
 
     return NextResponse.json({

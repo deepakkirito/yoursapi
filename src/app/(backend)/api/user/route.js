@@ -224,7 +224,7 @@ export async function PATCH(request) {
       userId: userId,
       type: "user",
       createdBy: userId,
-      message: getMessage(),
+      log: getMessage(),
     });
 
     // Default response if no conditions are met

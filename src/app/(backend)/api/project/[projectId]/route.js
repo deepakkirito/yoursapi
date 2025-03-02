@@ -109,7 +109,7 @@ export async function PUT(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      message: `Project ${project.name} restored`,
+      log: `Project ${project.name} restored`,
     });
 
     return NextResponse.json({
@@ -239,7 +239,7 @@ export async function DELETE(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      message: `Project ${project.name} ${soft ? "soft" : "hard"} deleted`,
+      log: `Project ${project.name} ${soft ? "soft" : "hard"} deleted`,
     });
 
     return NextResponse.json({ message: "Invalid request" }, { status: 400 });
@@ -320,7 +320,7 @@ export async function PATCH(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      message: `Project ${project.name} name updated to ${projectName}`,
+      log: `Project ${project.name} name updated to ${projectName}`,
     });
 
     return NextResponse.json({ message: "Project name updated successfully" });

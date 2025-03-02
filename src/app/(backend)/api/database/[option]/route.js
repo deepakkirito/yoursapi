@@ -210,7 +210,7 @@ export async function POST(request, { params }) {
       userId: user._id,
       type: "user",
       createdBy: user._id,
-      message: getMessage(),
+      log: getMessage(),
     });
 
     return NextResponse.json({
@@ -222,7 +222,7 @@ export async function POST(request, { params }) {
       userId: userId,
       type: "user",
       createdBy: userId,
-      message: "Error migrating data: " + error.message,
+      log: "Error migrating data: " + error.message,
       status: "error",
     });
     return NextResponse.json(
