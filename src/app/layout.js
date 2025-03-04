@@ -3,6 +3,7 @@ import "./globals.css";
 import LayoutWrapper from "./layoutWrapper";
 import "react-toastify/dist/ReactToastify.css";
 import Logo from "./favicon.ico";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
   title: "Youpi",
@@ -18,6 +19,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <LayoutWrapper>{children}</LayoutWrapper>
+        <SpeedInsights />
       </body>
     </html>
   );

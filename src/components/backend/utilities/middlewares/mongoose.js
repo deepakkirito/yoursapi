@@ -146,7 +146,7 @@ export const migrateProjects = async ({
   }
 };
 
-const globalConnections = global.globalConnections || {}; 
+const globalConnections = global.globalConnections || {};
 
 export async function connectToDatabase(uri, dbName) {
   if (!uri || !dbName) throw new Error("Database URI and name are required");
@@ -161,7 +161,11 @@ export async function connectToDatabase(uri, dbName) {
 
   const connection = mongoose.createConnection(uri, {
     dbName, // ✅ Correct way to set database (avoid appending manually)
-    maxPoolSize: 10, // ✅ Ensures better performance with connection pooling
+    maxPoolSize: 50, // 🔹 Keeps up to 50 connections open
+    minPoolSize: 5, // 🔹 Maintains at least 5 open connections
+    socketTimeoutMS: 0, // 🔹 Never close idle sockets
+    serverSelectionTimeoutMS: 5000, // 🔹 Fail fast if MongoDB is unreachable
+    heartbeatFrequencyMS: 10000, // 🔹 Keep connection active
   });
 
   connection.on("error", (err) => {
