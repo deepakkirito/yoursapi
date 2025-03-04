@@ -5,6 +5,7 @@ import ProjectsModel from "../../api/project/model";
 import AuthsModel from "../../api/authApi/model";
 import StatisticsModel from "../../api/statistics/model";
 import LoggersModel from "../../api/logger";
+import { dbConnect } from "@/components/backend/utilities/dbConnect";
 
 export const checkRequest = async ({
   username,
@@ -14,6 +15,9 @@ export const checkRequest = async ({
   auth = false,
 }) => {
   try {
+
+    await dbConnect();
+
     // Fetch user and project details in parallel
     const [user, project] = await Promise.all([
       UsersModel.findOne({ username }).lean(),
@@ -194,7 +198,7 @@ export const checkRequest = async ({
     }
 
     // ✅ Ensures only valid promises are executed
-    await Promise.all(updatePromises);
+    Promise.all(updatePromises);
 
     return (authData && "auth") || (apiData && "data") || null;
   } catch (error) {

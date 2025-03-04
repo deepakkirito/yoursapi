@@ -234,7 +234,6 @@ const AddSchema = ({
           label="Key"
           size="small"
           value={schemaKey}
-          paddingLeft="1rem"
           disabled={excludeKeys.includes(schemaKey)}
           onChange={(event) => setSchemaKey(event.target.value)}
         />
@@ -258,7 +257,6 @@ const AddSchema = ({
                   <CustomSelect
                     fullWidth
                     labelTop="Value"
-                    paddingLeft="1rem"
                     none={false}
                     options={updatedSchemaOptions}
                     value={value.key}
@@ -288,7 +286,6 @@ const AddSchema = ({
                         label="Value"
                         size="small"
                         value={value.value}
-                        paddingLeft="1rem"
                         disabled={excludeKeyValues[schemaKey]?.includes(
                           value.key
                         )}
@@ -325,7 +322,6 @@ const AddSchema = ({
                     <CustomSelect
                       labelTop="Value"
                       size="small"
-                      paddingLeft="1rem"
                       none={false}
                       options={options}
                       disabled={excludeKeyValues[schemaKey]?.includes(
@@ -443,7 +439,6 @@ const AddSchema = ({
                       label="Key"
                       size="small"
                       value={schema}
-                      paddingLeft="1rem"
                       inputProps={{
                         readOnly: true,
                       }}
@@ -477,7 +472,6 @@ const AddSchema = ({
                             readOnly
                             labelTop="Type"
                             size="small"
-                            paddingLeft="1rem"
                             none={false}
                             value={key}
                             options={schemaOptions}
@@ -487,7 +481,6 @@ const AddSchema = ({
                             label="Value"
                             size="small"
                             value={schemaLayout[schema][key]}
-                            paddingLeft="1rem"
                             inputProps={{
                               readOnly: true,
                             }}

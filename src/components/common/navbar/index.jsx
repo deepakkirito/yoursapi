@@ -31,6 +31,7 @@ import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import { catchError } from "@/utilities/helpers/functions";
 import useCustomWindow from "@/utilities/helpers/hooks/window";
 import Profile from "./profile";
+import Notification from "./notification";
 
 function ColorSchemeToggle(props) {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -215,8 +216,11 @@ const Navbar = () => {
               )}
               <Box className="flex gap-2 items-center">
                 <ColorSchemeToggle />
+                <Notification />
                 {loading ? (
-                  <CircularProgress size={24} />
+                  <div className="pl-4">
+                    <CircularProgress size={24} />
+                  </div>
                 ) : (
                   <Profile
                     userData={userData}

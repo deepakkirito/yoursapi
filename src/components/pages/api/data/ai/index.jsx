@@ -168,7 +168,6 @@ const AI = ({ schema, id }) => {
             label={"Enter your instructions"}
             size="small"
             formfullwidth
-            paddingLeft="1rem"
             onChange={(event) => setCurrentMessage(event.target.value)}
             minRows={1}
             maxRows={6}

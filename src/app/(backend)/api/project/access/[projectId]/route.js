@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
       permission:
         s.shared.find((s) => s.project.toString() === projectId)?.permission ||
         "read",
-      self: userId === s._id.toString(),
+      self: userId.toString() === s._id.toString(),
     }));
 
     const user = await UsersModel.findOne({ _id: userId })

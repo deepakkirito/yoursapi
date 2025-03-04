@@ -174,7 +174,6 @@ const ShareProject = ({ id }) => {
               name="email"
               placeholder="Email"
               value={checkeduser}
-              paddingLeft="1rem"
               slotProps={{
                 input: {
                   endAdornment: project.sharedUsers?.length ? (

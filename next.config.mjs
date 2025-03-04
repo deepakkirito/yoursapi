@@ -24,12 +24,6 @@ const nextConfig = {
     };
     return config;
   },
-  api: {
-    bodyParser: {
-      sizeLimit: "10mb", // Increase request size if needed
-    },
-    externalResolver: true, // Prevent Next.js from timing out too early
-  },
 };
 
 export default nextConfig;

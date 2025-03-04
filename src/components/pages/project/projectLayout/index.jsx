@@ -362,7 +362,6 @@ const ProjectLayout = ({
                               value={projectName}
                               label="Project Name"
                               type="text"
-                              paddingLeft="1rem"
                               InputLabelProps={{
                                 shrink: true,
                               }}
