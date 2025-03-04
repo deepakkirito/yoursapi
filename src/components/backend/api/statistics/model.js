@@ -11,7 +11,7 @@ const statisticsSchema = new Schema(
         name: { type: Schema.Types.ObjectId, ref: "projects", required: true },
         apiUsed: [
           {
-            name: { type: Schema.Types.ObjectId, ref: "apis", required: true },
+            name: { type: Schema.Types.ObjectId, ref: "apis" },
             headUsed: { type: Number, default: 0 },
             getUsed: { type: Number, default: 0 },
             postUsed: { type: Number, default: 0 },
@@ -21,7 +21,7 @@ const statisticsSchema = new Schema(
           },
         ],
         authUsed: {
-          name: { type: Schema.Types.ObjectId, ref: "auths", required: true },
+          name: { type: Schema.Types.ObjectId, ref: "auths" },
           headUsed: { type: Number, default: 0 },
           getUsed: { type: Number, default: 0 },
           postUsed: { type: Number, default: 0 },

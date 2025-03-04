@@ -11,16 +11,20 @@ export async function getDataHandler({ req, username, projectname, apiname }) {
   const { searchParams } = new URL(req.url);
   const page = Math.max(0, parseInt(searchParams.get("page") || "0"));
   const rows = Math.max(0, parseInt(searchParams.get("rows") || "0"));
+  const customQuery = searchParams.get("query") || null;
 
-  // Extract search and logical operator
-  const searchParam = searchParams.get("search") || "{}";
-  const searchMode =
-    searchParams.get("searchMode")?.toUpperCase() === "OR" ? "$or" : "$and"; // Default is AND
+  if (!customQuery) {
+    // Extract search and logical operator
+    var searchParam = searchParams.get("search") || null;
+    var searchMode =
+      searchParams.get("searchMode")?.toUpperCase() === "OR" ? "$or" : "$and"; // Default is AND
 
-  // Parse JSON parameters safely
-  const parsedSearch = isValidJson(searchParam);
-  const parsedSort = isValidJson(searchParams.get("sort") || "{}");
+    // Parse JSON parameters safely
+    var parsedSearch = isValidJson(searchParam);
+  }
+
   const parsedProject = isValidJson(searchParams.get("project") || "{}");
+  const parsedSort = isValidJson(searchParams.get("sort") || "{}");
 
   // Validate project (field selection) query
   if (!parsedProject.valid) {
@@ -48,45 +52,47 @@ export async function getDataHandler({ req, username, projectname, apiname }) {
   const connection = await connectToDatabase(dbString, dbName);
   const collection = connection.collection(apiname);
 
-  // Construct search query
   let query = {};
 
-  if (parsedSearch.valid && Object.keys(parsedSearch.content).length) {
-    // Structured field-based search (AND/OR)
-    const conditions = Object.entries(parsedSearch.content).map(
-      ([key, value]) => ({
-        [key]: { $regex: value, $options: "i" }, // Case-insensitive regex search
-      })
-    );
+  if (!customQuery && searchParam) {
+    // Construct search query
 
-    query = { [searchMode]: conditions };
-  } else {
-    // Global search across all fields
-    const globalSearchText = searchParams.get("search")?.trim();
+    if (parsedSearch.valid && Object.keys(parsedSearch.content).length) {
+      // Structured field-based search (AND/OR)
+      const conditions = Object.entries(parsedSearch.content).map(
+        ([key, value]) => ({
+          [key]: { $regex: value, $options: "i" }, // Case-insensitive regex search
+        })
+      );
 
-    if (globalSearchText) {
-      const isNumber = !isNaN(globalSearchText); // Check if input is a number
-      const schemaFields = await collection.findOne(); // Get one document to infer field names
+      query = { [searchMode]: conditions };
+    } else {
+      // Global search across all fields
+      const globalSearchText = searchParams.get("search")?.trim();
 
-      if (schemaFields) {
-        const textSearchQuery = {
-          $or: Object.keys(schemaFields)
-            .map((key) => {
-              const fieldValue = schemaFields[key];
-              if (typeof fieldValue === "string") {
-                return { [key]: { $regex: globalSearchText, $options: "i" } }; // String search
-              } else if (typeof fieldValue === "number" && isNumber) {
-                return { [key]: parseFloat(globalSearchText) }; // Exact number search
-              }
-              return null;
-            })
-            .filter(Boolean), // Remove null values
-        };
-        query = textSearchQuery;
+      if (globalSearchText) {
+        const isNumber = !isNaN(globalSearchText); // Check if input is a number
+        const schemaFields = await collection.findOne(); // Get one document to infer field names
+
+        if (schemaFields) {
+          const textSearchQuery = {
+            $or: Object.keys(schemaFields)
+              .map((key) => {
+                const fieldValue = schemaFields[key];
+                if (typeof fieldValue === "string") {
+                  return { [key]: { $regex: globalSearchText, $options: "i" } }; // String search
+                } else if (typeof fieldValue === "number" && isNumber) {
+                  return { [key]: parseFloat(globalSearchText) }; // Exact number search
+                }
+                return null;
+              })
+              .filter(Boolean), // Remove null values
+          };
+          query = textSearchQuery;
+        }
       }
     }
   }
-
   // Construct sorting object
   const sortOptions =
     Object.keys(parsedSort.content)?.length > 0
@@ -100,6 +106,14 @@ export async function getDataHandler({ req, username, projectname, apiname }) {
   const projectionFields = Object.keys(parsedProject.content)?.length
     ? parsedProject.content
     : {};
+
+  if (customQuery) {
+    const parsedQuery = isValidJson(customQuery);
+
+    if (parsedQuery.valid && Object.keys(parsedQuery.content).length) {
+      query = parsedQuery.content;
+    }
+  }
 
   // Run queries in parallel for better performance
   const [data, filteredCount, totalCount] = await Promise.all([

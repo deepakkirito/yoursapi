@@ -61,14 +61,19 @@ export const checkRequest = async ({
     const today = new Date().setHours(0, 0, 0, 0);
     const lastResetDate = new Date(user.lastReset).setHours(0, 0, 0, 0);
 
+    console.log(lastResetDate, today, lastResetDate < today);
+    
     if (lastResetDate < today) {
       // Find all projects owned by the user
       const userProjects = await ProjectsModel.find({
         userId: user._id,
       }).lean();
 
+      const projectIds = [];
+
       const projectsUsed = await Promise.all(
         userProjects.map(async (project) => {
+          projectIds.push(project._id);
           const apis = await ApisModel.find({
             projectId: project._id,
           }).lean();
