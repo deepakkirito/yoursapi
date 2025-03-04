@@ -4,6 +4,7 @@ import { decrypt } from "@/utilities/helpers/encryption";
 import { isValidJson } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb"; // Import ObjectId to handle MongoDB IDs
+import { dbConnect } from "../../utilities/dbConnect";
 
 export async function getDataHandler({ req, username, projectname, apiname }) {
   // Extract query params
@@ -45,7 +46,7 @@ export async function getDataHandler({ req, username, projectname, apiname }) {
     user.fetchData === "self" ? `${username}_${projectname}` : projectname;
 
   const connection = await connectToDatabase(dbString, dbName);
-  const collection = connection.db.collection(apiname);
+  const collection = connection.collection(apiname);
 
   // Construct search query
   let query = {};
@@ -113,7 +114,7 @@ export async function getDataHandler({ req, username, projectname, apiname }) {
     collection.estimatedDocumentCount(),
   ]);
 
-  await connection.close();
+  // await connection.close();
 
   return NextResponse.json({ data, filteredCount, totalCount });
 }

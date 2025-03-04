@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const MONGO_URI = process.env.MONGODB_KEY_MAIN;
 
+// const globalConnections = {}; // Cache connections per database
+
 // Helper function to safely close the database connection
 export const safelyCloseConnection = async (connection, dbName) => {
   try {
@@ -144,16 +146,41 @@ export const migrateProjects = async ({
   }
 };
 
-export const connectToDatabase = async (uri = MONGO_URI, dbName = "") => {
-  const connection = mongoose.createConnection(`${uri}${dbName}`);
-  connection.on("error", (err) => {
-    console.error(`Error connecting to database "${dbName}": ${err.message}`);
+const globalConnections = global.globalConnections || {}; 
+
+export async function connectToDatabase(uri, dbName) {
+  if (!uri || !dbName) throw new Error("Database URI and name are required");
+
+  const cacheKey = `${uri}_${dbName}`;
+
+  if (globalConnections[cacheKey]) {
+    return globalConnections[cacheKey]; // ✅ Return cached connection
+  }
+
+  console.log(`🔌 Connecting to MongoDB: ${dbName}`);
+
+  const connection = mongoose.createConnection(uri, {
+    dbName, // ✅ Correct way to set database (avoid appending manually)
+    maxPoolSize: 10, // ✅ Ensures better performance with connection pooling
   });
 
-  await connection.asPromise(); // Wait for the connection to establish
-  console.log(`Connected to database: ${dbName}`);
+  connection.on("error", (err) => {
+    console.error(`❌ Error connecting to database "${dbName}":`, err.message);
+  });
+
+  try {
+    await connection.asPromise(); // ✅ Ensures the connection is established before returning
+    console.log(`✅ Connected to database: ${dbName}`);
+  } catch (error) {
+    console.error(`❌ Connection failed for "${dbName}":`, error.message);
+    throw error;
+  }
+
+  globalConnections[cacheKey] = connection;
+  global.globalConnections = globalConnections; // ✅ Store in global scope for reuse
+
   return connection;
-};
+}
 
 export const copyDatabase = async ({
   oldDbName,
