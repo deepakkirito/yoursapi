@@ -127,14 +127,18 @@ const Profile = ({ userData, setLogin, router }) => {
             <Typography
               variant="h8"
               sx={{
-                width: "2rem",
+                minWidth: "2rem",
+                maxWidth: "fit-content",
                 height: "2rem",
-                backgroundColor: "background.defaultSolid",
+                backgroundColor: "background.foreground",
                 color: "text.primary",
                 borderRadius: "1rem",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                border: "1px solid",
+                borderColor: "background.border",
+                padding: "0 0.5rem",
               }}
             >
               {userData?.totalReq - userData?.usedReq || 0}

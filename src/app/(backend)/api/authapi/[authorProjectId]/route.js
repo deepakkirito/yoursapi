@@ -1,19 +1,19 @@
 import ApisModel from "@/components/backend/api/api/model";
 import AuthsModel from "@/components/backend/api/authApi/model";
 import { validateAuthApi } from "@/components/backend/api/authApi/validator";
-import LoggersModel from "@/components/backend/api/logger";
 import ProjectsModel from "@/components/backend/api/project/model";
 import UsersModel from "@/components/backend/api/users/model";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { validateData } from "@/components/backend/utilities/middlewares/dataValidator";
 import { getProjectOwner } from "@/components/backend/utilities/middlewares/getProjectOwner";
+import { logShared } from "@/components/backend/utilities/middlewares/logShared";
+import { mailShared } from "@/components/backend/utilities/middlewares/mailShared";
 import {
   connectToDatabase,
   getModelData,
   renameCollection,
 } from "@/components/backend/utilities/middlewares/mongoose";
-import { sendMail } from "@/components/backend/utilities/nodemailer";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
@@ -153,7 +153,7 @@ export async function POST(request, { params }) {
       { new: true, lean: true }
     );
 
-    await LoggersModel.create({
+    logShared({
       userId: ownerUserId,
       log: `Auth API ${newAuth.name} created`,
       type: "auth",
@@ -162,17 +162,14 @@ export async function POST(request, { params }) {
       createdBy: userId,
     });
 
-    sendMail({
-      to: ownerEmail,
-      subject: "Auth API Created",
+    mailShared({
+      userEmail: email,
+      subject: "New Auth API Created",
       template: "apiCreate",
-      context: {
-        username: ownerName,
-        apiName: apiName,
-        projectName: ownerProjectName,
-        creationDate: new Date(),
-        apiLink: `${process.env.COMPANY_URL}projects/${projectId}/data`,
-      },
+      apiName: apiName,
+      projectId: projectId,
+      apiLink: `${process.env.COMPANY_URL}projects/${projectId}/data`,
+      apiLinkShared: `${process.env.COMPANY_URL}projects/shared/${projectId}/data`,
     });
 
     return NextResponse.json({ message: "Auth API created successfully" });
@@ -339,7 +336,7 @@ export async function PATCH(request, { params }) {
         });
       }
 
-      await LoggersModel.create({
+      logShared({
         userId: ownerUserId,
         log: `Auth API ${authData.name} updated to ${apiName}`,
         type: "auth",
@@ -403,11 +400,11 @@ export async function PATCH(request, { params }) {
         }
       };
 
-      await LoggersModel.create({
+      logShared({
         userId: ownerUserId,
+        projectId: authData.projectId,
         log: getMessage(),
         type: "auth",
-        projectId: authData.projectId,
         authId: authData._id,
         createdBy: userId,
       });
@@ -497,11 +494,11 @@ export async function DELETE(request, { params }) {
       { new: true, lean: true }
     );
 
-    await LoggersModel.create({
+    logShared({
       userId: ownerUserId,
+      projectId: authData.projectId,
       log: `Auth API ${authData.name} deleted`,
       type: "auth",
-      projectId: authData.projectId,
       authId: authData._id,
       createdBy: userId,
     });

@@ -55,7 +55,7 @@ const CustomMenu = ({
         sx={(theme) => ({
           // backdropFilter: "blur(12px)",
           "& .MuiPaper-root": {
-            backgroundColor: "background.invert",
+            backgroundColor: "background.defaultSolid",
             minHeight: "fit-content",
             maxHeight: "20rem",
             overflow: "auto",
@@ -78,7 +78,7 @@ const CustomMenu = ({
               className="flex gap-2 items-center py-3"
               sx={{
                 "&:hover": {
-                  backgroundColor: "background.default",
+                  backgroundColor: "background.foreground",
                 },
               }}
             >

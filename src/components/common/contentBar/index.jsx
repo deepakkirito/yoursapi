@@ -48,7 +48,7 @@ const ContentBar = ({
           position: fullScreen ? "fixed" : "relative",
           top: fullScreen ? "10vh" : "0",
           left: fullScreen ? "1vw" : "0",
-          zIndex: fullScreen ? "100" : "0",
+          zIndex: fullScreen ? "1000" : "0",
           width: fullScreen ? "98vw" : "100%",
           minHeight: {
             lg: fullScreen ? "85vh" : "100%",

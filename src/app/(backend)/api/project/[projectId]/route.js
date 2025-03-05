@@ -12,7 +12,7 @@ import { decrypt } from "@/utilities/helpers/encryption";
 import AuthsModel from "@/components/backend/api/authApi/model";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
 import { validateProjectName } from "@/components/backend/api/project/validator";
-import LoggersModel from "@/components/backend/api/logger";
+import { logShared } from "@/components/backend/utilities/middlewares/logShared";
 
 export async function GET(request, { params }) {
   try {
@@ -104,7 +104,7 @@ export async function PUT(request, { params }) {
       { new: true, lean: true }
     );
 
-    await LoggersModel.create({
+    logShared({
       userId: ownerUserId,
       type: "project",
       createdBy: userId,
@@ -234,12 +234,12 @@ export async function DELETE(request, { params }) {
       });
     }
 
-    await LoggersModel.create({
-      userId: ownerUserId || userId,
+    logShared({
+      userId: ownerUserId,
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project ${project.name} ${soft ? "soft" : "hard"} deleted`,
+      log: `Project ${project.name} deleted`,
     });
 
     return NextResponse.json({ message: "Invalid request" }, { status: 400 });
@@ -315,7 +315,7 @@ export async function PATCH(request, { params }) {
       { new: true }
     );
 
-    await LoggersModel.create({
+    logShared({
       userId: userId,
       type: "project",
       createdBy: userId,

@@ -104,32 +104,6 @@ const Notification = () => {
       >
         {notification?.length ? (
           notification.map((item, index) => (
-            // <MenuItem
-            //   key={index}
-            //   onClick={() => {
-            //     handleClose();
-            //     item.read && getNotification(false);
-            //   }}
-            //   className="flex gap-2 items-center py-3"
-            //   sx={{
-            //     backgroundColor: "background.defaultSolid",
-            //     display: "flex",
-            //     flexDirection: "column",
-            //     "&:hover": {
-            //       backgroundColor: "background.defaultSolid",
-            //     },
-            //     width: {
-            //       xs: "80vw",
-            //       md: "10rem",
-            //     },
-            //     "& .MuiMenuItem-root": {
-            //       width: {
-            //         xs: "80vw",
-            //         md: "10rem",
-            //       },
-            //     },
-            //   }}
-            // >
             <>
               <Box
                 className="flex gap-4 items-start flex-col p-4"
@@ -137,11 +111,24 @@ const Notification = () => {
                   backgroundColor: "background.defaultSolid",
                   width: {
                     xs: "80vw",
-                    md: "25vw",
+                    md: "40vw",
+                    lg: "35vw",
+                    xl: "25vw",
                   },
                 }}
               >
-                <Typography variant="h7">{item.log}</Typography>
+                <Typography
+                  variant="h7"
+                  sx={{
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 1,
+                    WebkitLineClamp: "vertical",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {item.log}
+                </Typography>
                 <div className="flex items-end justify-between w-full">
                   <div className="flex gap-2 items-center">
                     <Image

@@ -198,7 +198,7 @@ export async function POST(request) {
       createdBy: userId,
       projectId: newProject._id,
       apiId: newApi._id,
-      log: `New api creted ${newApi.name} for project ${newProject.name}`,
+      log: `New api created ${newApi.name} for project ${newProject.name}`,
     });
 
     await sendMail({

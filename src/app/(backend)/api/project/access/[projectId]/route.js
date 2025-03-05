@@ -5,7 +5,7 @@ import { getProjectOwner } from "@/components/backend/utilities/middlewares/getP
 import { sendMail } from "@/components/backend/utilities/nodemailer";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import LoggersModel from "@/components/backend/api/logger";
+import { logShared } from "@/components/backend/utilities/middlewares/logShared";
 
 export async function GET(request, { params }) {
   try {
@@ -98,7 +98,7 @@ export async function PATCH(request, { params }) {
       { new: true, lean: true }
     );
 
-    await LoggersModel.create({
+    logShared({
       userId: ownerUserId,
       type: "project",
       createdBy: userId,
@@ -213,7 +213,7 @@ export async function POST(request, { params }) {
       );
     }
 
-    await LoggersModel.create({
+    logShared({
       userId: ownerUserId,
       type: "project",
       createdBy: userId,
@@ -301,8 +301,7 @@ export async function PUT(request, { params }) {
         { status: 400, statusText: "Bad Request" }
       );
     }
-
-    await LoggersModel.create({
+    logShared({
       userId: ownerUserId,
       type: "project",
       createdBy: userId,

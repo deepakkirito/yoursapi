@@ -1,19 +1,21 @@
 import ApisModel from "@/components/backend/api/api/model";
 import { validateApiName } from "@/components/backend/api/api/validator";
 import AuthsModel from "@/components/backend/api/authApi/model";
-import LoggersModel from "@/components/backend/api/logger";
 import ProjectsModel from "@/components/backend/api/project/model";
 import UsersModel from "@/components/backend/api/users/model";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { validateData } from "@/components/backend/utilities/middlewares/dataValidator";
 import { getProjectOwner } from "@/components/backend/utilities/middlewares/getProjectOwner";
+import { logShared } from "@/components/backend/utilities/middlewares/logShared";
+import { mailShared } from "@/components/backend/utilities/middlewares/mailShared";
 import {
   connectToDatabase,
   getModelData,
   renameCollection,
   updateModel,
 } from "@/components/backend/utilities/middlewares/mongoose";
+import { getDataToString } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
@@ -225,13 +227,23 @@ export async function POST(request, { params }) {
       { new: true, lean: true }
     );
 
-    await LoggersModel.create({
+    logShared({
       userId: ownerUserId,
+      projectId: projectId,
       log: `Data API ${newApi.name} created`,
       type: "data",
-      projectId: projectId,
       apiId: newApi._id,
       createdBy: userId,
+    });
+
+    mailShared({
+      userEmail: email,
+      subject: "New Data API Created",
+      template: "apiCreate",
+      apiName: newApi.name,
+      projectId: projectId,
+      apiLink: `${process.env.COMPANY_URL}projects/${projectId}/data`,
+      apiLinkShared: `${process.env.COMPANY_URL}projects/shared/${projectId}/data`,
     });
 
     return NextResponse.json({ message: "API created successfully" });
@@ -297,11 +309,13 @@ export async function PATCH(request, { params }) {
         { new: true, lean: true }
       );
 
-      await LoggersModel.create({
+      logShared({
         userId: ownerUserId,
-        log: `Data API ${apiData.name} schema updated to ~${String(schema)}~ from ~${String(apiData.schema)}~`,
-        type: "data",
         projectId: apiData.projectId,
+        log: `Data API '${apiData.name}' schema updated to ~${getDataToString(
+          schema
+        )}~ from ~${getDataToString(schema ? schema : {})}~ in project ${ownerProjectName}`,
+        type: "data",
         apiId: apiData._id,
         createdBy: userId,
       });
@@ -324,11 +338,11 @@ export async function PATCH(request, { params }) {
         { new: true, lean: true }
       );
 
-      await LoggersModel.create({
+      logShared({
         userId: ownerUserId,
-        log: `Data API ${apiData.name} status updated to ${value} from ${apiData[key].active}`,
-        type: "data",
         projectId: apiData.projectId,
+        log: `Data API '${apiData.name}' status ${value ? "enabled" : "disabled"} in project ${ownerProjectName}`,
+        type: "data",
         apiId: apiData._id,
         createdBy: userId,
       });
@@ -400,11 +414,11 @@ export async function PATCH(request, { params }) {
         { new: true, lean: true }
       );
 
-      await LoggersModel.create({
+      logShared({
         userId: ownerUserId,
-        log: `Data API ${apiData.name} name updated to ${newApiName} from ${apiData.name}`,
-        type: "data",
         projectId: apiData.projectId,
+        log: `Data API '${apiData.name}' name updated to '${newApiName}' in project ${ownerProjectName}`,
+        type: "data",
         apiId: apiData._id,
         createdBy: userId,
       });
@@ -446,11 +460,11 @@ export async function PATCH(request, { params }) {
         await connection.close();
       }
 
-      await LoggersModel.create({
+      logShared({
         userId: ownerUserId,
-        log: `Data API ${apiData.name} data updated`,
-        type: "data",
         projectId: apiData.projectId,
+        log: `Data API '${apiData.name}' data updated in project ${ownerProjectName}`,
+        type: "data",
         apiId: apiData._id,
         createdBy: userId,
       });
@@ -535,11 +549,11 @@ export async function DELETE(request, { params }) {
       { new: true, lean: true }
     );
 
-    await LoggersModel.create({
+    logShared({
       userId: ownerUserId,
+      projectId: apiData.projectId,
       log: `Data API ${apiData.name} deleted`,
       type: "data",
-      projectId: apiData.projectId,
       apiId: apiData._id,
       createdBy: userId,
     });
