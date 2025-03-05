@@ -145,6 +145,7 @@ const Notification = () => {
             marginTop: 0.5,
             "& .MuiList-root": {
               padding: "0rem",
+              backgroundColor: "background.foreground",
             },
             "& .MuiMenuItem-root": {
               width: "100%",
@@ -190,7 +191,12 @@ const Notification = () => {
                       lg: "35vw",
                       xl: "25vw",
                     },
+                    ":hover": {
+                      opacity: 0.85,
+                      cursor: "pointer",
+                    },
                   }}
+                  onClick={handleClose}
                 >
                   {item.log.includes("~") ? (
                     <> {renderNotification(item.log)}</>
