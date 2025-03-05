@@ -160,8 +160,8 @@ export async function POST(request, { params }) {
       projectId: projectId,
       authId: newAuth._id,
       createdBy: userId,
-      link: `${process.env.COMPANY_URL}projects/${projectId}/auth`,
-      linkShared: `${process.env.COMPANY_URL}projects/shared/${projectId}/auth`,
+      link: `/projects/${projectId}/auth`,
+      linkShared: `/projects/shared/${projectId}/auth`,
     });
 
     mailShared({
@@ -345,8 +345,8 @@ export async function PATCH(request, { params }) {
         projectId: authData.projectId,
         authId: authData._id,
         createdBy: userId,
-        link: `${process.env.COMPANY_URL}projects/${authData.projectId}/auth`,
-        linkShared: `${process.env.COMPANY_URL}projects/shared/${authData.projectId}/auth`,
+        link: `/projects/${authData.projectId}/auth`,
+        linkShared: `/projects/shared/${authData.projectId}/auth`,
       });
 
       return NextResponse.json({
@@ -388,19 +388,19 @@ export async function PATCH(request, { params }) {
 
       const getMessage = () => {
         if (authType) {
-          return `Auth API ${newAuthapi.name} auth type updated to ${authType} from ${newAuthapi.authType}`;
+          return `Auth API ${newAuthapi.name} auth type updated to ${authType} from ${newAuthapi.authType} in project ${ownerProjectName}`;
         }
         if (schema) {
-          return `Auth API ${newAuthapi.name} schema updated to ~${String(schema)}~ from ~${String(newAuthapi.schema)}~`;
+          return `Auth API ${newAuthapi.name} schema updated to ~${String(schema)}~ from ~${String(newAuthapi.schema)}~ in project ${ownerProjectName}`;
         }
         if (tokenAge) {
-          return `Auth API ${newAuthapi.name} token age updated to ${tokenAge} from ${newAuthapi.tokenAge}`;
+          return `Auth API ${newAuthapi.name} token age updated to ${tokenAge} from ${newAuthapi.tokenAge} in project ${ownerProjectName}`;
         }
         if (reqType && reqValue !== undefined) {
-          return `Auth API ${newAuthapi.name} request type ${reqType} status updated to ${reqValue} from ${newAuthapi[reqType].active}`;
+          return `Auth API ${newAuthapi.name} request type ${reqType} status updated to ${reqValue} from ${newAuthapi[reqType].active} in project ${ownerProjectName}`;
         }
         if (captcha !== undefined) {
-          return `Auth API ${newAuthapi.name} captcha updated to ${captcha} from ${newAuthapi.captcha}`;
+          return `Auth API ${newAuthapi.name} captcha updated to ${captcha} from ${newAuthapi.captcha} in project ${ownerProjectName}`;
         }
       };
 
@@ -411,8 +411,8 @@ export async function PATCH(request, { params }) {
         type: "auth",
         authId: authData._id,
         createdBy: userId,
-        link: `${process.env.COMPANY_URL}projects/${authData.projectId}/auth`,
-        linkShared: `${process.env.COMPANY_URL}projects/shared/${authData.projectId}/auth`,
+        link: `/projects/${authData.projectId}/auth`,
+        linkShared: `/projects/shared/${authData.projectId}/auth`,
       });
 
       return NextResponse.json({
@@ -507,8 +507,8 @@ export async function DELETE(request, { params }) {
       type: "auth",
       authId: authData._id,
       createdBy: userId,
-      link: `${process.env.COMPANY_URL}projects/${authData.projectId}/auth`,
-      linkShared: `${process.env.COMPANY_URL}projects/shared/${authData.projectId}/auth`,
+      link: `/projects/${authData.projectId}/auth`,
+      linkShared: `/projects/shared/${authData.projectId}/auth`,
     });
 
     return NextResponse.json({ message: "Auth API deleted successfully" });

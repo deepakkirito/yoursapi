@@ -25,6 +25,7 @@ export async function GET(request) {
         createdAt: 1,
         createdBy: 1,
         read: 1,
+        link: 1,
       }
     )
       .sort({ createdAt: -1 })
