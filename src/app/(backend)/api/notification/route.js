@@ -1,6 +1,7 @@
 import LoggersModel from "@/components/backend/api/logger";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { NextResponse } from "next/server";
+import UsersModel from "@/components/backend/api/users/model";
 
 export async function GET(request) {
   try {
