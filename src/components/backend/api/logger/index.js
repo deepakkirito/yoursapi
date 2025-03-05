@@ -21,6 +21,7 @@ const loggerSchema = new Schema(
     },
     read: { type: Boolean, default: false },
     status: { type: String, enum: ["success", "error"], default: "success" },
+    link: { type: String },
   },
   {
     timestamps: true,

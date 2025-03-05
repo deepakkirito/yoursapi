@@ -1,7 +1,7 @@
 const { axiosGetSelf, axiosPatchSelf } = require("..");
 
-export const getNotificationApi = async (limit = 10) => {
-  return axiosGetSelf("/notification?limit=" + limit);
+export const getNotificationApi = async (limit, row) => {
+  return axiosGetSelf("/notification?limit=" + limit + "&skip=" + row);
 };
 
 export const readNotificationApi = async (date) => {

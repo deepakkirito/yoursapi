@@ -104,6 +104,8 @@ export async function PATCH(request, { params }) {
       createdBy: userId,
       projectId,
       log: `Project ${project.name} permission for ${shareEmail} updated to ${permission}`,
+      link: `${process.env.COMPANY_URL}projects`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared`,
     });
 
     return NextResponse.json({
@@ -219,6 +221,8 @@ export async function POST(request, { params }) {
       createdBy: userId,
       projectId,
       log: `Project ${updateProject.name} shared with ${shareEmail} with permission ${permission}`,
+      link: `${process.env.COMPANY_URL}projects`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared`,
     });
 
     sendMail({
@@ -307,6 +311,8 @@ export async function PUT(request, { params }) {
       createdBy: userId,
       projectId,
       log: `Project ${updateProject.name} revoked from ${shareEmail}`,
+      link: `${process.env.COMPANY_URL}projects`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared`,
     });
 
     return NextResponse.json({

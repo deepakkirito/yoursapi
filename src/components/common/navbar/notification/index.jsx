@@ -9,14 +9,21 @@ import {
   Typography,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getNotificationApi,
   readNotificationApi,
 } from "@/utilities/api/notification";
 import Image from "next/image";
-import { catchError, getDate } from "@/utilities/helpers/functions";
+import {
+  catchError,
+  getDate,
+  isValidJson,
+} from "@/utilities/helpers/functions";
 import { showNotification } from "../../notification";
+import CustomInput from "../../customTextField";
+import { CloseRounded } from "@mui/icons-material";
+import Link from "next/link";
 
 const Notification = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -24,7 +31,10 @@ const Notification = () => {
   const [notification, setNotification] = useState([]);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [limit, setLimit] = useState(10);
+  const customLimit = 30;
+  const [limit, setLimit] = useState(customLimit);
+  const containerRef = useRef(null);
+  const [hasMore, setHasMore] = useState(true);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -52,10 +62,12 @@ const Notification = () => {
 
   const getNotification = (loading = true) => {
     loading && setLoading(true);
-    getNotificationApi(limit)
+    getNotificationApi(limit, notification?.length)
       .then((res) => {
-        setNotification(res.data.data);
+        setNotification([...notification, ...res.data.data]);
         setUnread(res.data.totalUnread);
+        setHasMore(res.data.hasMore);
+        setLimit(limit + customLimit);
       })
       .catch((err) => {
         console.log(err);
@@ -65,12 +77,51 @@ const Notification = () => {
         setLoading(false);
       });
   };
+
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    if (scrollTop + clientHeight >= scrollHeight - 10 && !loading && hasMore) {
+      getNotification(); // Load more on reaching bottom
+    }
+  };
+
+  const renderNotification = (data) => {
+    const parsedData = data.split("~");
+
+    return parsedData.map((item, index) => {
+      const parsedItem = isValidJson(item);
+
+      if (!parsedItem.valid) {
+        return (
+          <div key={index} className="flex gap-2 items-center">
+            <Typography variant="h8" sx={{ fontWeight: "bold" }}>
+              {parsedItem.content}
+            </Typography>
+          </div>
+        );
+      }
+
+      return (
+        <div key={index} className="flex gap-2 items-center w-full">
+          <CustomInput
+            multiline
+            rowsMax={8}
+            value={item}
+            formfullwidth
+            fullwidth
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="flex items-center gap-2 cursor-pointer">
-      {/* {loading ? (
-        <CircularProgress size={24} />
-      ) : (
-      )} */}
       <IconButton onClick={handleClick}>
         <Badge badgeContent={unread} color="primary">
           <NotificationsIcon color="secondary" />
@@ -84,7 +135,6 @@ const Notification = () => {
         transformOrigin={{ horizontal: "right", vertical: "left" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         sx={(theme) => ({
-          // backdropFilter: "blur(12px)",
           "& .MuiPaper-root": {
             backgroundColor: "background.defaultSolid",
             minHeight: "fit-content",
@@ -102,77 +152,99 @@ const Notification = () => {
           },
         })}
       >
-        {notification?.length ? (
-          notification.map((item, index) => (
-            <>
-              <Box
-                className="flex gap-4 items-start flex-col p-4"
-                sx={{
-                  backgroundColor: "background.defaultSolid",
-                  width: {
-                    xs: "80vw",
-                    md: "40vw",
-                    lg: "35vw",
-                    xl: "25vw",
-                  },
-                }}
-              >
-                <Typography
-                  variant="h7"
+        <Box
+          className="py-2 px-4 flex items-center justify-between"
+          sx={{
+            backgroundColor: "background.defaultSolid",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Typography variant="h6">Notifications</Typography>
+          <IconButton onClick={handleClose}>
+            <CloseRounded fontSize="small" />
+          </IconButton>
+        </Box>
+        <div
+          ref={containerRef}
+          onScroll={handleScroll} // Attach scroll event
+          style={{
+            minHeight: "100%",
+            maxHeight: "70vh",
+            overflow: "auto",
+          }}
+        >
+          {notification?.length ? (
+            notification.map((item, index) => (
+              <>
+                <Box
+                  component={Link}
+                  href={item.link || "/projects"}
+                  className="flex gap-4 items-start flex-col p-4"
                   sx={{
-                    overflow: "hidden",
-                    display: "-webkit-box",
-                    WebkitLineClamp: 1,
-                    WebkitLineClamp: "vertical",
-                    textOverflow: "ellipsis",
+                    backgroundColor: "background.defaultSolid",
+                    color: "text.primary",
+                    width: {
+                      xs: "80vw",
+                      md: "40vw",
+                      lg: "35vw",
+                      xl: "25vw",
+                    },
                   }}
                 >
-                  {item.log}
-                </Typography>
-                <div className="flex items-end justify-between w-full">
-                  <div className="flex gap-2 items-center">
-                    <Image
-                      src={item.createdBy.profile}
-                      alt="profile"
-                      width={30}
-                      height={30}
-                      className="rounded-full"
-                    />
-                    <div className="flex flex-col">
-                      <Typography variant="h8">
-                        {item.createdBy.name}
-                      </Typography>
-                      <Typography variant="h8">
-                        {item.createdBy.email}
-                      </Typography>
+                  {item.log.includes("~") ? (
+                    <> {renderNotification(item.log)}</>
+                  ) : (
+                    <Typography variant="h8" fontWeight={"bold"}>
+                      {item.log}
+                    </Typography>
+                  )}
+                  <div className="flex items-end justify-between w-full">
+                    <div className="flex gap-2 items-center">
+                      <Image
+                        src={item.createdBy.profile}
+                        alt="profile"
+                        width={30}
+                        height={30}
+                        className="rounded-full"
+                      />
+                      <div className="flex flex-col">
+                        <Typography variant="h8">
+                          {item.createdBy.name}
+                        </Typography>
+                        <Typography variant="h8">
+                          {item.createdBy.email}
+                        </Typography>
+                      </div>
                     </div>
+                    <Typography variant="h8">
+                      {getDate(item.createdAt)}
+                    </Typography>
                   </div>
-                  <Typography variant="h8">
-                    {getDate(item.createdAt)}
-                  </Typography>
-                </div>
-              </Box>
-              {notification?.length !== index + 1 && (
-                <Divider className="w-full" />
-              )}
-            </>
-            // </MenuItem>
-          ))
-        ) : (
-          <MenuItem
-            onClick={handleClose}
-            className="flex gap-2 items-center py-3"
-            sx={{
-              "&:hover": {
-                backgroundColor: "background.default",
-              },
-            }}
-          >
+                </Box>
+                {notification?.length !== index + 1 && (
+                  <Divider className="w-full" />
+                )}
+              </>
+            ))
+          ) : (
             <div className="flex gap-2 items-center">
-              <div className="flex gap-2 items-center">No notifications</div>
+              {!loading && (
+                <div className="flex gap-2 items-center">No notifications</div>
+              )}
             </div>
-          </MenuItem>
-        )}
+          )}
+          {loading && (
+            <Box
+              className="flex justify-center items-center h-[5rem]"
+              sx={{
+                backgroundColor: "background.defaultSolid",
+              }}
+            >
+              <CircularProgress color="secondary" size={20} />
+            </Box>
+          )}
+        </div>
       </Menu>
     </div>
   );

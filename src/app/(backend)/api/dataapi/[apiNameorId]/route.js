@@ -234,6 +234,8 @@ export async function POST(request, { params }) {
       type: "data",
       apiId: newApi._id,
       createdBy: userId,
+      link: `${process.env.COMPANY_URL}projects/${projectId}/data?api=${newApi.name}&id=${newApi._id}`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared/${projectId}/data?api=${newApi.name}&id=${newApi._id}`,
     });
 
     mailShared({
@@ -318,6 +320,8 @@ export async function PATCH(request, { params }) {
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
+        link: `${process.env.COMPANY_URL}projects/${apiData.projectId}/data?api=${apiData.name}&id=${apiData._id}`,
+        linkShared: `${process.env.COMPANY_URL}projects/shared/${apiData.projectId}/data?api=${apiData.name}&id=${apiData._id}`,
       });
 
       return NextResponse.json({
@@ -345,6 +349,8 @@ export async function PATCH(request, { params }) {
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
+        link: `${process.env.COMPANY_URL}projects/${apiData.projectId}/data?api=${apiData.name}&id=${apiData._id}`,
+        linkShared: `${process.env.COMPANY_URL}projects/shared/${apiData.projectId}/data?api=${apiData.name}&id=${apiData._id}`,
       });
 
       return NextResponse.json({
@@ -421,6 +427,8 @@ export async function PATCH(request, { params }) {
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
+        link: `${process.env.COMPANY_URL}projects/${apiData.projectId}/data?api=${apiData.name}&id=${apiData._id}`,
+        linkShared: `${process.env.COMPANY_URL}projects/shared/${apiData.projectId}/data?api=${apiData.name}&id=${apiData._id}`,
       });
 
       return NextResponse.json({
@@ -467,6 +475,8 @@ export async function PATCH(request, { params }) {
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
+        link: `${process.env.COMPANY_URL}projects/${apiData.projectId}/data?api=${apiData.name}&id=${apiData._id}`,
+        linkShared: `${process.env.COMPANY_URL}projects/shared/${apiData.projectId}/data?api=${apiData.name}&id=${apiData._id}`,
       });
 
       return NextResponse.json({
@@ -556,6 +566,8 @@ export async function DELETE(request, { params }) {
       type: "data",
       apiId: apiData._id,
       createdBy: userId,
+      link: `${process.env.COMPANY_URL}projects/${apiData.projectId}/data`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared/${apiData.projectId}/data`,
     });
 
     return NextResponse.json({ message: "API deleted successfully" });

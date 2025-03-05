@@ -110,6 +110,8 @@ export async function PUT(request, { params }) {
       createdBy: userId,
       projectId,
       log: `Project ${project.name} restored`,
+      link: `${process.env.COMPANY_URL}projects`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared`,
     });
 
     return NextResponse.json({
@@ -240,6 +242,8 @@ export async function DELETE(request, { params }) {
       createdBy: userId,
       projectId,
       log: `Project ${project.name} deleted`,
+      link: `${process.env.COMPANY_URL}projects/inactive`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared`,
     });
 
     return NextResponse.json({ message: "Invalid request" }, { status: 400 });
@@ -321,6 +325,8 @@ export async function PATCH(request, { params }) {
       createdBy: userId,
       projectId,
       log: `Project ${project.name} name updated to ${projectName}`,
+      link: `${process.env.COMPANY_URL}projects`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared`,
     });
 
     return NextResponse.json({ message: "Project name updated successfully" });

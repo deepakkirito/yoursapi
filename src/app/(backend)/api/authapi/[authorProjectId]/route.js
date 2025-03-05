@@ -160,6 +160,8 @@ export async function POST(request, { params }) {
       projectId: projectId,
       authId: newAuth._id,
       createdBy: userId,
+      link: `${process.env.COMPANY_URL}projects/${projectId}/auth`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared/${projectId}/auth`,
     });
 
     mailShared({
@@ -168,8 +170,8 @@ export async function POST(request, { params }) {
       template: "apiCreate",
       apiName: apiName,
       projectId: projectId,
-      apiLink: `${process.env.COMPANY_URL}projects/${projectId}/data`,
-      apiLinkShared: `${process.env.COMPANY_URL}projects/shared/${projectId}/data`,
+      apiLink: `${process.env.COMPANY_URL}projects/${projectId}/auth`,
+      apiLinkShared: `${process.env.COMPANY_URL}projects/shared/${projectId}/auth`,
     });
 
     return NextResponse.json({ message: "Auth API created successfully" });
@@ -343,6 +345,8 @@ export async function PATCH(request, { params }) {
         projectId: authData.projectId,
         authId: authData._id,
         createdBy: userId,
+        link: `${process.env.COMPANY_URL}projects/${authData.projectId}/auth`,
+        linkShared: `${process.env.COMPANY_URL}projects/shared/${authData.projectId}/auth`,
       });
 
       return NextResponse.json({
@@ -407,6 +411,8 @@ export async function PATCH(request, { params }) {
         type: "auth",
         authId: authData._id,
         createdBy: userId,
+        link: `${process.env.COMPANY_URL}projects/${authData.projectId}/auth`,
+        linkShared: `${process.env.COMPANY_URL}projects/shared/${authData.projectId}/auth`,
       });
 
       return NextResponse.json({
@@ -501,6 +507,8 @@ export async function DELETE(request, { params }) {
       type: "auth",
       authId: authData._id,
       createdBy: userId,
+      link: `${process.env.COMPANY_URL}projects/${authData.projectId}/auth`,
+      linkShared: `${process.env.COMPANY_URL}projects/shared/${authData.projectId}/auth`,
     });
 
     return NextResponse.json({ message: "Auth API deleted successfully" });

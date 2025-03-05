@@ -9,6 +9,8 @@ export const logShared = async ({
   authId,
   apiId,
   createdBy,
+  link,
+  linkShared,
 }) => {
   const project = await ProjectsModel.findOne({ _id: projectId }).lean();
 
@@ -24,15 +26,21 @@ export const logShared = async ({
   }
 
   Promise.all(
-    userIds.map(async (userId) => {
+    userIds.map(async (user) => {
       await LoggersModel.create({
-        userId,
+        userId: user,
         log,
         type,
         projectId,
         authId,
         apiId,
         createdBy,
+        link:
+          userId.toString() === createdBy.toString()
+            ? linkShared
+            : user.toString() === userId.toString()
+              ? link
+              : linkShared,
       });
     })
   );

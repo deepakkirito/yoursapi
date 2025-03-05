@@ -9,6 +9,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
 
     const limit = parseInt(searchParams.get("limit")) || 10;
+    const skip = parseInt(searchParams.get("skip")) || 0;
 
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7); // Get date 7 days ago
@@ -17,7 +18,6 @@ export async function GET(request) {
       {
         userId,
         createdBy: { $ne: userId },
-        createdAt: { $gte: sevenDaysAgo }, // Only fetch last 7 days
       },
       {
         log: 1,
@@ -27,6 +27,7 @@ export async function GET(request) {
       }
     )
       .sort({ createdAt: -1 })
+      .skip(skip)
       .limit(limit)
       .populate("createdBy", "name email profile")
       .lean();
@@ -37,7 +38,21 @@ export async function GET(request) {
       read: false, // Only count unread notifications
     });
 
-    return NextResponse.json({ data: notification, totalUnread });
+    const totalSend = await LoggersModel.countDocuments({
+      userId: userId,
+      createdBy: { $ne: userId },
+    }).limit(limit);
+
+    const countNotifications = await LoggersModel.countDocuments({
+      userId: userId,
+      createdBy: { $ne: userId },
+    });
+
+    return NextResponse.json({
+      data: notification,
+      totalUnread,
+      hasMore: countNotifications !== totalSend,
+    });
   } catch (error) {
     console.log(error);
     return NextResponse.json(
