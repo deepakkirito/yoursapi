@@ -1,5 +1,5 @@
 import UsersModel from "@/components/backend/api/users/model";
-import { connectToDatabase } from "@/components/backend/utilities/middlewares/mongoose";
+import { connectToDatabase, connectToDatabaseUser } from "@/components/backend/utilities/middlewares/mongoose";
 import { decrypt } from "@/utilities/helpers/encryption";
 import { isValidJson } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
@@ -49,7 +49,7 @@ export async function getDataHandler({ req, username, projectname, apiname }) {
   const dbName =
     user.fetchData === "self" ? `${username}_${projectname}` : projectname;
 
-  const connection = await connectToDatabase(dbString, dbName);
+  const connection = await connectToDatabaseUser(dbString, dbName);
   const collection = connection.collection(apiname);
 
   let query = {};

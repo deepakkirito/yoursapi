@@ -11,8 +11,7 @@ const axiosGet = (url) => {
       })
       .catch((err) => {
         if (err.status === 403) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -32,8 +31,7 @@ const axiosGetSelf = (url) => {
       })
       .catch((err) => {
         if (err.status === 403 || err.status === 401) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -53,8 +51,7 @@ const axiosPost = (url, body) => {
       })
       .catch((err) => {
         if (err.status === 403) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -76,8 +73,7 @@ const axiosPostSelf = (url, body) => {
       })
       .catch((err) => {
         if (err.status === 403 || err.status === 401) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -97,8 +93,7 @@ const axiosPut = (url, body) => {
       })
       .catch((err) => {
         if (err.status === 403 || err.status === 401) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -118,8 +113,7 @@ const axiosPutSelf = (url, body) => {
       })
       .catch((err) => {
         if (err.status === 403 || err.status === 401) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -139,8 +133,7 @@ const axiosDelete = (url) => {
       })
       .catch((err) => {
         if (err.status === 403 || err.status === 401) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -160,8 +153,7 @@ const axiosDeleteSelf = (url) => {
       })
       .catch((err) => {
         if (err.status === 403 || err.status === 401) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -195,8 +187,7 @@ const axiosHeadSelf = (url) => {
       })
       .catch((err) => {
         if (err.status === 403 || err.status === 401) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);
@@ -216,8 +207,7 @@ const axiosPatchSelf = (url, body) => {
       })
       .catch((err) => {
         if (err.status === 403 || err.status === 401) {
-          localStorage.removeItem("login");
-          localStorage.removeItem("user");
+          localStorage.clear();
           window.location.pathname = "/login";
         }
         reject(err);

@@ -420,7 +420,7 @@ const ProjectLayout = ({
                                   href={`${location}/${item._id}/data`}
                                   onClick={() =>
                                     window.localStorage.setItem(
-                                      "project",
+                                      "project_" + item._id,
                                       item.name
                                     )
                                   }

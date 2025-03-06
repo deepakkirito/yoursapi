@@ -24,7 +24,7 @@ const AuthApi = ({ shared = false }) => {
   const [authData, setAuthData] = useState({});
   const [data, setData] = useState("[]");
   const currentData = useRef("");
-  const project = useLocalStorage("project", "");
+  const [project] = useLocalStorage("project_" + projectId, "");
   const [open, setOpen] = useLocalStorage(`${project}_open`, false);
   const [permission, setPermission] = useState("read");
   const [openApi, setOpenApi] = useLocalStorage("openApi", false);

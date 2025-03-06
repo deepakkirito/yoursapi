@@ -148,7 +148,7 @@ export const migrateProjects = async ({
 
 const globalConnections = global.globalConnections || {};
 
-export async function connectToDatabase(uri, dbName) {
+export async function connectToDatabaseUser(uri, dbName) {
   if (!uri || !dbName) throw new Error("Database URI and name are required");
 
   const cacheKey = `${uri}_${dbName}`;
@@ -185,6 +185,17 @@ export async function connectToDatabase(uri, dbName) {
 
   return connection;
 }
+
+export const connectToDatabase = async (uri = MONGO_URI, dbName = "") => {
+  const connection = mongoose.createConnection(`${uri}${dbName}`);
+  connection.on("error", (err) => {
+    console.error(`Error connecting to database "${dbName}": ${err.message}`);
+  });
+
+  await connection.asPromise(); // Wait for the connection to establish
+  console.log(`Connected to database: ${dbName}`);
+  return connection;
+};
 
 export const copyDatabase = async ({
   oldDbName,

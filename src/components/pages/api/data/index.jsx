@@ -5,7 +5,7 @@ import ContentBar from "@/components/common/contentBar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Settings from "./settings";
 import { getApiDetailsApi, updateApiDataApi } from "@/utilities/api/apiApi";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { catchError, getDataToString } from "@/utilities/helpers/functions";
 import { showNotification } from "@/components/common/notification";
 import CustomData from "./customData";
@@ -18,7 +18,10 @@ import Lottie from "react-lottie";
 import CreateApi from "@/components/assets/json/createApi.json";
 
 const DataApi = ({ shared = false }) => {
-  const project = useLocalStorage("project", "");
+  const location = usePathname();
+  const locationParts = location?.split("/") || [];
+  const projectId = useRef(locationParts[shared ? 3 : 2] || null);
+  const [project] = useLocalStorage("project_" + projectId.current, "");
   const searchparams = useSearchParams();
   const [open, setOpen] = useLocalStorage(`${project}_open`, false);
   const [data, setData] = useState("");

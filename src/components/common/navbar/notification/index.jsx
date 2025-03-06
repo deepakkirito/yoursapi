@@ -192,7 +192,8 @@ const Notification = () => {
                       xl: "25vw",
                     },
                     ":hover": {
-                      opacity: 0.85,
+                      // opacity: 0.85,
+                      backgroundColor: "background.default",
                       cursor: "pointer",
                     },
                   }}

@@ -31,7 +31,7 @@ const Profile = ({ userData, setLogin, router }) => {
             />
           )
         }
-        tooltipTitle={"Profile Menu"}
+        // tooltipTitle={"Profile Menu"}
         options={[
           {
             icon: <AccountCircleRoundedIcon fontSize="small" />,

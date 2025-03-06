@@ -8,6 +8,7 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import { usePathname } from "next/navigation";
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -51,7 +52,12 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 }));
 
 const CustomAccordion = ({ items, defaultExpanded, onChange, hideItems }) => {
-  const project = useLocalStorage("project", "");
+  const location = usePathname();
+  const locationParts = location.split("/");
+  const projectId = location.includes("/shared/")
+    ? locationParts[3]
+    : locationParts[2];
+  const [project] = useLocalStorage("project_" + projectId, "");
   const [expanded, setExpanded] = useLocalStorage(
     `${project}_expanded`,
     defaultExpanded || false
