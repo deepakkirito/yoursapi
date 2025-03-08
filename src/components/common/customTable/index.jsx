@@ -16,6 +16,7 @@ import {
   Typography,
   CircularProgress,
   Skeleton,
+  Divider,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -145,7 +146,7 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
         alignItems="center"
         justifyContent="space-between"
         gap={"1rem"}
-        mb={2}
+        mb={1}
       >
         <Box>
           <Typography variant="h6" sx={{ fontWeight: "bold" }}>
@@ -200,8 +201,16 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
         </Box>
       </Box>
 
+      <Divider className="w-[100%] mx-auto" />
+
       {/* Table */}
-      <TableContainer sx={{ width: "100%" }}>
+      <TableContainer
+        sx={{
+          width: "100%",
+          marginTop: "0.5rem",
+          "& .MuiTableRow-root": { borderBottom: "2px solid", borderColor: "divider" },
+        }}
+      >
         <Table sx={{ width: "100%", tableLayout: "fixed" }}>
           <TableHead>
             <TableRow>
