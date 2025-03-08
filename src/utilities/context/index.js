@@ -12,7 +12,8 @@ const Context = ({ children, getTheme }) => {
 
   useEffect(() => {
     setTheme(
-      localStorage.getItem("theme") !== "undefined"
+      localStorage.getItem("theme") !== "undefined" &&
+        localStorage.getItem("theme") !== "null"
         ? localStorage.getItem("theme")
         : "dark"
     );

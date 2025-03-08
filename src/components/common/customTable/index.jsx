@@ -217,7 +217,12 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
         }}
       >
         <Table sx={{ width: "100%", tableLayout: "fixed" }}>
-          <TableHead>
+          <TableHead
+            className="sticky top-0 z-10"
+            sx={{
+              backgroundColor: "background.defaultSolid",
+            }}
+          >
             <TableRow>
               {columns.map((column) => (
                 <TableCell key={column.id} width={columnWidths[column.id]}>

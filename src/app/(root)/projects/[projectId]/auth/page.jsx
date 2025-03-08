@@ -2,7 +2,7 @@ import AuthApi from "@/components/pages/api/auth";
 
 const Page = () => {
   return (
-    <div>
+    <div className="px-2">
       <AuthApi />
     </div>
   );

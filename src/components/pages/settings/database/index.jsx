@@ -72,7 +72,7 @@ const DataBase = () => {
   };
 
   return (
-    <div>
+    <div className="px-2">
       <Box
         className={style.DataBase}
         sx={{

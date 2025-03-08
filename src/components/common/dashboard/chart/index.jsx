@@ -149,8 +149,14 @@ const Chart = ({ getProjectsApi, title }) => {
           padding: "1rem",
         }}
       >
-        <Grid2 item size={{ xs: 2, lg: 4 }} className="flex items-center gap-2">
-          <Typography variant="h6" fontWeight={"bold"}>
+        <Grid2 item size={{ xs: 4 }} className="flex items-center gap-2">
+          <Typography
+            variant={{
+              xs: "h7",
+              sm: "h5",
+            }}
+            fontWeight={"bold"}
+          >
             {title}
           </Typography>
           <TooltipCustom title={!hide ? "Hide" : "Show"} placement="top">
@@ -167,7 +173,7 @@ const Chart = ({ getProjectsApi, title }) => {
         </Grid2>
         <Grid2
           item
-          size={{ xs: 10, lg: 8 }}
+          size={{ xs: 8 }}
           className="flex items-center gap-2 overflow-x-auto pt-2"
           sx={{
             scrollbarWidth: "none",

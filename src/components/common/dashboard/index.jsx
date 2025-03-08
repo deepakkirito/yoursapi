@@ -8,7 +8,7 @@ const Dashboard = () => {
     <Grid2
       container
       spacing={2}
-      className="items-center w-[100%] overflow-auto"
+      className="items-center w-[100%] overflow-auto px-2 content-baseline"
       sx={{
         height: "calc(100vh - 7rem)",
       }}

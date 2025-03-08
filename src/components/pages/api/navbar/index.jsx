@@ -372,7 +372,7 @@ const Navbar = ({
         }}
       >
         <Typography variant="h5">{title}</Typography>
-        <div className="flex gap-1 items-center">
+        <div className="flex gap-1 items-center flex-wrap">
           {openApi && !authData.name && (
             <CustomSelect
               options={apiList}

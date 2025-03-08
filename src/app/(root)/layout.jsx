@@ -35,7 +35,7 @@ export default function Layout({ children }) {
             width={"100%"}
             sx={{
               display: "flex",
-              padding: "0rem 0.5rem 1rem",
+              padding: "0rem",
               gap: "1rem",
               height: "fit-content",
               overflow: "hidden",

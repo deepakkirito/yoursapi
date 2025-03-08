@@ -16,12 +16,16 @@ const Logs = () => {
   const router = useRouter();
 
   const getLogs = () => {
+    setLoading(true);
     getLogsApi(page, rowsPerPage)
       .then((res) => {
         setLogs(res.data.data);
       })
       .catch((err) => {
         catchError(err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -38,9 +42,7 @@ const Logs = () => {
       if (!parsedItem.valid) {
         return (
           <div key={index} className="flex gap-2 items-center">
-            <Typography variant="h7">
-              {parsedItem.content}
-            </Typography>
+            <Typography variant="h7">{parsedItem.content}</Typography>
           </div>
         );
       }

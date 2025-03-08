@@ -188,9 +188,14 @@ const DatabaseDetails = ({
               borderColor: "background.invert",
               backgroundColor: "background.default",
               padding: "0.2rem 0.2rem 0.2rem 0.5rem",
+              display: "flex",
+              alignItems: "center",
             }}
           >
-            <Typography variant="h7" className="text-break">
+            <Typography variant="h7" sx={{
+              display: "block",
+              wordBreak: "break-all",
+            }}> 
               {dbstringArray[0]}:{dbstringArray[1]}:**your-password**@
               {dbstringArray[2]?.split("@")[1]}
             </Typography>

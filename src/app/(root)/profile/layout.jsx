@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 export default function Layout({ children }) {
   return (
     <Box
+      className="mx-2"
       sx={{
         borderRadius: "1rem",
         border: "0.2rem solid",
