@@ -207,8 +207,13 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
       <TableContainer
         sx={{
           width: "100%",
+          maxHeight: "calc(100vh - 17rem)",
+          overflow: "auto",
           marginTop: "0.5rem",
-          "& .MuiTableRow-root": { borderBottom: "2px solid", borderColor: "divider" },
+          "& .MuiTableRow-root": {
+            borderBottom: "2px solid",
+            borderColor: "divider",
+          },
         }}
       >
         <Table sx={{ width: "100%", tableLayout: "fixed" }}>
@@ -261,13 +266,7 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
               ))}
             </TableRow>
           </TableHead>
-          <TableBody
-            sx={{
-              minHeight: "auto",
-              maxHeight: "calc(100vh - 20rem)",
-              overflow: "auto",
-            }}
-          >
+          <TableBody>
             {isLoading ? (
               <>
                 {columns.map((column) => (

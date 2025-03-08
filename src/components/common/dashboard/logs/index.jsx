@@ -1,11 +1,12 @@
 import { getLogsApi } from "@/utilities/api/logsApi";
 import { getNotificationApi } from "@/utilities/api/notification";
-import { catchError } from "@/utilities/helpers/functions";
+import { catchError, isValidJson } from "@/utilities/helpers/functions";
 import { Avatar, Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import CustomTable from "../../customTable";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import CustomInput from "../../customTextField";
 
 const Logs = () => {
   const [logs, setLogs] = useState([]);
@@ -28,13 +29,51 @@ const Logs = () => {
     getLogs();
   }, []);
 
+  const renderNotification = (data) => {
+    const parsedData = data.split("~");
+
+    return parsedData.map((item, index) => {
+      const parsedItem = isValidJson(item);
+
+      if (!parsedItem.valid) {
+        return (
+          <div key={index} className="flex gap-2 items-center">
+            <Typography variant="h7">
+              {parsedItem.content}
+            </Typography>
+          </div>
+        );
+      }
+
+      return (
+        <div key={index} className="flex gap-2 items-center w-full">
+          <CustomInput
+            multiline
+            rowsMax={8}
+            value={item}
+            formfullwidth
+            fullwidth
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+        </div>
+      );
+    });
+  };
+
   return (
     <Box>
       <CustomTable
         title="Logs"
         data={logs}
         columns={[
-          { id: "log", label: "Log", width: 400 },
+          {
+            id: "log",
+            label: "Log",
+            width: 400,
+            cell: (row) => renderNotification(row.log),
+          },
           { id: "createdAt", label: "Date", width: 200 },
           {
             id: "createdBy",
