@@ -5,6 +5,7 @@ import { Avatar, Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import CustomTable from "../../customTable";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Logs = () => {
   const [logs, setLogs] = useState([]);
@@ -29,19 +30,6 @@ const Logs = () => {
 
   return (
     <Box>
-      {/* <Box
-        sx={{
-          padding: "1rem",
-          border: "1px solid",
-          borderColor: "divider",
-          borderRadius: "0.5rem",
-        }}
-      >
-        <Typography variant="h6" fontWeight={"bold"}>
-          Logs
-        </Typography>
-      </Box> */}
-      <br />
       <CustomTable
         title="Logs"
         data={logs}
@@ -56,11 +44,12 @@ const Logs = () => {
               `${row.createdBy.name} ${row.createdBy.email}`, // Use name & email for filtering
             cell: (row) => (
               <div className="flex gap-2 items-center">
-                <Avatar
+                <Image
                   src={row.createdBy.profile}
                   alt="profile"
-                  width={30}
-                  height={30}
+                  width={35}
+                  height={35}
+                  className="rounded-full"
                 />
                 <div className="flex flex-col">
                   <Typography variant="h7" fontWeight={"bold"}>

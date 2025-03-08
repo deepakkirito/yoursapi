@@ -106,7 +106,8 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
     <Paper
       sx={{
         width: "100%",
-        height: fullScreen ? "100vh" : "auto",
+        maxHeight: fullScreen ? "100vh" : "90vh",
+        minHeight: fullScreen ? "100vh" : "auto",
         overflow: "hidden",
         padding: 2,
         position: fullScreen ? "fixed" : "relative",
@@ -251,7 +252,13 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody
+            sx={{
+              minHeight: "auto",
+              maxHeight: "calc(100vh - 20rem)",
+              overflow: "auto",
+            }}
+          >
             {isLoading ? (
               <>
                 {columns.map((column) => (

@@ -18,7 +18,6 @@ export async function GET(request) {
     const notification = await LoggersModel.find(
       {
         userId,
-        createdBy: { $ne: userId },
       },
       {
         log: 1,
