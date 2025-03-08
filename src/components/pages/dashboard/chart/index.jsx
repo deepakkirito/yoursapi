@@ -1,5 +1,4 @@
 import { Box, Grid2, IconButton, Typography, useTheme } from "@mui/material";
-import CustomSelect from "../../customSelect";
 import {
   LineChart,
   Line,
@@ -11,14 +10,15 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { getGraphDataApi } from "@/components/pages/api/graph";
 import { ArrowDownwardRounded, DownloadRounded } from "@mui/icons-material";
-import TooltipCustom from "../../tooltip";
 import { catchError } from "@/utilities/helpers/functions";
-import CustomMenu from "../../customMenu";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import CustomInput from "../../customTextField";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import CustomSelect from "@/components/common/customSelect";
+import TooltipCustom from "@/components/common/tooltip";
+import CustomMenu from "@/components/common/customMenu";
+import CustomInput from "@/components/common/customTextField";
 
 const Chart = ({ getProjectsApi, title }) => {
   const [data, setData] = useState([]);

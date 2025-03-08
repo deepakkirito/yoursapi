@@ -3,10 +3,10 @@ import { getNotificationApi } from "@/utilities/api/notification";
 import { catchError, isValidJson } from "@/utilities/helpers/functions";
 import { Avatar, Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import CustomTable from "../../customTable";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import CustomInput from "../../customTextField";
+import CustomTable from "@/components/common/customTable";
+import CustomInput from "@/components/common/customTextField";
 
 const Logs = () => {
   const [logs, setLogs] = useState([]);

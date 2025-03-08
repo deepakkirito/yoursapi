@@ -2,7 +2,7 @@
 import { Suspense } from "react";
 import { CircularProgress } from "@mui/material";
 import Statistics from "@/components/pages/project/statistics";
-import Dashboard from "@/components/common/dashboard";
+import Dashboard from "@/components/pages/dashboard";
 
 export default function Page() {
   return (

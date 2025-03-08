@@ -103,6 +103,18 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
       });
   }, [data, orderBy, order, searchTerm, filters]);
 
+  const renderSkeleton = () => {
+    return Array.from({ length: 5 }, (_, index) => (
+      <TableRow key={index}>
+        {columns.map((column) => (
+          <TableCell key={column.id} width={columnWidths[column.id]}>
+            <Skeleton animation="wave" sx={{ bgcolor: "background.default" }} />
+          </TableCell>
+        ))}
+      </TableRow>
+    ));
+  };
+
   return (
     <Paper
       sx={{
@@ -272,48 +284,37 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isLoading ? (
-              <>
-                {columns.map((column) => (
-                  <TableCell key={column.id} width={columnWidths[column.id]}>
-                    <Skeleton
-                      animation="wave"
-                      sx={{ bgcolor: "background.default" }}
-                    />
-                  </TableCell>
-                ))}
-              </>
-            ) : (
-              filteredData
-                .slice(
-                  pagination.page * pagination.rowsPerPage,
-                  pagination.page * pagination.rowsPerPage +
-                    pagination.rowsPerPage
-                )
-                .map((row, index) => (
-                  <TableRow
-                    key={index}
-                    hover
-                    onClick={() => onRowClick(row)}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    {columns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        width={columnWidths[column.id]}
-                      >
-                        {column.cell ? (
-                          column.cell(row)
-                        ) : (
-                          <Typography variant="h7">
-                            {getValue(row, column.id)}
-                          </Typography>
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-            )}
+            {isLoading
+              ? renderSkeleton()
+              : filteredData
+                  .slice(
+                    pagination.page * pagination.rowsPerPage,
+                    pagination.page * pagination.rowsPerPage +
+                      pagination.rowsPerPage
+                  )
+                  .map((row, index) => (
+                    <TableRow
+                      key={index}
+                      hover
+                      onClick={() => onRowClick(row)}
+                      sx={{ cursor: "pointer" }}
+                    >
+                      {columns.map((column) => (
+                        <TableCell
+                          key={column.id}
+                          width={columnWidths[column.id]}
+                        >
+                          {column.cell ? (
+                            column.cell(row)
+                          ) : (
+                            <Typography variant="h7">
+                              {getValue(row, column.id)}
+                            </Typography>
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
           </TableBody>
         </Table>
       </TableContainer>

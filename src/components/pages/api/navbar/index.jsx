@@ -372,7 +372,15 @@ const Navbar = ({
         }}
       >
         <Typography variant="h5">{title}</Typography>
-        <div className="flex gap-1 items-center flex-wrap">
+        <Box
+          className="flex gap-1 items-center"
+          sx={{
+            flexWrap: {
+              xs: "wrap",
+              sm: "nowrap",
+            },
+          }}
+        >
           {openApi && !authData.name && (
             <CustomSelect
               options={apiList}
@@ -434,7 +442,7 @@ const Navbar = ({
           <Button variant="contained" size="small">
             Docs &gt;
           </Button>
-        </div>
+        </Box>
       </Box>
       <Grid2
         container

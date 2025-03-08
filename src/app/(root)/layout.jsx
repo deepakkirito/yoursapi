@@ -47,9 +47,9 @@ export default function Layout({ children }) {
                 width: {
                   xs: sidebarOpen ? "60vw" : "0vw",
                   sm: sidebarOpen ? "40vw" : "0vw",
-                  md: sidebarOpen ? "20%" : "3.5rem",
-                  lg: sidebarOpen ? "15%" : "3.7rem",
-                  xl: sidebarOpen ? "13%" : "3.7rem",
+                  md: sidebarOpen ? "20%" : "4rem",
+                  lg: sidebarOpen ? "15%" : "4rem",
+                  xl: sidebarOpen ? "13%" : "4rem",
                 },
                 position: {
                   xs: "fixed",
@@ -58,6 +58,10 @@ export default function Layout({ children }) {
                 overflow: "hidden",
                 zIndex: "1000",
                 height: "fit-content",
+                marginLeft: {
+                  xs: "0rem",
+                  md: "1rem",
+                },
               }}
             >
               <Sidebar
