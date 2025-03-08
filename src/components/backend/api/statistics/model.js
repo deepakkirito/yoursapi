@@ -20,15 +20,6 @@ const statisticsSchema = new Schema(
             deleteUsed: { type: Number, default: 0 },
           },
         ],
-        authUsed: {
-          name: { type: Schema.Types.ObjectId, ref: "auths" },
-          headUsed: { type: Number, default: 0 },
-          getUsed: { type: Number, default: 0 },
-          postUsed: { type: Number, default: 0 },
-          putUsed: { type: Number, default: 0 },
-          patchUsed: { type: Number, default: 0 },
-          deleteUsed: { type: Number, default: 0 },
-        },
       },
     ],
     createdAt: {

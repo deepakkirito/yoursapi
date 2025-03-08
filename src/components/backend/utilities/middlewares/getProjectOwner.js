@@ -10,7 +10,7 @@ export const getProjectOwner = async ({ userId, projectId }) => {
     );
 
     if (!project) {
-      throw new Error("Project not foundq");
+      throw new Error("Project not found");
     }
 
     const user = project.userId;

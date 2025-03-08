@@ -14,12 +14,16 @@ import Image from "next/image";
 
 const CustomMenu = ({
   icon,
+  iconSize = "small",
   tooltipTitle,
   tooltipPlacement = "right",
   menuPosition = "left",
   options = [],
+  optionsShow = true,
   children,
   getUser = () => {},
+  stopClose = false,
+  disabledIcon = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -34,7 +38,7 @@ const CustomMenu = ({
     <div>
       <Box>
         <TooltipCustom title={tooltipTitle} placement={tooltipPlacement}>
-          <IconButton onClick={handleClick} size="small" sx={{ ml: 2 }}>
+          <IconButton onClick={handleClick} size={iconSize} sx={{ ml: 2 }} disabled={disabledIcon}>
             {icon}
           </IconButton>
         </TooltipCustom>
@@ -44,7 +48,7 @@ const CustomMenu = ({
         id="account-menu"
         open={open}
         onClose={handleClose}
-        onClick={handleClose}
+        onClick={stopClose ? null : handleClose}
         slotProps={{
           paper: {
             elevation: 0,
@@ -66,42 +70,46 @@ const CustomMenu = ({
         })}
       >
         {children}
-        {options?.length ? (
-          options.map((item, index) => (
-            <MenuItem
-              key={index}
-              onClick={() => {
-                handleClose();
-                getUser(item.email);
-                item.onClick && item.onClick();
-              }}
-              className="flex gap-2 items-center py-3"
-              sx={{
-                "&:hover": {
-                  backgroundColor: "background.foreground",
-                },
-              }}
-            >
-              {item.profile && (
-                <Image
-                  src={item.profile}
-                  alt="profile"
-                  width={42}
-                  height={42}
-                  className="rounded-full"
-                />
-              )}
-              {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
-              <Box className="flex flex-col">
-                <Typography variant="h7" fontWeight={"bold"}>
-                  {item.name}
-                </Typography>
-                <Typography variant="h7">{item.email}</Typography>
-              </Box>
-            </MenuItem>
-          ))
-        ) : (
-          <Typography className="px-4 py-1">No users found</Typography>
+        {optionsShow && (
+          <>
+            {options?.length ? (
+              options.map((item, index) => (
+                <MenuItem
+                  key={index}
+                  onClick={() => {
+                    handleClose();
+                    getUser(item.email);
+                    item.onClick && item.onClick();
+                  }}
+                  className="flex gap-2 items-center py-3"
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: "background.foreground",
+                    },
+                  }}
+                >
+                  {item.profile && (
+                    <Image
+                      src={item.profile}
+                      alt="profile"
+                      width={42}
+                      height={42}
+                      className="rounded-full"
+                    />
+                  )}
+                  {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
+                  <Box className="flex flex-col">
+                    <Typography variant="h7" fontWeight={"bold"}>
+                      {item.name}
+                    </Typography>
+                    <Typography variant="h7">{item.email}</Typography>
+                  </Box>
+                </MenuItem>
+              ))
+            ) : (
+              <Typography className="px-4 py-1">No users found</Typography>
+            )}
+          </>
         )}
       </Menu>
     </div>

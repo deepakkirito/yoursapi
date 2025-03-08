@@ -198,7 +198,7 @@ export async function POST(request, { params }) {
 
     const getMessage = () => {
       if (option === "internal") {
-        return `Data migrated from your database to our database ~${String(apiIds)}~`;
+        return `Data migrated from your database to our database ~${String(api)}~`;
       } else if (option === "external") {
         return "Data migrated from our database to your database";
       } else {

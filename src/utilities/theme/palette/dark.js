@@ -30,7 +30,8 @@ export const dark = {
     input: "#e8f0ff",
     active: "#00304f70",
     inactive: "#01476e",
-    hover: "#00304f60"
+    hover: "#00304f60",
+    header: "#000000",
   },
   border: {
     default: "rgba(255 255 255/ 0.4)",

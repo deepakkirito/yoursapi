@@ -230,7 +230,7 @@ export async function POST(request, { params }) {
     logShared({
       userId: ownerUserId,
       projectId: projectId,
-      log: `Data API ${newApi.name} created`,
+      log: `Data API '${newApi.name}' created in project '${ownerProjectName}'`,
       type: "data",
       apiId: newApi._id,
       createdBy: userId,
@@ -316,7 +316,7 @@ export async function PATCH(request, { params }) {
         projectId: apiData.projectId,
         log: `Data API '${apiData.name}' schema updated to ~${getDataToString(
           schema
-        )}~ from ~${getDataToString(apiData.schema ? apiData.schema : {})}~ in project ${ownerProjectName}`,
+        )}~ from ~${getDataToString(apiData.schema ? apiData.schema : {})}~ in project '${ownerProjectName}'`,
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
@@ -345,7 +345,7 @@ export async function PATCH(request, { params }) {
       logShared({
         userId: ownerUserId,
         projectId: apiData.projectId,
-        log: `Data API '${apiData.name}' status ${value ? "enabled" : "disabled"} in project ${ownerProjectName}`,
+        log: `Data API '${apiData.name}' status ${value ? "enabled" : "disabled"} in project '${ownerProjectName}'`,
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
@@ -423,7 +423,7 @@ export async function PATCH(request, { params }) {
       logShared({
         userId: ownerUserId,
         projectId: apiData.projectId,
-        log: `Data API '${apiData.name}' name updated to '${newApiName}' in project ${ownerProjectName}`,
+        log: `Data API '${apiData.name}' name updated to '${newApiName}' in project '${ownerProjectName}'`,
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
@@ -471,7 +471,7 @@ export async function PATCH(request, { params }) {
       logShared({
         userId: ownerUserId,
         projectId: apiData.projectId,
-        log: `Data API '${apiData.name}' data updated in project ${ownerProjectName}`,
+        log: `Data API '${apiData.name}' data updated in project '${ownerProjectName}'`,
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
@@ -562,7 +562,7 @@ export async function DELETE(request, { params }) {
     logShared({
       userId: ownerUserId,
       projectId: apiData.projectId,
-      log: `Data API ${apiData.name} deleted`,
+      log: `Data API '${apiData.name}' deleted in project '${ownerProjectName}'`,
       type: "data",
       apiId: apiData._id,
       createdBy: userId,

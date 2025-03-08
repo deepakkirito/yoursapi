@@ -103,7 +103,7 @@ export async function PATCH(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project ${project.name} permission for ${shareEmail} updated to ${permission}`,
+      log: `Project '${project.name}' permission for ${shareEmail} updated to ${permission}`,
       link: `/projects`,
       linkShared: `/projects/shared`,
     });
@@ -220,7 +220,7 @@ export async function POST(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project ${updateProject.name} shared with ${shareEmail} with permission ${permission}`,
+      log: `Project '${updateProject.name}' shared with ${shareEmail} with permission ${permission}`,
       link: `/projects`,
       linkShared: `/projects/shared`,
     });
@@ -310,7 +310,7 @@ export async function PUT(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project ${updateProject.name} revoked from ${shareEmail}`,
+      log: `Project '${updateProject.name}' revoked from ${shareEmail}`,
       link: `/projects`,
       linkShared: `/projects/shared`,
     });

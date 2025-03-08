@@ -15,7 +15,6 @@ export const checkRequest = async ({
   auth = false,
 }) => {
   try {
-
     await dbConnect();
 
     // Fetch user and project details in parallel
@@ -61,8 +60,6 @@ export const checkRequest = async ({
     const today = new Date().setHours(0, 0, 0, 0);
     const lastResetDate = new Date(user.lastReset).setHours(0, 0, 0, 0);
 
-    console.log(lastResetDate, today, lastResetDate < today);
-    
     if (lastResetDate < today) {
       // Find all projects owned by the user
       const userProjects = await ProjectsModel.find({
@@ -84,26 +81,30 @@ export const checkRequest = async ({
 
           return {
             name: project._id,
-            apiUsed: apis.map((api) => ({
-              name: api._id,
-              headUsed: api.headRequest?.used || 0,
-              getUsed: api.getRequest?.used || 0,
-              postUsed: api.postRequest?.used || 0,
-              putUsed: api.putRequest?.used || 0,
-              patchUsed: api.patchRequest?.used || 0,
-              deleteUsed: api.deleteRequest?.used || 0,
-            })),
-            authUsed: auths
-              ? {
-                  name: auths._id,
-                  headUsed: auths.headRequest?.used || 0,
-                  getUsed: auths.getRequest?.used || 0,
-                  postUsed: auths.postRequest?.used || 0,
-                  putUsed: auths.putRequest?.used || 0,
-                  patchUsed: auths.patchRequest?.used || 0,
-                  deleteUsed: auths.deleteRequest?.used || 0,
-                }
-              : undefined,
+            apiUsed: [
+              ...apis.map((api) => ({
+                name: api._id,
+                headUsed: api.headRequest?.used || 0,
+                getUsed: api.getRequest?.used || 0,
+                postUsed: api.postRequest?.used || 0,
+                putUsed: api.putRequest?.used || 0,
+                patchUsed: api.patchRequest?.used || 0,
+                deleteUsed: api.deleteRequest?.used || 0,
+              })),
+              ...(auths
+                ? [
+                    {
+                      name: auths._id,
+                      headUsed: auths.headRequest?.used || 0,
+                      getUsed: auths.getRequest?.used || 0,
+                      postUsed: auths.postRequest?.used || 0,
+                      putUsed: auths.putRequest?.used || 0,
+                      patchUsed: auths.patchRequest?.used || 0,
+                      deleteUsed: auths.deleteRequest?.used || 0,
+                    },
+                  ]
+                : []),
+            ],
           };
         })
       );

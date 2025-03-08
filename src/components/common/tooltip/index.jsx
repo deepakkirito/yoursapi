@@ -13,7 +13,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
     color: theme.palette.text.primary,
     boxShadow: theme.shadows[1],
     border: "0.1px solid",
-    borderColor: "border.default",
+    borderColor: "divider",
     fontSize: "0.8rem",
   },
   [`& .${tooltipClasses.arrow}`]: {

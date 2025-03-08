@@ -3,6 +3,7 @@ import SessionsModel from "../../api/session/model";
 import { redirectToLogin } from "../middlewares/customResponse";
 import { dbConnect } from "../dbConnect";
 import getRequestDetails from "../middlewares/getRequestDetails";
+import UsersModel from "../../api/users/model";
 
 export async function verifyToken(req) {
   try {
@@ -10,6 +11,8 @@ export async function verifyToken(req) {
 
     const { token, userId, email, name, role, body, username } =
       await getRequestDetails(req);
+
+    const user = await UsersModel.findOne({ _id: userId }).lean();
 
     if (!userId) {
       await SessionsModel.deleteOne({ jwt: token.value });
@@ -19,7 +22,7 @@ export async function verifyToken(req) {
     // Find active user sessions
     const sessions = await SessionsModel.find({
       userId: userId,
-    });
+    }).lean();
 
     if (!sessions.length) {
       return redirectToLogin(req);
@@ -46,7 +49,15 @@ export async function verifyToken(req) {
         await SessionsModel.deleteOne({ jwt: session.jwt });
       }
     }
-    return { token, userId, email, name, role, body, username };
+    return {
+      token,
+      userId,
+      email,
+      name: user.name,
+      role,
+      body,
+      username: user.username,
+    };
   } catch (err) {
     console.error("JWT verification error:", err);
     return redirectToLogin(req);

@@ -145,7 +145,7 @@ export async function POST(request, { params }) {
     await ProjectsModel.findByIdAndUpdate(
       { _id: projectId },
       {
-        $push: {
+        $set: {
           authId: newAuth._id,
         },
         updatedBy: ownerUserId,
@@ -155,7 +155,7 @@ export async function POST(request, { params }) {
 
     logShared({
       userId: ownerUserId,
-      log: `Auth API ${newAuth.name} created`,
+      log: `Auth API '${newAuth.name}' created in project '${ownerProjectName}'`,
       type: "auth",
       projectId: projectId,
       authId: newAuth._id,
@@ -340,7 +340,7 @@ export async function PATCH(request, { params }) {
 
       logShared({
         userId: ownerUserId,
-        log: `Auth API ${authData.name} updated to ${apiName}`,
+        log: `Auth API name '${authData.name}' updated to '${apiName}' in project '${ownerProjectName}'`,
         type: "auth",
         projectId: authData.projectId,
         authId: authData._id,
@@ -388,19 +388,19 @@ export async function PATCH(request, { params }) {
 
       const getMessage = () => {
         if (authType) {
-          return `Auth API ${newAuthapi.name} auth type updated to ${authType} from ${newAuthapi.authType} in project ${ownerProjectName}`;
+          return `Auth API '${newAuthapi.name}' auth type updated to ${authType} from ${newAuthapi.authType} in project '${ownerProjectName}'`;
         }
         if (schema) {
-          return `Auth API ${newAuthapi.name} schema updated to ~${String(schema)}~ from ~${String(newAuthapi.schema)}~ in project ${ownerProjectName}`;
+          return `Auth API '${newAuthapi.name}' schema updated to ~${String(schema)}~ from ~${String(newAuthapi.schema)}~ in project '${ownerProjectName}'`;
         }
         if (tokenAge) {
-          return `Auth API ${newAuthapi.name} token age updated to ${tokenAge} from ${newAuthapi.tokenAge} in project ${ownerProjectName}`;
+          return `Auth API '${newAuthapi.name}' token age updated to ${tokenAge} from ${newAuthapi.tokenAge} in project '${ownerProjectName}'`;
         }
         if (reqType && reqValue !== undefined) {
-          return `Auth API ${newAuthapi.name} request type ${reqType} status updated to ${reqValue} from ${newAuthapi[reqType].active} in project ${ownerProjectName}`;
+          return `Auth API '${newAuthapi.name}' request type ${reqType} status updated to ${reqValue ? "enabled" : "disabled"} in project '${ownerProjectName}'`;
         }
         if (captcha !== undefined) {
-          return `Auth API ${newAuthapi.name} captcha updated to ${captcha} from ${newAuthapi.captcha} in project ${ownerProjectName}`;
+          return `Auth API '${newAuthapi.name}' captcha updated to ${captcha} from ${newAuthapi.captcha} in project '${ownerProjectName}'`;
         }
       };
 
@@ -492,8 +492,8 @@ export async function DELETE(request, { params }) {
     await ProjectsModel.findByIdAndUpdate(
       { _id: authData.projectId },
       {
-        $pull: {
-          authIds: authId,
+        $set: {
+          authId: null,
         },
         updatedBy: userId,
       },
@@ -503,7 +503,7 @@ export async function DELETE(request, { params }) {
     logShared({
       userId: ownerUserId,
       projectId: authData.projectId,
-      log: `Auth API ${authData.name} deleted`,
+      log: `Auth API '${authData.name}' deleted`,
       type: "auth",
       authId: authData._id,
       createdBy: userId,

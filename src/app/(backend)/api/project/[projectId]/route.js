@@ -109,7 +109,7 @@ export async function PUT(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project ${project.name} restored`,
+      log: `Project '${project.name}' restored`,
       link: `/projects`,
       linkShared: `/projects/shared`,
     });
@@ -241,7 +241,7 @@ export async function DELETE(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project ${project.name} deleted`,
+      log: `Project '${project.name}' deleted`,
       link: `/projects/inactive`,
       linkShared: `/projects/shared`,
     });
@@ -324,7 +324,7 @@ export async function PATCH(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project ${project.name} name updated to ${projectName}`,
+      log: `Project '${ownerProjectName}' name updated to '${projectName}'`,
       link: `/projects`,
       linkShared: `/projects/shared`,
     });

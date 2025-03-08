@@ -10,6 +10,7 @@ import {
 import { CreatePopupContext } from "@/utilities/context/popup";
 import {
   Add,
+  AddRounded,
   ArrowDownwardRounded,
   ContentCopyRounded,
   DeleteRounded,
@@ -339,6 +340,25 @@ const Navbar = ({
       });
   };
 
+  const renderCopyLink = () => {
+    return (
+      <TooltipCustom title="Copy Link" placement="top">
+        <IconButton
+          onClick={() => {
+            navigator.clipboard.writeText(
+              `${window?.location.origin}/v1/${username}/${project}/${auth?.name ? authData.name : apiData.label}`
+            );
+            showNotification({
+              content: "Link copied to clipboard",
+            });
+          }}
+        >
+          <ContentCopyRounded color="secondary" />
+        </IconButton>
+      </TooltipCustom>
+    );
+  };
+
   return (
     <>
       <Box
@@ -352,17 +372,65 @@ const Navbar = ({
         }}
       >
         <Typography variant="h5">{title}</Typography>
-        <div className="flex gap-2 items-center">
-          <Typography variant="h7">{!openApi ? "Hide" : "Show"} api</Typography>
-          <IconButton onClick={() => setOpenApi(!openApi)}>
-            <ArrowDownwardRounded
-              color="secondary"
-              sx={{
-                transform: openApi ? "rotate(-180deg)" : "rotate(0deg)",
-                transition: "all 0.5s",
+        <div className="flex gap-1 items-center">
+          {openApi && !authData.name && (
+            <CustomSelect
+              options={apiList}
+              value={apiData?.value}
+              none={false}
+              labelTop="Api List"
+              handleChange={(event) => {
+                const name = apiList.find(
+                  (item) => item.value === event.target.value
+                )?.label;
+                event.target.value &&
+                  setApiData({
+                    value: event.target.value,
+                    label: name,
+                  });
+                event.target.value && setApiName(name);
               }}
             />
-          </IconButton>
+          )}
+          {authData.name}
+          {openApi && renderCopyLink()}
+          {!authData.name && (
+            <TooltipCustom title="Create New Api" placement="top">
+              <IconButton
+                onClick={() =>
+                  setPopup({
+                    ...popup,
+                    open: true,
+                    title: "Create New Api",
+                    element: (
+                      <AddProject
+                        project={project}
+                        projectId={projectId}
+                        handleCreateApi={handleCreateApi}
+                      />
+                    ),
+                  })
+                }
+              >
+                <AddRounded color="secondary" />
+              </IconButton>
+            </TooltipCustom>
+          )}
+          {/* <Typography variant="h7">{!openApi ? "Hide" : "Show"} api</Typography> */}
+          <TooltipCustom
+            title={!openApi ? "Hide api" : "Show api"}
+            placement="top"
+          >
+            <IconButton onClick={() => setOpenApi(!openApi)}>
+              <ArrowDownwardRounded
+                color="secondary"
+                sx={{
+                  transform: openApi ? "rotate(-180deg)" : "rotate(0deg)",
+                  transition: "all 0.5s",
+                }}
+              />
+            </IconButton>
+          </TooltipCustom>
           <Button variant="contained" size="small">
             Docs &gt;
           </Button>
@@ -550,7 +618,7 @@ const Navbar = ({
                 <CustomInput
                   fullWidth
                   value={auth?.name ? authData.name : apiName}
-                  label={auth?.name ? "Auth api" : "Api"}
+                  label={auth?.name ? "Auth api" : "Data api"}
                   InputLabelProps={{ shrink: true }}
                   disabled={saveApiLoading}
                   inputProps={{
@@ -600,20 +668,7 @@ const Navbar = ({
                   }}
                 />
               )}
-              <TooltipCustom title="Copy Link">
-                <IconButton
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `${window?.location.origin}/v1/${username}/${project}/${apiData.label}`
-                    );
-                    showNotification({
-                      content: "Link copied to clipboard",
-                    });
-                  }}
-                >
-                  <ContentCopyRounded color="secondary" />
-                </IconButton>
-              </TooltipCustom>
+              {renderCopyLink()}
             </Box>
           </Grid2>
         )}

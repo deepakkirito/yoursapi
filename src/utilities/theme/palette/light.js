@@ -30,6 +30,7 @@ export const light = {
     active: "#acf1ff",
     inactive: "#41bce740",
     hover: "#acf1ff80",
+    header: "#ffffff",
   },
   border: {
     default: "rgba(0 0 0/ 0.4)",

@@ -5,6 +5,7 @@ import {
   Button,
   FormControl,
   InputLabel,
+  ListSubheader,
   MenuItem,
   Select,
   styled,
@@ -17,7 +18,7 @@ const MenuItemWrapper = styled(MenuItem)(({ theme }) => ({
     backgroundColor: theme.palette.background.hover,
   },
   "&.Mui-selected": {
-    backgroundColor: theme.palette.background.defaultSolid,
+    backgroundColor: theme.palette.background.defaultSolid + " !important",
     ":hover": {
       background: theme.palette.background.defaultSolid,
     },
@@ -26,6 +27,7 @@ const MenuItemWrapper = styled(MenuItem)(({ theme }) => ({
 
 const CustomSelect = ({
   options = [],
+  grouped = false, // Enable grouping
   label = "",
   value = "",
   disabled = false,
@@ -38,6 +40,8 @@ const CustomSelect = ({
   size = "small",
   fullWidth = true,
   buttonDisable = false,
+  multiple = false,
+  maxWidth = "200px",
   ...props
 }) => {
   return (
@@ -52,14 +56,43 @@ const CustomSelect = ({
       <FormControl fullWidth={fullWidth} sx={{ minWidth: 120 }} size={size}>
         {labelTop && <InputLabel>{labelTop}</InputLabel>}
         <Select
+          multiple={multiple}
           value={value}
-          onChange={handleChange}
+          onChange={(event) => {
+            multiple
+              ? handleChange(event.target.value.filter((item) => item))
+              : handleChange(event);
+          }}
           label={labelTop}
           disabled={disabled}
+          renderValue={(selected) =>
+            multiple
+              ? selected
+                  .map(
+                    (val) =>
+                      (grouped
+                        ? options.flatMap((group) => group.options) // Flatten grouped options
+                        : options
+                      ).find((opt) => opt.value === val)?.label
+                  )
+                  .join(", ")
+              : (grouped
+                  ? options.flatMap((group) => group.options)
+                  : options
+                ).find((opt) => opt.value === selected)?.label
+          }
           sx={{
             ...props.sx,
+            maxWidth: multiple ? maxWidth : "100%",
             "& .MuiOutlinedInput-notchedOutline": {
               borderColor: "divider",
+            },
+            "& .MuiSelect-select": {
+              display: "block",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: multiple ? maxWidth : "100%",
             },
           }}
           MenuProps={{
@@ -83,17 +116,45 @@ const CustomSelect = ({
               <em>None</em>
             </MenuItemWrapper>
           )}
-          {options.length &&
+          {grouped ? (
+            options?.length ? (
+              options.map((group, groupIndex) => [
+                <ListSubheader
+                  key={`group-${groupIndex}`}
+                  sx={{
+                    backgroundColor: "background.header",
+                    color: "text.primary",
+                    fontWeight: "bold",
+                    border: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  {group.label}
+                </ListSubheader>,
+                group.options?.length ? (
+                  group.options.map((item, index) => (
+                    <MenuItemWrapper key={index} value={item.value}>
+                      {item.label}
+                    </MenuItemWrapper>
+                  ))
+                ) : (
+                  <MenuItemWrapper value="">
+                    <em>None</em>
+                  </MenuItemWrapper>
+                ),
+              ])
+            ) : (
+              <MenuItemWrapper value="">
+                <em>None</em>
+              </MenuItemWrapper>
+            )
+          ) : (
             options.map((item, index) => (
-              <MenuItemWrapper
-                key={index}
-                value={item.value}
-                name={item.label}
-                disabled={item?.disabled}
-              >
+              <MenuItemWrapper key={index} value={item.value}>
                 {item.label}
               </MenuItemWrapper>
-            ))}
+            ))
+          )}
           {buttonLabel && (
             <div className="px-4 py-2 cursor-pointer">
               <Button
