@@ -9,6 +9,7 @@ import {
   migrateProjects,
 } from "@/components/backend/utilities/middlewares/mongoose";
 import { decrypt } from "@/utilities/helpers/encryption";
+import { getDataToString } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
@@ -198,7 +199,7 @@ export async function POST(request, { params }) {
 
     const getMessage = () => {
       if (option === "internal") {
-        return `Data migrated from your database to our database ~${String(api)}~`;
+        return `Data migrated from your database to our database ~${getDataToString(api)}~`;
       } else if (option === "external") {
         return "Data migrated from our database to your database";
       } else {
