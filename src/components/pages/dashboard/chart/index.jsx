@@ -13,6 +13,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import { getGraphDataApi, getGraphLiveDataApi } from "@/utilities/api/graphApi";
@@ -32,6 +33,15 @@ import CustomMenu from "@/components/common/customMenu";
 import CustomInput from "@/components/common/customTextField";
 import LiveTvTwoToneIcon from "@mui/icons-material/LiveTvTwoTone";
 import LiveTvRoundedIcon from "@mui/icons-material/LiveTvRounded";
+import { graphColors } from "@/components/assets/constants/color";
+
+const typeOptions = [
+  { label: "Get", value: "get" },
+  { label: "Post", value: "post" },
+  { label: "Put", value: "put" },
+  { label: "Patch", value: "patch" },
+  { label: "Delete", value: "delete" },
+];
 
 const Chart = ({ getProjectsApi, title }) => {
   const [data, setData] = useState([]);
@@ -48,10 +58,29 @@ const Chart = ({ getProjectsApi, title }) => {
   const [hide, setHide] = useLocalStorage(title, false);
   const [live, setLive] = useLocalStorage(title + "live", false);
   const [refresh, setRefresh] = useState(false);
+  const [splitGraph, setSplitGraph] = useState("project");
+  const [updatedSplit, setUpdatedSplit] = useState("");
+  const [activeLabel, setActiveLabel] = useState("");
+  const [hardActiveLabel, setHardActiveLabel] = useState({
+    label: null,
+    color: null,
+  });
+
+  useEffect(() => {
+    !loading && setUpdatedSplit(splitGraph);
+  }, [loading]);
+
+  const totalApisOptions = useMemo(() => {
+    let total = [];
+    totalProjects.forEach((item) => {
+      total.push(...item.apis);
+    });
+    return total;
+  }, [totalProjects]);
 
   const apisOptions = useMemo(() => {
     // let apiArray = [];
-    project.length && setApi([]);
+    !project?.length && setApi([]);
     const options = totalProjects
       .filter((item) => project.includes(item._id)) // Only include relevant projects
       .map((item) => ({
@@ -99,7 +128,7 @@ const Chart = ({ getProjectsApi, title }) => {
 
   const getLiveGraphData = async () => {
     setLoading(true);
-    getGraphLiveDataApi(type, project, api)
+    getGraphLiveDataApi(type, project, api, splitGraph)
       .then((res) => {
         setData(res.data);
       })
@@ -152,7 +181,7 @@ const Chart = ({ getProjectsApi, title }) => {
 
   useEffect(() => {
     live ? getLiveGraphData() : getGraphData();
-  }, [period, type, project, api]);
+  }, [period, type, project, api, splitGraph]);
 
   const downloadCSV = (data) => {
     const headers = [
@@ -179,6 +208,93 @@ const Chart = ({ getProjectsApi, title }) => {
     link.click();
     document.body.removeChild(link);
   };
+
+  const customLabel = ({ x, y, value }) => (
+    <text
+      x={x}
+      y={y}
+      dy={-10}
+      fill={palette.text.primary}
+      fontSize={12}
+      textAnchor="middle"
+    >
+      {value}
+    </text>
+  );
+
+  const getLines = useMemo(() => {
+    if (hardActiveLabel?.label) {
+      return (
+        <Line
+          type="monotone"
+          dataKey={hardActiveLabel.label}
+          strokeWidth={3}
+          stroke={hardActiveLabel.color}
+          label={customLabel}
+        />
+      );
+    }
+    if (updatedSplit === "project") {
+      return projectsOptions.map((item, index) => (
+        <Line
+          type="monotone"
+          dataKey={item.label}
+          strokeWidth={activeLabel === item.label ? 3 : 1}
+          stroke={
+            graphColors[palette.mode === "light" ? "lightMode" : "darkMode"][
+              index
+            ]
+          }
+          label={activeLabel === item.label ? customLabel : null}
+        />
+      ));
+    } else if (updatedSplit === "api") {
+      return totalApisOptions.map((item, index) => (
+        <Line
+          type="monotone"
+          dataKey={item.name}
+          strokeWidth={activeLabel === item.name ? 3 : 1}
+          stroke={
+            graphColors[palette.mode === "light" ? "lightMode" : "darkMode"][
+              index
+            ]
+          }
+          label={activeLabel === item.name ? customLabel : null}
+        />
+      ));
+    } else if (updatedSplit === "type") {
+      return typeOptions.map((item, index) => (
+        <Line
+          type="monotone"
+          dataKey={item.value + "Request"}
+          strokeWidth={activeLabel === item.value + "Request" ? 3 : 1}
+          stroke={
+            graphColors[palette.mode === "light" ? "lightMode" : "darkMode"][
+              index
+            ]
+          }
+          label={activeLabel === item.value + "Request" ? customLabel : null}
+        />
+      ));
+    } else {
+      return (
+        <Line
+          type="monotone"
+          dataKey="totalUsed"
+          strokeWidth={activeLabel === "totalUsed" ? 3 : 1}
+          stroke={palette.text.primary}
+          label={activeLabel === "totalUsed" ? customLabel : null}
+        />
+      );
+    }
+  }, [
+    updatedSplit,
+    totalApisOptions,
+    projectsOptions,
+    palette,
+    activeLabel,
+    hardActiveLabel,
+  ]);
 
   return (
     <Box>
@@ -291,31 +407,40 @@ const Chart = ({ getProjectsApi, title }) => {
           <CustomSelect
             labelTop="Request Type"
             multiple
-            options={[
-              { label: "Get", value: "get" },
-              { label: "Post", value: "post" },
-              { label: "Put", value: "put" },
-              { label: "Patch", value: "patch" },
-              { label: "Delete", value: "delete" },
-            ]}
+            options={typeOptions}
             value={type}
             none={false}
             disabled={hide}
             handleChange={(value) => setType(value)}
           />
-          <CustomSelect
-            labelTop="Usage Period"
-            options={[
-              { label: "Last 7 days", value: "7" },
-              { label: "Last 30 days", value: "30" },
-              { label: "Last 90 days", value: "90" },
-              { label: "Last year", value: "365" },
-            ]}
-            value={period}
-            none={false}
-            disabled={dateFrom || dateTo || hide}
-            handleChange={(event) => setPeriod(event.target.value)}
-          />
+          {!live && (
+            <CustomSelect
+              labelTop="Usage Period"
+              options={[
+                { label: "Last 7 days", value: "7" },
+                { label: "Last 30 days", value: "30" },
+                { label: "Last 90 days", value: "90" },
+                { label: "Last year", value: "365" },
+              ]}
+              value={period}
+              none={false}
+              disabled={dateFrom || dateTo || hide}
+              handleChange={(event) => setPeriod(event.target.value)}
+            />
+          )}
+          {live && (
+            <CustomSelect
+              labelTop="Split Graph by"
+              options={[
+                { label: "Project", value: "project" },
+                { label: "Api", value: "api" },
+                { label: "Request Type", value: "type" },
+              ]}
+              value={splitGraph}
+              disabled={hide}
+              handleChange={(event) => setSplitGraph(event.target.value)}
+            />
+          )}
           <CustomMenu
             icon={<CalendarMonthIcon />}
             iconSize="medium"
@@ -397,11 +522,7 @@ const Chart = ({ getProjectsApi, title }) => {
             }}
           >
             <LineChart data={data}>
-              <Line
-                type="monotone"
-                dataKey="totalUsed"
-                stroke={palette.text.primary}
-              />
+              {getLines}
               <XAxis
                 dataKey="createdAt"
                 tick={{ fill: palette.text.primary }}
@@ -414,7 +535,7 @@ const Chart = ({ getProjectsApi, title }) => {
                 axisLine={{ stroke: palette.text.primary }}
                 label={{
                   value: "Requests used",
-                  angle: -90,
+                  angle: -90, // Rotate the label by 90 degrees
                   position: "insideLeft",
                   fill: palette.text.primary,
                 }}
@@ -427,6 +548,28 @@ const Chart = ({ getProjectsApi, title }) => {
                 }}
                 itemStyle={{ color: palette.text.primary }}
                 cursor={{ stroke: "transparent", strokeWidth: 1 }}
+                formatter={(value, name) => [
+                  value > 0 ? `${value} requests` : "No requests",
+                  name === "totalUsed" ? "Total Used" : name,
+                ]}
+              />
+              <Legend
+                verticalAlign="bottom"
+                align="center"
+                onMouseOver={(event) => setActiveLabel(event.dataKey)}
+                onMouseOut={() => setActiveLabel("")}
+                onClick={(event) =>
+                  setHardActiveLabel({
+                    label:
+                      event.dataKey === hardActiveLabel.label
+                        ? null
+                        : event.dataKey,
+                    color:
+                      event.dataKey === hardActiveLabel.label
+                        ? null
+                        : event.color,
+                  })
+                }
               />
             </LineChart>
           </ResponsiveContainer>

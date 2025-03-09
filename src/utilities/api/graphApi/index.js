@@ -24,9 +24,16 @@ export const getGraphDataApi = async (
   );
 };
 
-export const getGraphLiveDataApi = async (type, project, api) => {
+export const getGraphLiveDataApi = async (type, project, api, splitGraph) => {
   return axiosGetSelf(
-    "graph/live?type=" + type + "&project=" + project + "&api=" + api
+    "graph/live?type=" +
+      type +
+      "&project=" +
+      project +
+      "&api=" +
+      api +
+      "&split=" +
+      splitGraph
   );
 };
 
