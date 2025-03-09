@@ -24,6 +24,12 @@ export const getGraphDataApi = async (
   );
 };
 
+export const getGraphLiveDataApi = async (type, project, api) => {
+  return axiosGetSelf(
+    "graph/live?type=" + type + "&project=" + project + "&api=" + api
+  );
+};
+
 export const getGraphProjectApi = async () => {
   return axiosGetSelf("graph/project");
 };

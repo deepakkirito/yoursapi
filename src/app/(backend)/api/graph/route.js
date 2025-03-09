@@ -2,48 +2,34 @@ import StatisticsModel from "@/components/backend/api/statistics/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { getDate } from "@/utilities/helpers/functions";
-import ProjectsModel from "@/components/backend/api/project/model";
-import UsersModel from "@/components/backend/api/users/model";
-import ApisModel from "@/components/backend/api/api/model";
 
 export async function GET(request) {
   try {
+    // Verify user token and extract userId
     const { userId } = await verifyToken(request);
-    const { searchParams } = new URL(request.url);
 
+    // Extract query parameters
+    const { searchParams } = new URL(request.url);
     const period = parseInt(searchParams.get("period")) || 7;
     const dateFrom = searchParams.get("dateFrom");
     const dateTo = searchParams.get("dateTo");
+    const type = searchParams.get("type")?.split(",") || [];
+    const projectIds = searchParams.get("project")?.split(",") || [];
+    const apiIds = searchParams.get("api")?.split(",") || [];
 
-    // Extract filters
-    const type = searchParams.get("type")
-      ? searchParams.get("type").split(",")
-      : [];
-    const projectIds = searchParams.get("project")
-      ? searchParams.get("project").split(",")
-      : [];
-    const apiIds = searchParams.get("api")
-      ? searchParams.get("api").split(",")
-      : [];
-
-    // Convert valid MongoDB ObjectId strings
-    const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
-    const validProjectIds = projectIds
-      .filter(isValidObjectId)
-      .map((id) => new mongoose.Types.ObjectId(id));
-    const validApiIds = apiIds
-      .filter(isValidObjectId)
-      .map((id) => new mongoose.Types.ObjectId(id));
+    // Validate and convert ObjectIds
+    const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+    const validProjectIds = projectIds.filter(isValidObjectId).map((id) => new mongoose.Types.ObjectId(id));
+    const validApiIds = apiIds.filter(isValidObjectId).map((id) => new mongoose.Types.ObjectId(id));
 
     // Get today's date at midnight
     const test = new Date();
-    const today = new Date(test);
-    today.setDate(today.getDate() + 1);
+    const today = new Date(test); // Get today's date at midnight
+    today.setDate(today.getDate() + 1); // Add 1 day
     today.setHours(0, 0, 0, 0);
 
+    // Determine start and end dates
     let startDate, endDate;
-
     if (dateFrom && dateTo) {
       const fromDate = new Date(dateFrom);
       const toDate = new Date(dateTo);
@@ -85,14 +71,10 @@ export async function GET(request) {
       endDate = today;
     }
 
-    // Ensure that startDate and endDate are ISO formatted
-    const isoStartDate = new Date(startDate).toISOString();
-    const isoEndDate = new Date(endDate).toISOString();
-
     // Base match query
-    let matchQuery = {
+    const matchQuery = {
       userId,
-      createdAt: { $gte: new Date(isoStartDate), $lte: new Date(isoEndDate) },
+      createdAt: { $gte: startDate, $lte: endDate },
     };
 
     // Aggregation pipeline
@@ -181,9 +163,11 @@ export async function GET(request) {
       },
     ];
 
+    // Execute the aggregation pipeline
     let data = await StatisticsModel.aggregate(pipeline);
 
-    let fullData = await StatisticsModel.find(matchQuery, {
+    // Fetch full data for detailed breakdown
+    const fullData = await StatisticsModel.find(matchQuery, {
       createdAt: 1,
       totalUsed: 1,
       projectsUsed: 1,
@@ -193,47 +177,44 @@ export async function GET(request) {
       .populate("projectsUsed.apiUsed.name", "name")
       .lean();
 
-    const updatedData = fullData.map((item) => {
-      return {
-        createdAt: new Date(item.createdAt)
-          .toISOString()
-          .replace("T", " ")
-          .split(".")[0]
-          .replace(",", " "),
-        projectTotalUsed: item.totalUsed,
-        projectsUsed: item.projectsUsed
-          .filter((project) =>
-            projectIds.includes(project.name?._id.toString())
-          ) // Filter projects
-          .map((project) => ({
-            name: project.name.name,
-            apiUsed: project.apiUsed
-              .filter((api) => apiIds.includes(api.name?._id.toString())) // Filter APIs
-              .map((api) => ({
-                name: api.name.name,
-                headUsed: api.headUsed || 0,
-                getUsed: api.getUsed || 0,
-                postUsed: api.postUsed || 0,
-                putUsed: api.putUsed || 0,
-                patchUsed: api.patchUsed || 0,
-                deleteUsed: api.deleteUsed || 0,
-                apiTotalUsed:
-                  api.headUsed +
-                  api.getUsed +
-                  api.postUsed +
-                  api.putUsed +
-                  api.patchUsed +
-                  api.deleteUsed,
-              })),
-          })),
-      };
-    });
+    // Format full data
+    const updatedData = fullData.map((item) => ({
+      createdAt: new Date(item.createdAt)
+        .toISOString()
+        .replace("T", " ")
+        .split(".")[0]
+        .replace(",", " "),
+      projectTotalUsed: item.totalUsed,
+      projectsUsed: item.projectsUsed
+        .filter((project) => projectIds.includes(project.name?._id.toString())) // Filter projects
+        .map((project) => ({
+          name: project.name.name,
+          apiUsed: project.apiUsed
+            .filter((api) => apiIds.includes(api.name?._id.toString())) // Filter APIs
+            .map((api) => ({
+              name: api.name.name,
+              headUsed: api.headUsed || 0,
+              getUsed: api.getUsed || 0,
+              postUsed: api.postUsed || 0,
+              putUsed: api.putUsed || 0,
+              patchUsed: api.patchUsed || 0,
+              deleteUsed: api.deleteUsed || 0,
+              apiTotalUsed:
+                api.headUsed +
+                api.getUsed +
+                api.postUsed +
+                api.putUsed +
+                api.patchUsed +
+                api.deleteUsed,
+            })),
+        })),
+    }));
 
-    // Fill missing dates correctly
+    // Fill missing dates
     if (data.length > 0) {
       const firstDate = new Date(data[0].createdAt);
       const lastDate = new Date(data[data.length - 1].createdAt);
-      let completeData = [];
+      const completeData = [];
       let currentDate = new Date(firstDate);
 
       while (currentDate <= lastDate) {
@@ -253,7 +234,7 @@ export async function GET(request) {
     }
 
     return NextResponse.json(
-      { data: data, fullData: updatedData },
+      { data, fullData: updatedData },
       { status: 200 }
     );
   } catch (error) {

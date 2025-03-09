@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   getNotificationApi,
   readNotificationApi,
-} from "@/utilities/api/notification";
+} from "@/utilities/api/notificationApi";
 import Image from "next/image";
 import {
   catchError,

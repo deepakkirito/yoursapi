@@ -1,4 +1,4 @@
-import { getGraphProjectApi } from "@/components/pages/api/graph";
+import { getGraphProjectApi } from "@/utilities/api/graphApi";
 import Chart from "../chart";
 
 const YourUsage = () => {

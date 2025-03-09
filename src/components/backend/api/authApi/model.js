@@ -103,6 +103,25 @@ const authsSchema = new Schema(
       type: Number,
       default: 24,
     },
+    log: [
+      {
+        type: {
+          type: String,
+          enum: [
+            "headRequest",
+            "getRequest",
+            "postRequest",
+            "putRequest",
+            "patchRequest",
+            "deleteRequest",
+          ],
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
@@ -111,6 +130,7 @@ const authsSchema = new Schema(
 
 authsSchema.index({ name: "text", userId: 1 });
 
-const AuthsModel = mongoose.models.auths || mongoose.model("auths", authsSchema);
+const AuthsModel =
+  mongoose.models.auths || mongoose.model("auths", authsSchema);
 
 export default AuthsModel;

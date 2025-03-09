@@ -41,7 +41,7 @@ export const checkRequest = async ({
         { message: "Project is inactive" },
         { status: 404 }
       );
-    }    
+    }
 
     if (!project) {
       return NextResponse.json(
@@ -103,6 +103,7 @@ export const checkRequest = async ({
                 putUsed: api.putRequest?.used || 0,
                 patchUsed: api.patchRequest?.used || 0,
                 deleteUsed: api.deleteRequest?.used || 0,
+                logs: api.logs || [],
               })),
               ...(auths
                 ? [
@@ -114,6 +115,7 @@ export const checkRequest = async ({
                       putUsed: auths.putRequest?.used || 0,
                       patchUsed: auths.patchRequest?.used || 0,
                       deleteUsed: auths.deleteRequest?.used || 0,
+                      logs: auths.logs || [],
                     },
                   ]
                 : []),
@@ -145,6 +147,7 @@ export const checkRequest = async ({
             "deleteRequest.used": 0,
             "headRequest.used": 0,
             "patchRequest.used": 0,
+            logs: [],
           },
         }
       );
@@ -159,6 +162,7 @@ export const checkRequest = async ({
             "deleteRequest.used": 0,
             "headRequest.used": 0,
             "patchRequest.used": 0,
+            logs: [],
           },
         }
       );
@@ -195,23 +199,26 @@ export const checkRequest = async ({
 
     // ✅ Increment user & API usage in parallel
     const updatePromises = [
-      UsersModel.updateOne({ _id: user._id }, { $inc: { usedReq: 1 } }),
+      UsersModel.findByIdAndUpdate({ _id: user._id }, { $inc: { usedReq: 1 } }),
     ];
+
+    const log = { type: reqType, createdAt: new Date() };
+    console.log({ log });
 
     if (apiData) {
       updatePromises.push(
-        ApisModel.updateOne(
+        ApisModel.findByIdAndUpdate(
           { _id: api._id },
-          { $inc: { [`${reqType}.used`]: 1 } }
+          { $inc: { [`${reqType}.used`]: 1 }, $push: { logs: log } }
         )
       );
     }
 
     if (authData) {
       updatePromises.push(
-        AuthsModel.updateOne(
+        AuthsModel.findByIdAndUpdate(
           { _id: auth._id },
-          { $inc: { [`${reqType}.used`]: 1 } }
+          { $inc: { [`${reqType}.used`]: 1 }, $push: { logs: log } }
         )
       );
     }

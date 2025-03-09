@@ -1,4 +1,4 @@
-import { Box, Grid2, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, CircularProgress, Grid2, IconButton, Typography, useTheme } from "@mui/material";
 import {
   LineChart,
   Line,
@@ -8,8 +8,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
-import { getGraphDataApi } from "@/components/pages/api/graph";
-import { ArrowDownwardRounded, DownloadRounded } from "@mui/icons-material";
+import { getGraphDataApi, getGraphLiveDataApi } from "@/utilities/api/graphApi";
+import {
+  ArrowDownwardRounded,
+  DownloadRounded,
+  RefreshOutlined,
+} from "@mui/icons-material";
 import { catchError } from "@/utilities/helpers/functions";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
@@ -19,6 +23,8 @@ import CustomSelect from "@/components/common/customSelect";
 import TooltipCustom from "@/components/common/tooltip";
 import CustomMenu from "@/components/common/customMenu";
 import CustomInput from "@/components/common/customTextField";
+import LiveTvTwoToneIcon from "@mui/icons-material/LiveTvTwoTone";
+import LiveTvRoundedIcon from "@mui/icons-material/LiveTvRounded";
 
 const Chart = ({ getProjectsApi, title }) => {
   const [data, setData] = useState([]);
@@ -33,6 +39,8 @@ const Chart = ({ getProjectsApi, title }) => {
   const [dateTo, setDateTo] = useState("");
   const [projectsUsed, setProjectsUsed] = useState([]);
   const [hide, setHide] = useLocalStorage(title, false);
+  const [live, setLive] = useLocalStorage(title + "live", false);
+  const [refresh, setRefresh] = useState(false);
 
   const apisOptions = useMemo(() => {
     let apiArray = [];
@@ -81,9 +89,40 @@ const Chart = ({ getProjectsApi, title }) => {
       });
   };
 
+  const getLiveGraphData = async () => {
+    setLoading(true);
+    getGraphLiveDataApi(type, project, api)
+      .then((res) => {
+        setData(res.data);
+      })
+      .catch((err) => {
+        catchError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     getGraphProjects();
   }, []);
+
+  useEffect(() => {
+    setRefresh(true);
+    setTimeout(() => setRefresh(false), 500);
+
+    // Refresh data every 30 seconds
+    const interval = setInterval(() => {
+      setRefresh(true);
+      setTimeout(() => setRefresh(false), 500);
+    }, 30000);
+
+    return () => clearInterval(interval); // Cleanup on unmount or `live` change
+  }, [live]);
+
+  useEffect(() => {
+    refresh && (live ? getLiveGraphData() : getGraphData());
+  }, [refresh]);
 
   const getGraphProjects = async () => {
     setLoading(true);
@@ -100,7 +139,7 @@ const Chart = ({ getProjectsApi, title }) => {
   };
 
   useEffect(() => {
-    getGraphData();
+    live ? getLiveGraphData() : getGraphData();
   }, [period, type, project, api]);
 
   const downloadCSV = (data) => {
@@ -141,6 +180,9 @@ const Chart = ({ getProjectsApi, title }) => {
           borderRadius: "0.5rem",
           padding: "1rem",
           backgroundColor: "background.default",
+          position: "sticky",
+          top: "0",
+          zIndex: "5",
         }}
       >
         <Grid2 item size={{ xs: 4 }} className="flex items-center gap-2">
@@ -153,6 +195,37 @@ const Chart = ({ getProjectsApi, title }) => {
           >
             {title}
           </Typography>
+          <TooltipCustom title={live ? "Live on" : "Live off"} placement="top">
+            <IconButton
+              onClick={() => {
+                setLive(!live);
+              }}
+            >
+              {live ? (
+                <LiveTvTwoToneIcon color="secondary" />
+              ) : (
+                <LiveTvRoundedIcon color="secondary" />
+              )}
+            </IconButton>
+          </TooltipCustom>
+          <TooltipCustom title="Auto refresh every 30 seconds" placement="top">
+            <IconButton
+              onClick={() => {
+                setRefresh(true);
+                setTimeout(() => {
+                  setRefresh(false);
+                }, 500);
+              }}
+            >
+              <RefreshOutlined
+                color="secondary"
+                sx={{
+                  transform: refresh ? "rotate(360deg)" : "rotate(0deg)",
+                  transition: "all 0.5s",
+                }}
+              />
+            </IconButton>
+          </TooltipCustom>
           <TooltipCustom title={!hide ? "Hide" : "Show"} placement="top">
             <IconButton onClick={() => setHide(!hide)}>
               <ArrowDownwardRounded
@@ -164,6 +237,7 @@ const Chart = ({ getProjectsApi, title }) => {
               />
             </IconButton>
           </TooltipCustom>
+          {loading && <CircularProgress color="secondary" size={20} />}
         </Grid2>
         <Grid2
           item
@@ -294,7 +368,13 @@ const Chart = ({ getProjectsApi, title }) => {
       <br />
       {data?.length > 0 ? (
         <div className="w-full h-full pl-4 pr-8">
-          <ResponsiveContainer width="100%" height={!hide ? 300 : 0}>
+          <ResponsiveContainer
+            width="100%"
+            height={!hide ? 300 : 0}
+            style={{
+              transition: "all 0.5s",
+            }}
+          >
             <LineChart data={data}>
               <Line
                 type="monotone"

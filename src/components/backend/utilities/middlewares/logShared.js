@@ -14,16 +14,16 @@ export const logShared = async ({
 }) => {
   const project = await ProjectsModel.findOne({ _id: projectId }).lean();
 
-  let userIds = [];
+  let userIds = [userId, ...project.shared];
 
-  if (userId.toString() === createdBy.toString()) {
-    userIds = project.shared;
-  } else {
-    userIds = [
-      userId,
-      ...project.shared.filter((s) => s.toString() !== createdBy.toString()),
-    ];
-  }
+  // if (userId.toString() === createdBy.toString()) {
+  //   userIds = project.shared;
+  // } else {
+  //   userIds = [
+  //     userId,
+  //     ...project.shared.filter((s) => s.toString() !== createdBy.toString()),
+  //   ];
+  // }
 
   Promise.all(
     userIds.map(async (user) => {
@@ -35,12 +35,7 @@ export const logShared = async ({
         authId,
         apiId,
         createdBy,
-        link:
-          userId.toString() === createdBy.toString()
-            ? linkShared
-            : user.toString() === userId.toString()
-              ? link
-              : linkShared,
+        link: userId.toString() === user.toString() ? link : linkShared,
       });
     })
   );

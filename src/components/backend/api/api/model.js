@@ -88,6 +88,25 @@ const apisSchema = new Schema(
     },
     userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
     projectId: { type: Schema.Types.ObjectId, ref: "projects", required: true },
+    logs: [
+      {
+        type: {
+          type: String,
+          enum: [
+            "headRequest",
+            "getRequest",
+            "postRequest",
+            "putRequest",
+            "patchRequest",
+            "deleteRequest",
+          ],
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

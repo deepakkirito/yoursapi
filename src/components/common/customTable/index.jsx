@@ -340,7 +340,7 @@ const CustomTable = ({
       <TableContainer
         sx={{
           width: "100%",
-          maxHeight: "calc(100vh - 17rem)",
+          maxHeight: fullScreen? "calc(100vh - 10rem)" : "calc(100vh - 17rem)",
           overflow: "auto",
           marginTop: "0.5rem",
           "& .MuiTableRow-root": {
