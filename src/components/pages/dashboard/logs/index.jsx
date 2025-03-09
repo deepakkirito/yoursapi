@@ -1,5 +1,4 @@
 import { getLogsApi } from "@/utilities/api/logsApi";
-import { getNotificationApi } from "@/utilities/api/notification";
 import { catchError, isValidJson } from "@/utilities/helpers/functions";
 import { Avatar, Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -7,19 +6,33 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import CustomTable from "@/components/common/customTable";
 import CustomInput from "@/components/common/customTextField";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
+import useDebounce from "@/utilities/helpers/hooks/useDebounce";
 
 const Logs = () => {
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState({ data: [], totalCount: 0 });
   const [loading, setLoading] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ page: 0, rowsPerPage: 10 });
+  const [filters, setFilters] = useState({});
+  const [search, setSearchTerm] = useState("");
+  const [order, setOrder] = useState("desc");
+  const [orderBy, setOrderBy] = useState("createdAt");
   const router = useRouter();
+  const [user, setUser] = useLocalStorage("user", null);
+  const [logType, setLogType] = useState([]);
 
   const getLogs = () => {
     setLoading(true);
-    getLogsApi(page, rowsPerPage)
+    getLogsApi(
+      pagination.page,
+      pagination.rowsPerPage,
+      search,
+      order,
+      orderBy,
+      logType
+    )
       .then((res) => {
-        setLogs(res.data.data);
+        setLogs(res.data);
       })
       .catch((err) => {
         catchError(err);
@@ -31,7 +44,7 @@ const Logs = () => {
 
   useEffect(() => {
     getLogs();
-  }, []);
+  }, [pagination, search, order, orderBy, logType]);
 
   const renderNotification = (data) => {
     const parsedData = data.split("~");
@@ -42,7 +55,9 @@ const Logs = () => {
       if (!parsedItem.valid) {
         return (
           <div key={index} className="flex gap-2 items-center">
-            <Typography variant="h7">{parsedItem.content}</Typography>
+            <Typography variant="h7">
+              {parsedItem.content.replace(user.email, "you")}
+            </Typography>
           </div>
         );
       }
@@ -64,23 +79,57 @@ const Logs = () => {
     });
   };
 
+  const downloadCSV = (data) => {
+    const headers = ["Date,Log,Name,Email"];
+
+    const rows = logs.data.flatMap(
+      (project) =>
+        `${project.createdAt},${project.log.replace(/\n/g, " ").replace(/\\/g, "")},${project.createdBy.name},${project.createdBy.email}`
+    );
+    console.log(rows);
+
+    const csvContent = [headers, ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `project-data.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Box>
       <CustomTable
         title="Logs"
-        data={logs}
+        data={logs.data}
+        pagination={pagination}
+        filters={filters}
+        searchTerm={search}
+        order={order}
+        orderBy={orderBy}
+        totalData={logs.totalCount}
+        setOrder={setOrder}
+        setOrderBy={setOrderBy}
+        setPagination={setPagination}
+        setFilters={setFilters}
+        setSearchTerm={setSearchTerm}
+        logType={logType}
+        setLogType={setLogType}
         columns={[
           {
             id: "log",
             label: "Log",
-            width: 400,
+            width: 900,
             cell: (row) => renderNotification(row.log),
           },
           { id: "createdAt", label: "Date", width: 200 },
           {
-            id: "createdBy",
+            id: "createdBy.email",
             label: "User",
-            width: 200,
+            width: 250,
             filterValue: (row) =>
               `${row.createdBy.name} ${row.createdBy.email}`, // Use name & email for filtering
             cell: (row) => (
@@ -96,7 +145,16 @@ const Logs = () => {
                   <Typography variant="h7" fontWeight={"bold"}>
                     {row.createdBy.name}
                   </Typography>
-                  <Typography variant="h7">{row.createdBy.email}</Typography>
+                  <Typography
+                    variant="h7"
+                    sx={{
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {row.createdBy.email}
+                  </Typography>
                 </div>
               </div>
             ),
@@ -104,6 +162,8 @@ const Logs = () => {
         ]}
         onRowClick={(row) => router.push(row.link)}
         isLoading={loading}
+        refresh={getLogs}
+        downloadCsv={downloadCSV}
       />
     </Box>
   );

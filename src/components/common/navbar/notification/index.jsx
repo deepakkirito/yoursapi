@@ -5,7 +5,6 @@ import {
   Divider,
   IconButton,
   Menu,
-  MenuItem,
   Typography,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -20,10 +19,10 @@ import {
   getDate,
   isValidJson,
 } from "@/utilities/helpers/functions";
-import { showNotification } from "../../notification";
 import CustomInput from "../../customTextField";
 import { CloseRounded } from "@mui/icons-material";
 import Link from "next/link";
+import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 
 const Notification = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -35,6 +34,7 @@ const Notification = () => {
   const [limit, setLimit] = useState(customLimit);
   const containerRef = useRef(null);
   const [hasMore, setHasMore] = useState(true);
+  const [user, setUser] = useLocalStorage("user", null);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -97,7 +97,7 @@ const Notification = () => {
         return (
           <div key={index} className="flex gap-2 items-center">
             <Typography variant="h8" sx={{ fontWeight: "bold" }}>
-              {parsedItem.content}
+              {parsedItem.content.replace(user?.email, "you")}
             </Typography>
           </div>
         );
@@ -177,7 +177,7 @@ const Notification = () => {
         >
           {notification?.length ? (
             notification.map((item, index) => (
-              <>
+              <div key={index}>
                 <Box
                   component={Link}
                   href={item.link || "/projects"}
@@ -203,7 +203,7 @@ const Notification = () => {
                     <> {renderNotification(item.log)}</>
                   ) : (
                     <Typography variant="h8" fontWeight={"bold"}>
-                      {item.log}
+                      {item.log.replace(user?.email, "you")}
                     </Typography>
                   )}
                   <div className="flex items-end justify-between w-full">
@@ -232,7 +232,7 @@ const Notification = () => {
                 {notification?.length !== index + 1 && (
                   <Divider className="w-full" />
                 )}
-              </>
+              </div>
             ))
           ) : (
             <div className="flex gap-2 items-center">

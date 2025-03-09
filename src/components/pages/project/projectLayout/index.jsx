@@ -287,7 +287,7 @@ const ProjectLayout = ({
               <Grid2
                 container
                 spacing={4}
-                className="items-start p-4 min-h-[calc(100vh-19.4rem)] max-h-[calc(100vh-19.4rem)] overflow-auto"
+                className="items-start p-4 min-h-[calc(100vh-19.4rem)] max-h-[calc(100vh-19.4rem)] overflow-auto content-baseline"
               >
                 {!projects?.length ? (
                   <Grid2 item size={{ xs: 12 }}>

@@ -144,7 +144,6 @@ const DataApi = ({ shared = false }) => {
 
   return (
     <Box
-      className="px-2"
       sx={{
         borderRadius: "1rem",
         border: "0.2rem solid",

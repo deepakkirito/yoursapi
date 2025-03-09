@@ -33,6 +33,14 @@ export async function POST(request) {
       });
     }
 
+    const user = await UsersModel.findOne({ _id: userId }).lean();
+
+    if (!user) {
+      return NextResponse.json({
+        message: "User not found",
+      });
+    }
+
     if (dbString) {
       try {
         const decryptedDbString = decrypt(dbString);
@@ -71,20 +79,20 @@ export async function POST(request) {
     );
 
     const getMessage = () => {
-      if (saveInternal) {
-        return `Our database status updated to ${updatedData.saveInternal} from ${!updatedData.saveInternal}`;
+      if (saveInternal !== user.saveInternal) {
+        return `${process.env.COMPANY_NAME} database status updated to ${updatedData.saveInternal ? "activated" : "disabled"}`;
       }
 
-      if (saveExternal) {
-        return `Your database status updated to ${updatedData.saveExternal} from ${!updatedData.saveExternal}`;
+      if (saveExternal !== user.saveExternal) {
+        return `Your database status updated to ${updatedData.saveExternal ? "activated" : "disabled"}`;
       }
 
-      if (dbString) {
-        return `Database dbString updated to ${decrypt(dbString)}`;
+      if (dbString !== user.mongoDbKey) {
+        return `Database dbString updated`;
       }
 
-      if (fetchData) {
-        return `Database fetchData updated to ${updatedData.fetchData}`;
+      if (fetchData !== user.fetchData) {
+        return `Database fetch data updated to ${updatedData.fetchData}`;
       }
 
       return "Invalid option triggered";

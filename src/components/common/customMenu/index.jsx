@@ -38,7 +38,12 @@ const CustomMenu = ({
     <div>
       <Box>
         <TooltipCustom title={tooltipTitle} placement={tooltipPlacement}>
-          <IconButton onClick={handleClick} size={iconSize} sx={{ ml: 2 }} disabled={disabledIcon}>
+          <IconButton
+            onClick={handleClick}
+            size={iconSize}
+            sx={{ ml: 2 }}
+            disabled={disabledIcon}
+          >
             {icon}
           </IconButton>
         </TooltipCustom>
@@ -71,7 +76,7 @@ const CustomMenu = ({
       >
         {children}
         {optionsShow && (
-          <>
+          <div>
             {options?.length ? (
               options.map((item, index) => (
                 <MenuItem
@@ -109,7 +114,7 @@ const CustomMenu = ({
             ) : (
               <Typography className="px-4 py-1">No users found</Typography>
             )}
-          </>
+          </div>
         )}
       </Menu>
     </div>

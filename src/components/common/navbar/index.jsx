@@ -14,16 +14,11 @@ import {
   Typography,
 } from "@mui/material";
 import { getUsersApi } from "@/utilities/api/userApi";
-import { showNotification } from "../notification";
 import Image from "next/image";
 import style from "./style.module.scss";
 import { usePathname, useRouter } from "next/navigation";
 import { AuthContext } from "@/utilities/context/auth";
-import { CreateSidebarContext } from "@/utilities/context/sidebar";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import CustomMenu from "../customMenu";
-import { Logout } from "@mui/icons-material";
-import { LogoutApi } from "@/utilities/api/authApi";
 import { mainListUrl } from "@/components/assets/constants/barList";
 import Logo from "@/app/favicon.svg";
 import { CreateNavTitleContext } from "@/utilities/context/navTitle";

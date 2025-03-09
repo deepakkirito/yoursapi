@@ -32,7 +32,7 @@ const statisticsSchema = new Schema(
   }
 );
 
-statisticsSchema.index({ userId: 1 });
+statisticsSchema.index({ userId: 1, createdAt: 1 });
 
 const StatisticsModel =
   mongoose.models.statistics || mongoose.model("statistics", statisticsSchema);

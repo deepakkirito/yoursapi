@@ -7,6 +7,7 @@ import DataArrayRoundedIcon from "@mui/icons-material/DataArrayRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import StreamRoundedIcon from "@mui/icons-material/StreamRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
+import ImportantDevicesRoundedIcon from '@mui/icons-material/ImportantDevicesRounded';
 
 const mainList = [
   {
@@ -70,7 +71,7 @@ const profileList = [
   {
     link: "/profile/sessions",
     name: "Sessions",
-    icon: <AccountCircleRoundedIcon color="secondary" />,
+    icon: <ImportantDevicesRoundedIcon color="secondary" />,
   },
 ];
 

@@ -121,7 +121,7 @@ export const isValidJson = (str) => {
     const parsed = json5.parse(str);
     return { valid: true, content: parsed };
   } catch (e) {
-    console.error("Parsing failed:", e.message);
+    console.log("Parsing failed:", e.message);
     try {
       const parsed = JSON.parse(str);
       return { valid: true, content: parsed };

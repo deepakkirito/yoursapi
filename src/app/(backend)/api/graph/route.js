@@ -3,6 +3,9 @@ import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken"
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { getDate } from "@/utilities/helpers/functions";
+import ProjectsModel from "@/components/backend/api/project/model";
+import UsersModel from "@/components/backend/api/users/model";
+import ApisModel from "@/components/backend/api/api/model";
 
 export async function GET(request) {
   try {
@@ -34,7 +37,9 @@ export async function GET(request) {
       .map((id) => new mongoose.Types.ObjectId(id));
 
     // Get today's date at midnight
-    const today = new Date();
+    const test = new Date();
+    const today = new Date(test);
+    today.setDate(today.getDate() + 1);
     today.setHours(0, 0, 0, 0);
 
     let startDate, endDate;
@@ -80,10 +85,14 @@ export async function GET(request) {
       endDate = today;
     }
 
+    // Ensure that startDate and endDate are ISO formatted
+    const isoStartDate = new Date(startDate).toISOString();
+    const isoEndDate = new Date(endDate).toISOString();
+
     // Base match query
     let matchQuery = {
-      userId: new mongoose.Types.ObjectId(userId.toString()),
-      createdAt: { $gte: startDate, $lte: endDate },
+      userId,
+      createdAt: { $gte: new Date(isoStartDate), $lte: new Date(isoEndDate) },
     };
 
     // Aggregation pipeline
@@ -130,24 +139,24 @@ export async function GET(request) {
           totalUsed: {
             $sum: {
               $add: [
-                type.includes("head")
-                  ? { $ifNull: ["$requestCounts.head", 0] }
-                  : 0,
-                type.includes("get")
-                  ? { $ifNull: ["$requestCounts.get", 0] }
-                  : 0,
-                type.includes("post")
-                  ? { $ifNull: ["$requestCounts.post", 0] }
-                  : 0,
-                type.includes("put")
-                  ? { $ifNull: ["$requestCounts.put", 0] }
-                  : 0,
-                type.includes("patch")
-                  ? { $ifNull: ["$requestCounts.patch", 0] }
-                  : 0,
-                type.includes("delete")
-                  ? { $ifNull: ["$requestCounts.delete", 0] }
-                  : 0,
+                ...(type.length === 0 || type.includes("head")
+                  ? [{ $ifNull: ["$requestCounts.head", 0] }]
+                  : []),
+                ...(type.length === 0 || type.includes("get")
+                  ? [{ $ifNull: ["$requestCounts.get", 0] }]
+                  : []),
+                ...(type.length === 0 || type.includes("post")
+                  ? [{ $ifNull: ["$requestCounts.post", 0] }]
+                  : []),
+                ...(type.length === 0 || type.includes("put")
+                  ? [{ $ifNull: ["$requestCounts.put", 0] }]
+                  : []),
+                ...(type.length === 0 || type.includes("patch")
+                  ? [{ $ifNull: ["$requestCounts.patch", 0] }]
+                  : []),
+                ...(type.length === 0 || type.includes("delete")
+                  ? [{ $ifNull: ["$requestCounts.delete", 0] }]
+                  : []),
               ],
             },
           },
@@ -186,14 +195,20 @@ export async function GET(request) {
 
     const updatedData = fullData.map((item) => {
       return {
-        createdAt: new Date(item.createdAt).toISOString().replace("T", " ").split(".")[0],
+        createdAt: new Date(item.createdAt)
+          .toISOString()
+          .replace("T", " ")
+          .split(".")[0]
+          .replace(",", " "),
         projectTotalUsed: item.totalUsed,
         projectsUsed: item.projectsUsed
-          .filter((project) => projectIds.includes(project.name._id.toString())) // Filter projects
+          .filter((project) =>
+            projectIds.includes(project.name?._id.toString())
+          ) // Filter projects
           .map((project) => ({
             name: project.name.name,
             apiUsed: project.apiUsed
-              .filter((api) => apiIds.includes(api.name._id.toString())) // Filter APIs
+              .filter((api) => apiIds.includes(api.name?._id.toString())) // Filter APIs
               .map((api) => ({
                 name: api.name.name,
                 headUsed: api.headUsed || 0,

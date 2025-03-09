@@ -24,14 +24,7 @@ const Chart = ({ getProjectsApi, title }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState("7");
-  const [type, setType] = useState([
-    "get",
-    "post",
-    "put",
-    "patch",
-    "delete",
-    "head",
-  ]);
+  const [type, setType] = useState([]);
   const [project, setProject] = useState([]);
   const [api, setApi] = useState([]);
   const [totalProjects, setTotalProjects] = useState([]);
@@ -61,15 +54,15 @@ const Chart = ({ getProjectsApi, title }) => {
   }, [totalProjects, project]);
 
   const projectsOptions = useMemo(() => {
-    let projectArray = [];
+    // let projectArray = [];
     const options = totalProjects.map((item) => {
-      projectArray.push(item._id);
+      // projectArray.push(item._id);
       return {
         label: item.name,
         value: item._id,
       };
     });
-    setProject(projectArray);
+    // setProject(projectArray);
     return options;
   }, [totalProjects]);
 
@@ -112,7 +105,7 @@ const Chart = ({ getProjectsApi, title }) => {
 
   const downloadCSV = (data) => {
     const headers = [
-      "Date,Time,Project Total Used,Project Name,API Name,Head Used,Get Used,Post Used,Put Used,Patch Used,Delete Used,Api Total Used",
+      "Date,Project Total Used,Project Name,API Name,Head Used,Get Used,Post Used,Put Used,Patch Used,Delete Used,Api Total Used",
     ];
 
     const rows = projectsUsed.flatMap((row) =>
@@ -147,15 +140,16 @@ const Chart = ({ getProjectsApi, title }) => {
           borderColor: "divider",
           borderRadius: "0.5rem",
           padding: "1rem",
+          backgroundColor: "background.default",
         }}
       >
         <Grid2 item size={{ xs: 4 }} className="flex items-center gap-2">
           <Typography
-            variant={{
-              xs: "h7",
-              sm: "h5",
-            }}
             fontWeight={"bold"}
+            fontSize={{
+              xs: "0.8rem",
+              sm: "1.2rem",
+            }}
           >
             {title}
           </Typography>
@@ -300,7 +294,7 @@ const Chart = ({ getProjectsApi, title }) => {
       <br />
       {data?.length > 0 ? (
         <div className="w-full h-full pl-4 pr-8">
-          <ResponsiveContainer width="100%" height={hide ? 300 : 0}>
+          <ResponsiveContainer width="100%" height={!hide ? 300 : 0}>
             <LineChart data={data}>
               <Line
                 type="monotone"

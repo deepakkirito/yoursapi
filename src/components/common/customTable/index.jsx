@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useMemo, useRef } from "react";
 import {
   Table,
@@ -17,29 +18,82 @@ import {
   CircularProgress,
   Skeleton,
   Divider,
+  Popper,
 } from "@mui/material";
 import {
   Search as SearchIcon,
   FilterList as FilterListIcon,
   Fullscreen as FullscreenIcon,
   FullscreenExit as FullscreenExitIcon,
+  RefreshOutlined,
+  DownloadRounded,
 } from "@mui/icons-material";
 import { Resizable } from "react-resizable";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import TooltipCustom from "../tooltip";
+import CustomSelect from "../customSelect";
 
-const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState(columns[0]?.id || "");
-  const [pagination, setPagination] = useState({ page: 0, rowsPerPage: 10 });
-  const [filters, setFilters] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
+const CustomPopper = (props) => {
+  return (
+    <Popper
+      {...props}
+      sx={{
+        ...props.style,
+        backgroundColor: "white !important", // Set background color
+        borderRadius: "8px", // Border radius
+        border: "1px solid", // Add a border
+        borderColor: "background.defaultSolid", // Set border color
+        overflow: "hidden", // Hide overflow
+        background: "none",
+      }}
+    />
+  );
+};
+
+const CustomTable = ({
+  data,
+  columns,
+  onRowClick,
+  isLoading,
+  title,
+  pagination = { page: 0, rowsPerPage: 10 },
+  filters = {},
+  searchTerm = "",
+  order = "asc",
+  orderBy = "",
+  totalData = 0,
+  logType = "",
+  setLogType = () => {},
+  setOrder = () => {},
+  setOrderBy = () => {},
+  setPagination = () => {},
+  setFilters = () => {},
+  setSearchTerm = () => {},
+  refresh = () => {},
+  downloadCsv = () => {},
+}) => {
   const [filterVisible, setFilterVisible] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false);
   const [fullScreen, setFullScreen] = useState(false);
-  const [columnWidths, setColumnWidths] = useState(
-    columns.reduce((acc, col) => ({ ...acc, [col.id]: col.width || 150 }), {})
-  );
+  const [columnWidths, setColumnWidths] = useState(() => {
+    return columns.reduce((acc, col) => {
+      const keys = col.id.split("."); // Split based on dot notation for nested fields
+      let current = acc;
+
+      keys.forEach((key, index) => {
+        if (index === keys.length - 1) {
+          // This is the last key, so assign the width value
+          current[key] = col.width || 150; // Default width is 150 if not provided
+        } else {
+          // If the key does not exist, initialize as an empty object
+          current[key] = current[key] || {};
+        }
+      });
+
+      return acc;
+    }, {});
+  });
+  const [isRotated, setIsRotated] = useState(false);
 
   const tableRef = useRef(null);
 
@@ -72,42 +126,60 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
     );
 
   const filteredData = useMemo(() => {
-    return data
-      .filter((row) =>
-        columns.some((col) => {
-          const cellValue = getValue(row, col.id);
-          return searchTerm
-            ? cellValue
-                ?.toString()
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
-            : true;
-        })
-      )
-      .filter((row) =>
-        Object.entries(filters).every(([key, value]) =>
-          value
-            ? getValue(row, key)
-                ?.toString()
-                .toLowerCase()
-                .includes(value.toLowerCase())
-            : true
+    return (
+      data
+        // .filter((row) =>
+        //   columns.some((col) => {
+        //     const cellValue = getValue(row, col.id);
+        //     return searchTerm
+        //       ? cellValue
+        //           ?.toString()
+        //           .toLowerCase()
+        //           .includes(searchTerm.toLowerCase())
+        //       : true;
+        //   })
+        // )
+        .filter((row) =>
+          Object.entries(filters).every(([key, value]) =>
+            value
+              ? getValue(row, key)
+                  ?.toString()
+                  .toLowerCase()
+                  .includes(value.toLowerCase())
+              : true
+          )
         )
-      )
-      .sort((a, b) => {
-        const aValue = getValue(a, orderBy);
-        const bValue = getValue(b, orderBy);
-        if (aValue < bValue) return order === "asc" ? -1 : 1;
-        if (aValue > bValue) return order === "asc" ? 1 : -1;
-        return 0;
-      });
+    );
+    // .sort((a, b) => {
+    //   const aValue = getValue(a, orderBy);
+    //   const bValue = getValue(b, orderBy);
+    //   if (aValue < bValue) return order === "asc" ? -1 : 1;
+    //   if (aValue > bValue) return order === "asc" ? 1 : -1;
+    //   return 0;
+    // });
   }, [data, orderBy, order, searchTerm, filters]);
+
+  const getColumnWidth = (columnId = "") => {
+    if (!columnId.includes(".")) return columnWidths[columnId];
+    const keys = columnId.split("."); // Split based on dot notation for nested fields
+    let current = columnWidths;
+
+    keys.forEach((key, index) => {
+      if (index === keys.length - 1) {
+        // This is the last key, so return the width value
+        return current[key];
+      } else {
+        // If the key does not exist, return null
+        return current[key] ? current[key][key] : 200;
+      }
+    });
+  };
 
   const renderSkeleton = () => {
     return Array.from({ length: 5 }, (_, index) => (
       <TableRow key={index}>
         {columns.map((column) => (
-          <TableCell key={column.id} width={columnWidths[column.id]}>
+          <TableCell key={column.id} width={getColumnWidth(column.id)}>
             <Skeleton animation="wave" sx={{ bgcolor: "background.default" }} />
           </TableCell>
         ))}
@@ -160,10 +232,30 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
         gap={"1rem"}
         mb={1}
       >
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+        <Box className="flex gap-6 items-center">
+          <Typography
+            sx={{ fontWeight: "bold" }}
+            fontSize={{
+              xs: "0.8rem",
+              sm: "1.2rem",
+            }}
+          >
             {title}
           </Typography>
+          <CustomSelect
+            multiple={true}
+            labelTop="Type"
+            options={[
+              { label: "User", value: "user" },
+              { label: "Data Api", value: "data" },
+              { label: "Project", value: "project" },
+              { label: "Auth Api", value: "auth" },
+              { label: "Api", value: "api" },
+            ]}
+            value={logType}
+            none={false}
+            handleChange={(value) => setLogType(value)}
+          />
         </Box>
         <Box
           display="flex"
@@ -173,20 +265,25 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
         >
           <TextField
             size="small"
-            label="Search..."
+            type="search"
+            placeholder="Search..."
             variant="outlined"
             margin="dense"
             value={searchTerm}
             onChange={handleSearchChange}
             sx={{
-              width: searchVisible ? "20rem" : "0",
-              transition: "all 0.5s",
+              minWidth: searchVisible ? "20rem" : "0rem", // Smooth width change
+              maxWidth: searchVisible ? "20rem" : "0rem", // Smooth width change
+              opacity: searchVisible ? 1 : 0, // Smooth fade in/out
+              transition:
+                "min-width 0.5s ease, max-width 0.5s ease, opacity 0.3s ease-in-out",
               overflow: "hidden",
+              whiteSpace: "nowrap",
             }}
           />
           {/* )} */}
           <div className="flex gap-2 items-center py-2">
-            <TooltipCustom title="Toggle Search">
+            <TooltipCustom title="Toggle Search" placement="top">
               <IconButton onClick={() => setSearchVisible(!searchVisible)}>
                 {!searchVisible ? (
                   <SearchIcon color="secondary" />
@@ -195,12 +292,36 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
                 )}
               </IconButton>
             </TooltipCustom>
-            <TooltipCustom title="Toggle Filters">
+            <TooltipCustom title="Refresh" placement="top">
+              <IconButton
+                onClick={() => {
+                  refresh();
+                  setIsRotated(true);
+                  setTimeout(() => {
+                    setIsRotated(false);
+                  }, 500);
+                }}
+              >
+                <RefreshOutlined
+                  color="secondary"
+                  sx={{
+                    transform: isRotated ? "rotate(360deg)" : "rotate(0deg)",
+                    transition: "all 0.5s",
+                  }}
+                />
+              </IconButton>
+            </TooltipCustom>
+            <TooltipCustom title="Download CSV" placement="top">
+              <IconButton onClick={downloadCsv}>
+                <DownloadRounded color="secondary" />
+              </IconButton>
+            </TooltipCustom>
+            <TooltipCustom title="Toggle Filters" placement="top">
               <IconButton onClick={() => setFilterVisible(!filterVisible)}>
                 <FilterListIcon color="secondary" />
               </IconButton>
             </TooltipCustom>
-            <TooltipCustom title="Toggle Fullscreen">
+            <TooltipCustom title="Toggle Fullscreen" placement="top">
               <IconButton onClick={() => setFullScreen(!fullScreen)}>
                 {fullScreen ? (
                   <FullscreenExitIcon color="secondary" />
@@ -237,16 +358,16 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
           >
             <TableRow>
               {columns.map((column) => (
-                <TableCell key={column.id} width={columnWidths[column.id]}>
+                <TableCell key={column.id} width={getColumnWidth(column.id)}>
                   <Resizable
-                    width={columnWidths[column.id]}
+                    width={getColumnWidth(column.id)}
                     height={30}
                     onResizeStop={(e, data) => handleResize(column.id, e, data)}
                     axis="x"
                   >
                     <div
                       style={{
-                        width: columnWidths[column.id],
+                        width: getColumnWidth(column.id),
                         display: "flex",
                         alignItems: "center",
                       }}
@@ -266,6 +387,7 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
                     <Autocomplete
                       options={getColumnOptions(column.id)}
                       value={filters[column.id] || ""}
+                      PopperComponent={CustomPopper} // Use custom Popper
                       onChange={(_, value) =>
                         handleFilterChange(column.id, value)
                       }
@@ -284,37 +406,42 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isLoading
-              ? renderSkeleton()
-              : filteredData
-                  .slice(
-                    pagination.page * pagination.rowsPerPage,
-                    pagination.page * pagination.rowsPerPage +
-                      pagination.rowsPerPage
-                  )
-                  .map((row, index) => (
-                    <TableRow
-                      key={index}
-                      hover
-                      onClick={() => onRowClick(row)}
-                      sx={{ cursor: "pointer" }}
+            {isLoading ? (
+              renderSkeleton()
+            ) : filteredData?.length ? (
+              filteredData.map((row, index) => (
+                <TableRow
+                  key={index}
+                  hover
+                  onClick={() => onRowClick(row)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      width={getColumnWidth(column.id)}
                     >
-                      {columns.map((column) => (
-                        <TableCell
-                          key={column.id}
-                          width={columnWidths[column.id]}
-                        >
-                          {column.cell ? (
-                            column.cell(row)
-                          ) : (
-                            <Typography variant="h7">
-                              {getValue(row, column.id)}
-                            </Typography>
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
+                      {column.cell ? (
+                        column.cell(row)
+                      ) : (
+                        <Typography variant="h7">
+                          {getValue(row, column.id)}
+                        </Typography>
+                      )}
+                    </TableCell>
                   ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  sx={{ textAlign: "center", fontSize: "1rem" }}
+                >
+                  No data found
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
@@ -322,7 +449,7 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
       {/* Pagination */}
       <TablePagination
         component="div"
-        count={filteredData.length}
+        count={totalData}
         page={pagination.page}
         rowsPerPage={pagination.rowsPerPage}
         onPageChange={(_, newPage) =>
@@ -334,6 +461,7 @@ const CustomTable = ({ data, columns, onRowClick, isLoading, title }) => {
             rowsPerPage: parseInt(event.target.value, 10),
           })
         }
+        rowsPerPageOptions={[5, 10, 20, 50, 100]}
       />
     </Paper>
   );
