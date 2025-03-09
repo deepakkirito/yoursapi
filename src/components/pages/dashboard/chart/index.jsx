@@ -51,6 +51,7 @@ const Chart = ({ getProjectsApi, title }) => {
 
   const apisOptions = useMemo(() => {
     // let apiArray = [];
+    project.length && setApi([]);
     const options = totalProjects
       .filter((item) => project.includes(item._id)) // Only include relevant projects
       .map((item) => ({
