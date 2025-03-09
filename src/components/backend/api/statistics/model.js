@@ -1,3 +1,4 @@
+import { convertToIST } from "@/utilities/helpers/functions";
 import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
@@ -8,29 +9,66 @@ const statisticsSchema = new Schema(
     totalUsed: { type: Number, default: 0 },
     projectsUsed: [
       {
-        name: { type: Schema.Types.ObjectId, ref: "projects", required: true },
+        id: { type: Schema.Types.ObjectId, ref: "projects", required: true },
         apiUsed: [
           {
-            name: { type: Schema.Types.ObjectId, ref: "apis" },
+            id: { type: Schema.Types.ObjectId, ref: "apis" },
             headUsed: { type: Number, default: 0 },
             getUsed: { type: Number, default: 0 },
             postUsed: { type: Number, default: 0 },
             putUsed: { type: Number, default: 0 },
             patchUsed: { type: Number, default: 0 },
             deleteUsed: { type: Number, default: 0 },
+            logs: [
+              {
+                type: {
+                  type: String,
+                  enum: [
+                    "headRequest",
+                    "getRequest",
+                    "postRequest",
+                    "putRequest",
+                    "patchRequest",
+                    "deleteRequest",
+                  ],
+                },
+                createdAt: {
+                  type: Date,
+                  default: () => convertToIST(new Date()),
+                },
+              },
+            ],
           },
         ],
       },
     ],
     createdAt: {
       type: Date,
-      default: Date.now,
+      default: () => convertToIST(new Date()),
+    },
+    updatedAt: {
+      type: Date,
+      default: () => convertToIST(new Date()),
     },
   },
   {
     timestamps: true,
   }
 );
+
+// **Middleware to update timestamps on update**
+statisticsSchema.pre("save", function (next) {
+  if (this.createdAt) {
+    this.createdAt = convertToIST(new Date(this.createdAt));
+  }
+  this.updatedAt = convertToIST(new Date());
+  next();
+});
+
+statisticsSchema.pre("findOneAndUpdate", function (next) {
+  this.set({ updatedAt: convertToIST(new Date()) });
+  next();
+});
 
 statisticsSchema.index({ userId: 1, createdAt: 1 });
 

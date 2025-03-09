@@ -4,6 +4,7 @@ import { redirectToLogin } from "../middlewares/customResponse";
 import { dbConnect } from "../dbConnect";
 import getRequestDetails from "../middlewares/getRequestDetails";
 import UsersModel from "../../api/users/model";
+import { convertToIST } from "@/utilities/helpers/functions";
 
 export async function verifyToken(req) {
   try {
@@ -30,7 +31,7 @@ export async function verifyToken(req) {
 
     await SessionsModel.findOneAndUpdate(
       { jwt: token.value },
-      { lastActive: new Date() }
+      { lastActive: convertToIST(new Date()) }
     );
 
     // Check if any sessions have expired

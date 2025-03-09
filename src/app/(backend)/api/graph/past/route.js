@@ -30,7 +30,7 @@ export async function GET(request) {
     const validApiIds = apiIds
       .filter(isValidObjectId)
       .map((id) => new mongoose.Types.ObjectId(id));
-    const validDate = new Date(date);
+    const validDate = convertToIST(new Date(date));
 
     return NextResponse.json({
       validApiIds,

@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 import generator from "generate-password";
+import { convertToIST } from "@/utilities/helpers/functions";
 
 const Schema = mongoose.Schema;
 
-// Generate a random referral code
-const referralCode = generator.generate({
-  length: 6,
-  lowercase: true,
-  numbers: true,
-});
+// Function to generate a random referral code
+const generateReferralCode = () =>
+  generator.generate({
+    length: 6,
+    lowercase: true,
+    numbers: true,
+  });
 
 const usersSchema = new Schema(
   {
@@ -31,11 +33,11 @@ const usersSchema = new Schema(
     },
     updatedAt: {
       type: Date,
-      default: Date.now,
+      default: () => convertToIST(new Date()),
     },
     createdAt: {
       type: Date,
-      default: Date.now,
+      default: () => convertToIST(new Date()),
     },
     plan: {
       type: String,
@@ -43,7 +45,7 @@ const usersSchema = new Schema(
     },
     validity: {
       type: Date,
-      default: Date.now,
+      default: () => convertToIST(new Date()),
     },
     role: {
       type: String,
@@ -71,7 +73,7 @@ const usersSchema = new Schema(
     },
     referralCode: {
       type: String,
-      default: referralCode,
+      default: generateReferralCode,
     },
     referredBy: { type: Schema.Types.ObjectId, ref: "users", default: null },
     mongoDbKey: {
@@ -106,15 +108,30 @@ const usersSchema = new Schema(
       },
     ],
     sharedUsers: [{ type: Schema.Types.ObjectId, ref: "users" }],
-    lastReset: { type: Date, default: new Date() }, // Track last reset time
+    lastReset: { type: Date, default: () => convertToIST(new Date()) }, // Track last reset time
   },
   {
     timestamps: true,
   }
 );
 
-usersSchema.index({ email: "text", referralCode: "text", username: "text" }); // Full-text search index
-usersSchema.index({ lastReset: 1 }, { expireAfterSeconds: 86400 }); // TTL index
+// **Middleware to update timestamps**
+usersSchema.pre("save", function (next) {
+  if (this.createdAt) {
+    this.createdAt = convertToIST(new Date(this.createdAt));
+  }
+  this.updatedAt = convertToIST(new Date());
+  next();
+});
+
+usersSchema.pre("findOneAndUpdate", function (next) {
+  this.set({ updatedAt: convertToIST(new Date()) });
+  next();
+});
+
+// **Indexes for search and automatic reset cleanup**
+usersSchema.index({ email: "text", referralCode: "text", username: "text" }); // Full-text search
+usersSchema.index({ lastReset: 1 }, { expireAfterSeconds: 86400 }); // TTL index for daily reset
 
 const UsersModel =
   mongoose.models?.users || mongoose.model("users", usersSchema);

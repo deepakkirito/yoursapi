@@ -3,6 +3,7 @@ import UsersModel from "@/components/backend/api/users/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { connectToDatabase } from "@/components/backend/utilities/middlewares/mongoose";
 import { decrypt } from "@/utilities/helpers/encryption";
+import { convertToIST } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
@@ -72,7 +73,7 @@ export async function POST(request) {
             : saveExternal
               ? "user"
               : "self",
-        updatedAt: new Date(),
+        updatedAt: convertToIST(new Date()),
         updatedBy: userId,
       },
       { new: true, lean: true }

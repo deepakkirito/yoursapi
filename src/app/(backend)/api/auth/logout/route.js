@@ -2,6 +2,7 @@
 import SessionsModel from "@/components/backend/api/session/model";
 import { dbConnect } from "@/components/backend/utilities/dbConnect";
 import getRequestDetails from "@/components/backend/utilities/middlewares/getRequestDetails";
+import { convertToIST } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
@@ -18,7 +19,7 @@ export async function GET(request) {
     response.cookies.set("accessToken", "", {
       path: "/",
       httpOnly: true,
-      expires: new Date(0),
+      expires: convertToIST(new Date(0)),
     });
     return response;
 

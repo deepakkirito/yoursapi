@@ -13,6 +13,7 @@ import AuthsModel from "@/components/backend/api/authApi/model";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
 import { validateProjectName } from "@/components/backend/api/project/validator";
 import { logShared } from "@/components/backend/utilities/middlewares/logShared";
+import { convertToIST } from "@/utilities/helpers/functions";
 
 export async function GET(request, { params }) {
   try {
@@ -313,7 +314,7 @@ export async function PATCH(request, { params }) {
       },
       {
         name: projectName,
-        updatedAt: new Date(),
+        updatedAt: convertToIST(new Date()),
         updatedBy: userId,
       },
       { new: true }

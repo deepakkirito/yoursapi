@@ -2,6 +2,7 @@ import LoggersModel from "@/components/backend/api/logger";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { NextResponse } from "next/server";
 import UsersModel from "@/components/backend/api/users/model";
+import { convertToIST } from "@/utilities/helpers/functions";
 
 export async function GET(request) {
   try {
@@ -12,7 +13,7 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const skip = parseInt(searchParams.get("skip")) || 0;
 
-    const sevenDaysAgo = new Date();
+    const sevenDaysAgo = convertToIST(new Date());
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7); // Get date 7 days ago
 
     const notification = await LoggersModel.find(
@@ -71,7 +72,7 @@ export async function PATCH(request) {
 
     const { date } = body;
 
-    const parsedDate = new Date(date);
+    const parsedDate = convertToIST(new Date(date));
     if (isNaN(parsedDate.getTime())) {
       return NextResponse.json(
         { message: "Invalid date format" },

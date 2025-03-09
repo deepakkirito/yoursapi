@@ -12,6 +12,7 @@ import { decrypt } from "@/utilities/helpers/encryption";
 import { saveData } from "@/components/backend/utilities/middlewares/saveData";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
 import LoggersModel from "@/components/backend/api/logger";
+import { convertToIST } from "@/utilities/helpers/functions";
 
 export async function GET(request) {
   try {
@@ -208,7 +209,7 @@ export async function POST(request) {
       context: {
         username: name,
         projectName: body.projectName,
-        creationDate: new Date(),
+        creationDate: convertToIST(new Date()),
         projectLink: `${process.env.COMPANY_URL}projects/${newProject._id}`,
       },
     });

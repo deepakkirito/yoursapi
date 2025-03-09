@@ -1,7 +1,7 @@
 import UsersModel from "@/components/backend/api/users/model";
 import { connectToDatabase } from "@/components/backend/utilities/middlewares/mongoose";
 import { decrypt } from "@/utilities/helpers/encryption";
-import { isValidJson } from "@/utilities/helpers/functions";
+import { convertToIST, isValidJson } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb"; // Import ObjectId to handle MongoDB IDs
 import crypto from "crypto";
@@ -63,7 +63,7 @@ export async function headDataHandler({ req, username, projectname, apiname }) {
   // Extract last modified timestamp
   const lastModifiedDate =
     lastModified.length > 0
-      ? new Date(lastModified[0]._id.getTimestamp()).toUTCString()
+      ? convertToIST(new Date(lastModified[0]._id.getTimestamp()))
       : "Unknown";
 
   // Compute an E-Tag for caching
@@ -138,7 +138,7 @@ export async function headDataDynamicHandler({
   // Compute document metadata
   const documentSize = Buffer.byteLength(JSON.stringify(document), "utf8");
   const fieldCount = Object.keys(document).length;
-  const lastModifiedDate = new Date(document._id.getTimestamp()).toUTCString();
+  const lastModifiedDate = convertToIST(new Date(document._id.getTimestamp()))
   const hash = crypto
     .createHash("md5")
     .update(JSON.stringify(document))

@@ -16,7 +16,11 @@ import {
   Legend,
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
-import { getGraphDataApi, getGraphLiveDataApi } from "@/utilities/api/graphApi";
+import {
+  downloadCsvApi,
+  getGraphDataApi,
+  getGraphLiveDataApi,
+} from "@/utilities/api/graphApi";
 import {
   ArrowDownwardRounded,
   DownloadRounded,
@@ -34,14 +38,10 @@ import CustomInput from "@/components/common/customTextField";
 import LiveTvTwoToneIcon from "@mui/icons-material/LiveTvTwoTone";
 import LiveTvRoundedIcon from "@mui/icons-material/LiveTvRounded";
 import { graphColors } from "@/components/assets/constants/color";
-
-const typeOptions = [
-  { label: "Get", value: "get" },
-  { label: "Post", value: "post" },
-  { label: "Put", value: "put" },
-  { label: "Patch", value: "patch" },
-  { label: "Delete", value: "delete" },
-];
+import {
+  toolTipLabels,
+  typeOptions,
+} from "@/components/assets/constants/graph";
 
 const Chart = ({ getProjectsApi, title }) => {
   const [data, setData] = useState([]);
@@ -65,6 +65,7 @@ const Chart = ({ getProjectsApi, title }) => {
     label: null,
     color: null,
   });
+  const [downloadLoading, setDownloadLoading] = useState(false);
 
   useEffect(() => {
     !loading && setUpdatedSplit(splitGraph);
@@ -75,7 +76,10 @@ const Chart = ({ getProjectsApi, title }) => {
     totalProjects.forEach((item) => {
       total.push(...item.apis);
     });
-    return total;
+    return total.map((item) => ({
+      label: item.name,
+      value: item._id,
+    }));
   }, [totalProjects]);
 
   const apisOptions = useMemo(() => {
@@ -138,6 +142,35 @@ const Chart = ({ getProjectsApi, title }) => {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  const downloadCSVLive = async () => {
+    try {
+      setDownloadLoading(true);
+
+      const res = await downloadCsvApi(type, project, api);
+
+      if (!res || !res.data) {
+        throw new Error("No data received for CSV download");
+      }
+
+      const blob = new Blob([res.data], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `detailed_logs.csv`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      catchError(err);
+    } finally {
+      setDownloadLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -235,47 +268,73 @@ const Chart = ({ getProjectsApi, title }) => {
       );
     }
     if (updatedSplit === "project") {
-      return projectsOptions.map((item, index) => (
-        <Line
-          type="monotone"
-          dataKey={item.label}
-          strokeWidth={activeLabel === item.label ? 3 : 1}
-          stroke={
-            graphColors[palette.mode === "light" ? "lightMode" : "darkMode"][
-              index
-            ]
-          }
-          label={activeLabel === item.label ? customLabel : null}
-        />
-      ));
+      return projectsOptions.map((item, index) => {
+        if (!project.length || project.includes(item.value)) {
+          return (
+            <Line
+              type="monotone"
+              dataKey={item.label}
+              strokeWidth={activeLabel === item.label ? 3 : 1}
+              stroke={
+                graphColors[
+                  palette.mode === "light" ? "lightMode" : "darkMode"
+                ][index]
+              }
+              label={activeLabel === item.label ? customLabel : null}
+            />
+          );
+        }
+        return null;
+      });
     } else if (updatedSplit === "api") {
-      return totalApisOptions.map((item, index) => (
-        <Line
-          type="monotone"
-          dataKey={item.name}
-          strokeWidth={activeLabel === item.name ? 3 : 1}
-          stroke={
-            graphColors[palette.mode === "light" ? "lightMode" : "darkMode"][
-              index
-            ]
+      let array = [];
+
+      if (project.length) {
+        apisOptions.forEach((item) => {
+          if (project.includes(item.value)) {
+            array = [...array, ...item.options];
           }
-          label={activeLabel === item.name ? customLabel : null}
-        />
-      ));
+        });
+      } else {
+        array = totalApisOptions;
+      }
+      return array.map((item, index) => {
+        if (!api.length || api.includes(item.value)) {
+          return (
+            <Line
+              type="monotone"
+              dataKey={item.label}
+              strokeWidth={activeLabel === item.label ? 3 : 1}
+              stroke={
+                graphColors[
+                  palette.mode === "light" ? "lightMode" : "darkMode"
+                ][index]
+              }
+              label={activeLabel === item.label ? customLabel : null}
+            />
+          );
+        }
+      });
     } else if (updatedSplit === "type") {
-      return typeOptions.map((item, index) => (
-        <Line
-          type="monotone"
-          dataKey={item.value + "Request"}
-          strokeWidth={activeLabel === item.value + "Request" ? 3 : 1}
-          stroke={
-            graphColors[palette.mode === "light" ? "lightMode" : "darkMode"][
-              index
-            ]
-          }
-          label={activeLabel === item.value + "Request" ? customLabel : null}
-        />
-      ));
+      return typeOptions.map((item, index) => {
+        if (!type.length || type.includes(item.value)) {
+          return (
+            <Line
+              type="monotone"
+              dataKey={item.value + "Request"}
+              strokeWidth={activeLabel === item.value + "Request" ? 3 : 1}
+              stroke={
+                graphColors[
+                  palette.mode === "light" ? "lightMode" : "darkMode"
+                ][index]
+              }
+              label={
+                activeLabel === item.value + "Request" ? customLabel : null
+              }
+            />
+          );
+        }
+      });
     } else {
       return (
         <Line
@@ -294,6 +353,11 @@ const Chart = ({ getProjectsApi, title }) => {
     palette,
     activeLabel,
     hardActiveLabel,
+    project,
+    api,
+    apisOptions,
+    type,
+    typeOptions,
   ]);
 
   return (
@@ -496,19 +560,25 @@ const Chart = ({ getProjectsApi, title }) => {
               </div>
             </div>
           </CustomMenu>
-          <TooltipCustom title="Download CSV" placement="top">
-            <IconButton
-              onClick={downloadCSV}
-              disabled={!data?.length || hide}
-              sx={{
-                ":disabled": {
-                  opacity: 0.3,
-                },
-              }}
-            >
-              <DownloadRounded color="secondary" />
-            </IconButton>
-          </TooltipCustom>
+          {downloadLoading ? (
+            <div className="px-2">
+              <CircularProgress color="secondary" size={20} />
+            </div>
+          ) : (
+            <TooltipCustom title="Download CSV" placement="top">
+              <IconButton
+                onClick={live ? downloadCSVLive : downloadCSV}
+                disabled={!data?.length || hide}
+                sx={{
+                  ":disabled": {
+                    opacity: 0.3,
+                  },
+                }}
+              >
+                <DownloadRounded color="secondary" />
+              </IconButton>
+            </TooltipCustom>
+          )}
         </Grid2>
       </Grid2>
       <br />
@@ -535,7 +605,7 @@ const Chart = ({ getProjectsApi, title }) => {
                 axisLine={{ stroke: palette.text.primary }}
                 label={{
                   value: "Requests used",
-                  angle: -90, // Rotate the label by 90 degrees
+                  angle: -90,
                   position: "insideLeft",
                   fill: palette.text.primary,
                 }}
@@ -550,7 +620,7 @@ const Chart = ({ getProjectsApi, title }) => {
                 cursor={{ stroke: "transparent", strokeWidth: 1 }}
                 formatter={(value, name) => [
                   value > 0 ? `${value} requests` : "No requests",
-                  name === "totalUsed" ? "Total Used" : name,
+                  toolTipLabels[name] || name,
                 ]}
               />
               <Legend

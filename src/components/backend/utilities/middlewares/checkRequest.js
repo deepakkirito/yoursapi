@@ -6,6 +6,7 @@ import AuthsModel from "../../api/authApi/model";
 import StatisticsModel from "../../api/statistics/model";
 import LoggersModel from "../../api/logger";
 import { dbConnect } from "@/components/backend/utilities/dbConnect";
+import { convertToIST } from "@/utilities/helpers/functions";
 
 export const checkRequest = async ({
   username,
@@ -70,8 +71,13 @@ export const checkRequest = async ({
     }
 
     // ✅ Check and Reset Usage If Needed
-    const today = new Date().setHours(0, 0, 0, 0);
-    const lastResetDate = new Date(user.lastReset).setHours(0, 0, 0, 0);
+    const today = convertToIST(convertToIST(new Date())).setHours(0, 0, 0, 0);
+    const lastResetDate = convertToIST(new Date(user.lastReset)).setHours(
+      0,
+      0,
+      0,
+      0
+    );
 
     if (lastResetDate < today) {
       // Find all projects owned by the user
@@ -133,7 +139,7 @@ export const checkRequest = async ({
       // Reset user request count
       await UsersModel.updateOne(
         { _id: user._id },
-        { $set: { usedReq: 0, lastReset: new Date() } }
+        { $set: { usedReq: 0, lastReset: convertToIST(new Date()) } }
       );
 
       // Reset all APIs & auth APIs usage in user's projects
@@ -173,7 +179,7 @@ export const checkRequest = async ({
       const log = await LoggersModel.findOne({
         userId: user._id,
         type: "user",
-        createdAt: { $gte: new Date(Date.now() - 1000 * 60 * 60 * 24) },
+        createdAt: { $gte: convertToIST(new Date(Date.now() - 1000 * 60 * 60 * 24)) },
       });
       if (!log) {
         await LoggersModel.create({
@@ -202,7 +208,7 @@ export const checkRequest = async ({
       UsersModel.findByIdAndUpdate({ _id: user._id }, { $inc: { usedReq: 1 } }),
     ];
 
-    const log = { type: reqType, createdAt: new Date() };
+    const log = { type: reqType, createdAt: convertToIST(new Date()) };
     console.log({ log });
 
     if (apiData) {

@@ -9,6 +9,7 @@ import {
 } from "@/components/backend/utilities/helpers/password";
 import { getSessionDetails } from "@/components/backend/utilities/helpers/session";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
+import { convertToIST } from "@/utilities/helpers/functions";
 import axios from "axios";
 import { NextResponse } from "next/server";
 
@@ -84,8 +85,8 @@ export async function POST(request) {
         jwt: token,
         userId: user._id,
         location: existingLocation._id,
-        createdAt: new Date(),
-        lastActive: new Date(),
+        createdAt: convertToIST(new Date()),
+        lastActive: convertToIST(new Date()),
       });
     } else {
       const newLocation = await LocationModel.create({
@@ -105,8 +106,8 @@ export async function POST(request) {
         jwt: token,
         userId: user._id,
         location: newLocation._id,
-        createdAt: new Date(),
-        lastActive: new Date(),
+        createdAt: convertToIST(new Date()),
+        lastActive: convertToIST(new Date()),
       });
 
       await sendMail({
@@ -115,7 +116,7 @@ export async function POST(request) {
         template: "login",
         context: {
           username: user.name,
-          loginDate: new Date(),
+          loginDate: convertToIST(new Date()),
           location: `${sessionDetails.city}, ${sessionDetails.country}`,
           device: sessionDetails.device,
           browser: sessionDetails.browser,

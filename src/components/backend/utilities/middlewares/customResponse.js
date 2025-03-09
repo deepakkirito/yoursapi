@@ -1,3 +1,4 @@
+import { convertToIST } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 
 // Helper function to redirect and clear cookies
@@ -11,7 +12,7 @@ export function redirectToLogin(req) {
   response.cookies.set("accessToken", "", {
     path: "/",
     httpOnly: true,
-    expires: new Date(0),
+    expires: convertToIST(new Date(0)),
   });
   return response;
 }

@@ -4,6 +4,7 @@ import ProjectsModel from "@/components/backend/api/project/model";
 import StatisticsModel from "@/components/backend/api/statistics/model";
 import UsersModel from "@/components/backend/api/users/model";
 import { dbConnect } from "@/components/backend/utilities/dbConnect";
+import { convertToIST } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -61,7 +62,7 @@ export async function GET() {
   // Reset user request count
   await UsersModel.updateOne(
     { _id: user._id },
-    { $set: { usedReq: 0, lastReset: new Date() } }
+    { $set: { usedReq: 0, lastReset: convertToIST(new Date()) } }
   );
 
   // Reset all APIs & auth APIs usage in user's projects

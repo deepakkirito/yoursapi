@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import ApisModel from "@/components/backend/api/api/model";
 import AuthsModel from "@/components/backend/api/authApi/model";
 import ProjectsModel from "@/components/backend/api/project/model";
+import { convertToIST } from "@/utilities/helpers/functions";
 
 export async function GET(request) {
   try {
@@ -26,16 +27,16 @@ export async function GET(request) {
     const validApiIds = apiIds.filter(isValidObjectId).map((id) => new mongoose.Types.ObjectId(id));
 
     // Get today's date at midnight
-    const test = new Date();
-    const today = new Date(test); // Get today's date at midnight
+    const test = convertToIST(new Date());
+    const today = convertToIST(new Date(test)); // Get today's date at midnight
     today.setDate(today.getDate() + 1); // Add 1 day
     today.setHours(0, 0, 0, 0);
 
     // Determine start and end dates
     let startDate, endDate;
     if (dateFrom && dateTo) {
-      const fromDate = new Date(dateFrom);
-      const toDate = new Date(dateTo);
+      const fromDate = convertToIST(new Date(dateFrom));
+      const toDate = convertToIST(new Date(dateTo));
       fromDate.setHours(0, 0, 0, 0);
       toDate.setHours(23, 59, 59, 999);
 
@@ -55,7 +56,7 @@ export async function GET(request) {
       startDate = fromDate;
       endDate = toDate;
     } else if (dateFrom) {
-      const fromDate = new Date(dateFrom);
+      const fromDate = convertToIST(new Date(dateFrom));
       fromDate.setHours(0, 0, 0, 0);
 
       if (fromDate > today) {
@@ -68,7 +69,7 @@ export async function GET(request) {
       startDate = fromDate;
       endDate = today;
     } else {
-      startDate = new Date();
+      startDate = convertToIST(new Date());
       startDate.setDate(startDate.getDate() - period);
       startDate.setHours(0, 0, 0, 0);
       endDate = today;
@@ -87,7 +88,7 @@ export async function GET(request) {
       { $unwind: { path: "$projectsUsed", preserveNullAndEmptyArrays: false } },
 
       ...(validProjectIds.length > 0
-        ? [{ $match: { "projectsUsed.name": { $in: validProjectIds } } }]
+        ? [{ $match: { "projectsUsed.id": { $in: validProjectIds } } }]
         : []),
 
       {
@@ -98,7 +99,7 @@ export async function GET(request) {
       },
 
       ...(validApiIds.length > 0
-        ? [{ $match: { "projectsUsed.apiUsed.name": { $in: validApiIds } } }]
+        ? [{ $match: { "projectsUsed.apiUsed.id": { $in: validApiIds } } }]
         : []),
 
       {
@@ -106,7 +107,7 @@ export async function GET(request) {
           createdAt: {
             $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
           },
-          apiName: "$projectsUsed.apiUsed.name",
+          apiName: "$projectsUsed.apiUsed.id",
           requestCounts: {
             head: "$projectsUsed.apiUsed.headUsed",
             get: "$projectsUsed.apiUsed.getUsed",
@@ -176,13 +177,13 @@ export async function GET(request) {
       projectsUsed: 1,
       _id: 0,
     })
-      .populate("projectsUsed.name", "name")
-      .populate("projectsUsed.apiUsed.name", "name")
+      .populate("projectsUsed.id", "name")
+      .populate("projectsUsed.apiUsed.id", "name")
       .lean();
 
     // Format full data
     const updatedData = fullData.map((item) => ({
-      createdAt: new Date(item.createdAt)
+      createdAt: convertToIST(new Date(item.createdAt))
         .toISOString()
         .replace("T", " ")
         .split(".")[0]
@@ -191,11 +192,11 @@ export async function GET(request) {
       projectsUsed: item.projectsUsed
         .filter((project) => projectIds.includes(project.name?._id.toString())) // Filter projects
         .map((project) => ({
-          name: project.name.name,
+          name: project.id.name,
           apiUsed: project.apiUsed
             .filter((api) => apiIds.includes(api.name?._id.toString())) // Filter APIs
             .map((api) => ({
-              name: api.name.name,
+              name: api.id.name,
               headUsed: api.headUsed || 0,
               getUsed: api.getUsed || 0,
               postUsed: api.postUsed || 0,
@@ -215,10 +216,10 @@ export async function GET(request) {
 
     // Fill missing dates
     if (data.length > 0) {
-      const firstDate = new Date(data[0].createdAt);
-      const lastDate = new Date(data[data.length - 1].createdAt);
+      const firstDate = convertToIST(new Date(data[0].createdAt));
+      const lastDate = convertToIST(new Date(data[data.length - 1].createdAt));
       const completeData = [];
-      let currentDate = new Date(firstDate);
+      let currentDate = convertToIST(new Date(firstDate));
 
       while (currentDate <= lastDate) {
         const formattedDate = currentDate.toISOString().split("T")[0]; // Format YYYY-MM-DD

@@ -9,6 +9,7 @@ import { comparePassword } from "@/components/backend/utilities/helpers/password
 import { getSessionDetails } from "@/components/backend/utilities/helpers/session";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
+import { convertToIST } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
@@ -74,8 +75,8 @@ export async function POST(request) {
         jwt: authToken,
         userId: user._id,
         location: location._id,
-        createdAt: new Date(),
-        lastActive: new Date(),
+        createdAt: convertToIST(new Date()),
+        lastActive: convertToIST(new Date()),
       });
       await session.save();
     } else {
@@ -97,8 +98,8 @@ export async function POST(request) {
         jwt: authToken,
         userId: user._id,
         location: location._id,
-        createdAt: new Date(),
-        lastActive: new Date(),
+        createdAt: convertToIST(new Date()),
+        lastActive: convertToIST(new Date()),
       });
       await session.save();
 
@@ -108,7 +109,7 @@ export async function POST(request) {
         template: "login",
         context: {
           username: user.name,
-          loginDate: new Date(),
+          loginDate: convertToIST(new Date()),
           location: `${sessionDetails.city}, ${sessionDetails.country}`,
           device: sessionDetails.device,
           browser: sessionDetails.browser,
