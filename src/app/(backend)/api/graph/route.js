@@ -2,6 +2,8 @@ import StatisticsModel from "@/components/backend/api/statistics/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import ApisModel from "@/components/backend/api/api/model";
+import AuthsModel from "@/components/backend/api/authApi/model";
 
 export async function GET(request) {
   try {

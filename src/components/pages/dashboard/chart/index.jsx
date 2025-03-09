@@ -1,4 +1,11 @@
-import { Box, CircularProgress, Grid2, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Grid2,
+  IconButton,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -108,6 +115,8 @@ const Chart = ({ getProjectsApi, title }) => {
   }, []);
 
   useEffect(() => {
+    if (hide) return;
+
     setRefresh(true);
     setTimeout(() => setRefresh(false), 500);
 
@@ -118,11 +127,13 @@ const Chart = ({ getProjectsApi, title }) => {
     }, 30000);
 
     return () => clearInterval(interval); // Cleanup on unmount or `live` change
-  }, [live]);
+  }, [live, hide]);
 
   useEffect(() => {
+    if (hide) return;
+
     refresh && (live ? getLiveGraphData() : getGraphData());
-  }, [refresh]);
+  }, [refresh, hide]);
 
   const getGraphProjects = async () => {
     setLoading(true);
@@ -197,19 +208,27 @@ const Chart = ({ getProjectsApi, title }) => {
           </Typography>
           <TooltipCustom title={live ? "Live on" : "Live off"} placement="top">
             <IconButton
+              disabled={hide}
               onClick={() => {
                 setLive(!live);
               }}
             >
               {live ? (
-                <LiveTvTwoToneIcon color="secondary" />
+                <LiveTvTwoToneIcon
+                  color="secondary"
+                  sx={{ opacity: hide ? 0.5 : 1 }}
+                />
               ) : (
-                <LiveTvRoundedIcon color="secondary" />
+                <LiveTvRoundedIcon
+                  color="secondary"
+                  sx={{ opacity: hide ? 0.5 : 1 }}
+                />
               )}
             </IconButton>
           </TooltipCustom>
           <TooltipCustom title="Auto refresh every 30 seconds" placement="top">
             <IconButton
+              disabled={hide}
               onClick={() => {
                 setRefresh(true);
                 setTimeout(() => {
@@ -222,6 +241,7 @@ const Chart = ({ getProjectsApi, title }) => {
                 sx={{
                   transform: refresh ? "rotate(360deg)" : "rotate(0deg)",
                   transition: "all 0.5s",
+                  opacity: hide ? 0.5 : 1,
                 }}
               />
             </IconButton>
@@ -353,7 +373,7 @@ const Chart = ({ getProjectsApi, title }) => {
           <TooltipCustom title="Download CSV" placement="top">
             <IconButton
               onClick={downloadCSV}
-              disabled={!data?.length}
+              disabled={!data?.length || hide}
               sx={{
                 ":disabled": {
                   opacity: 0.3,
