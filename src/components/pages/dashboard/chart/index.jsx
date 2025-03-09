@@ -180,22 +180,25 @@ const Chart = ({ getProjectsApi, title }) => {
   useEffect(() => {
     if (hide) return;
 
-    setRefresh(true);
-    setTimeout(() => setRefresh(false), 500);
+    if (!live) getGraphData();
 
-    // Refresh data every 30 seconds
-    const interval = setInterval(() => {
+    if (live) {
       setRefresh(true);
       setTimeout(() => setRefresh(false), 500);
-    }, 30000);
 
+      // Refresh data every 30 seconds
+      var interval = setInterval(() => {
+        setRefresh(true);
+        setTimeout(() => setRefresh(false), 500);
+      }, 30000);
+    }
     return () => clearInterval(interval); // Cleanup on unmount or `live` change
   }, [live, hide]);
 
   useEffect(() => {
     if (hide) return;
 
-    refresh && (live ? getLiveGraphData() : getGraphData());
+    refresh && getLiveGraphData();
   }, [refresh, hide]);
 
   const getGraphProjects = async () => {
@@ -244,18 +247,23 @@ const Chart = ({ getProjectsApi, title }) => {
 
   const customLabel = ({ x, y, value }) => (
     <text
-      x={x}
+      x={x - 2}
       y={y}
       dy={-10}
       fill={palette.text.primary}
       fontSize={12}
-      textAnchor="middle"
+      textAnchor="end"
     >
       {value}
     </text>
   );
 
   const getLines = useMemo(() => {
+    // Ensure project, api, and type are always arrays
+    const projectArray = Array.isArray(project) ? project : [];
+    const apiArray = Array.isArray(api) ? api : [];
+    const typeArray = Array.isArray(type) ? type : [];
+
     if (hardActiveLabel?.label) {
       return (
         <Line
@@ -267,11 +275,13 @@ const Chart = ({ getProjectsApi, title }) => {
         />
       );
     }
+
     if (updatedSplit === "project") {
       return projectsOptions.map((item, index) => {
-        if (!project.length || project.includes(item.value)) {
+        if (!projectArray.length || projectArray.includes(String(item.value))) {
           return (
             <Line
+              key={item.value}
               type="monotone"
               dataKey={item.label}
               strokeWidth={activeLabel === item.label ? 3 : 1}
@@ -289,19 +299,21 @@ const Chart = ({ getProjectsApi, title }) => {
     } else if (updatedSplit === "api") {
       let array = [];
 
-      if (project.length) {
+      if (projectArray.length) {
         apisOptions.forEach((item) => {
-          if (project.includes(item.value)) {
+          if (projectArray.includes(String(item.value))) {
             array = [...array, ...item.options];
           }
         });
       } else {
         array = totalApisOptions;
       }
+
       return array.map((item, index) => {
-        if (!api.length || api.includes(item.value)) {
+        if (!apiArray.length || apiArray.includes(String(item.value))) {
           return (
             <Line
+              key={item.value}
               type="monotone"
               dataKey={item.label}
               strokeWidth={activeLabel === item.label ? 3 : 1}
@@ -314,12 +326,14 @@ const Chart = ({ getProjectsApi, title }) => {
             />
           );
         }
+        return null;
       });
     } else if (updatedSplit === "type") {
       return typeOptions.map((item, index) => {
-        if (!type.length || type.includes(item.value)) {
+        if (!typeArray.length || typeArray.includes(String(item.value))) {
           return (
             <Line
+              key={item.value}
               type="monotone"
               dataKey={item.value + "Request"}
               strokeWidth={activeLabel === item.value + "Request" ? 3 : 1}
@@ -334,6 +348,7 @@ const Chart = ({ getProjectsApi, title }) => {
             />
           );
         }
+        return null;
       });
     } else {
       return (
@@ -407,26 +422,31 @@ const Chart = ({ getProjectsApi, title }) => {
               )}
             </IconButton>
           </TooltipCustom>
-          <TooltipCustom title="Auto refresh every 30 seconds" placement="top">
-            <IconButton
-              disabled={hide}
-              onClick={() => {
-                setRefresh(true);
-                setTimeout(() => {
-                  setRefresh(false);
-                }, 500);
-              }}
+          {live && (
+            <TooltipCustom
+              title="Auto refresh every 30 seconds"
+              placement="top"
             >
-              <RefreshOutlined
-                color="secondary"
-                sx={{
-                  transform: refresh ? "rotate(360deg)" : "rotate(0deg)",
-                  transition: "all 0.5s",
-                  opacity: hide ? 0.5 : 1,
+              <IconButton
+                disabled={hide}
+                onClick={() => {
+                  setRefresh(true);
+                  setTimeout(() => {
+                    setRefresh(false);
+                  }, 500);
                 }}
-              />
-            </IconButton>
-          </TooltipCustom>
+              >
+                <RefreshOutlined
+                  color="secondary"
+                  sx={{
+                    transform: refresh ? "rotate(360deg)" : "rotate(0deg)",
+                    transition: "all 0.5s",
+                    opacity: hide ? 0.5 : 1,
+                  }}
+                />
+              </IconButton>
+            </TooltipCustom>
+          )}
           <TooltipCustom title={!hide ? "Hide" : "Show"} placement="top">
             <IconButton onClick={() => setHide(!hide)}>
               <ArrowDownwardRounded
