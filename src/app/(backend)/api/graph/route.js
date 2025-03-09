@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import ApisModel from "@/components/backend/api/api/model";
 import AuthsModel from "@/components/backend/api/authApi/model";
+import ProjectsModel from "@/components/backend/api/project/model";
 
 export async function GET(request) {
   try {
