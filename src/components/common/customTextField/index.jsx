@@ -3,7 +3,7 @@ import { FormControl, FormLabel, TextField } from "@mui/material";
 const CustomInput = ({
   children,
   formLabel,
-  formfullwidth = "true",
+  formfullwidth = true,
   formError,
   formRequired,
   formClassName,
