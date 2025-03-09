@@ -17,11 +17,13 @@ export const checkRequest = async ({
   try {
     await dbConnect();
 
-    // Fetch user and project details in parallel
-    const [user, project] = await Promise.all([
-      UsersModel.findOne({ username }).lean(),
-      ProjectsModel.findOne({ name: projectname }).lean(),
-    ]);
+    const user = await UsersModel.findOne({ username })
+      .populate("project")
+      .populate({
+        path: "trash",
+        select: "name", // Only select the 'name' field of trash
+      })
+      .lean();
 
     if (!user) {
       return NextResponse.json(
@@ -30,7 +32,18 @@ export const checkRequest = async ({
       );
     }
 
-    if (!project || String(project.userId) !== String(user._id)) {
+    // Use a more optimized search for project and trash (filter can be faster)
+    const project = user.project.find((p) => p.name === projectname);
+    const inactiveProject = user.trash.find((p) => p.name === projectname);
+
+    if (inactiveProject) {
+      return NextResponse.json(
+        { message: "Project is inactive" },
+        { status: 404 }
+      );
+    }    
+
+    if (!project) {
       return NextResponse.json(
         { message: "Invalid project or API" },
         { status: 404 }
