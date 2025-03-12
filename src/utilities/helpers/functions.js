@@ -1,7 +1,6 @@
 import { showNotification } from "@/components/common/notification";
-import json5 from "json5";
+// import JSON5 from "json5";
 import moment from "moment-timezone";
-
 
 export const getDate = (date) => {
   return new Date(date).toLocaleDateString("en-US", {
@@ -72,20 +71,19 @@ export const getRandomColor = () => {
 export const isValidJson = (str) => {
   if (typeof str !== "string") return { valid: true, content: str };
 
+  // try {
+  //   const parsed = JSON5.parse(str);
+  //   return { valid: true, content: parsed };
+  // } catch (e) {
+  // console.log("Parsing failed:", e.message);
   try {
-    const parsed = json5.parse(str);
+    const parsed = JSON.parse(str);
     return { valid: true, content: parsed };
   } catch (e) {
-    console.log("Parsing failed:", e.message);
-    try {
-      const parsed = JSON.parse(str);
-      return { valid: true, content: parsed };
-    } catch (e) {
-      return { valid: false, content: str };
-    }
+    return { valid: false, content: str };
   }
+  // }
 };
-
 
 // Function to convert any date to IST
 export const convertToIST = (date) => {
