@@ -99,10 +99,10 @@ export const checkRequest = async ({
           }).lean();
 
           return {
-            name: project._id,
+            id: project._id,
             apiUsed: [
               ...apis.map((api) => ({
-                name: api._id,
+                id: api._id,
                 headUsed: api.headRequest?.used || 0,
                 getUsed: api.getRequest?.used || 0,
                 postUsed: api.postRequest?.used || 0,
@@ -114,7 +114,7 @@ export const checkRequest = async ({
               ...(auths
                 ? [
                     {
-                      name: auths._id,
+                      id: auths._id,
                       headUsed: auths.headRequest?.used || 0,
                       getUsed: auths.getRequest?.used || 0,
                       postUsed: auths.postRequest?.used || 0,

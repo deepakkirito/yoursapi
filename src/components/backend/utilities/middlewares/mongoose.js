@@ -353,14 +353,14 @@ export const updateModel = async ({
   dbConnection,
   collectionName,
   option = "replace",
-  schema = {},
+  schema = false,
   data,
 }) => {
-  const strict = Object.keys(schema)?.length > 0;
+  const strict = schema && Object.keys(schema)?.length > 0;
 
   try {
     // Define the schema with optional strict mode
-    const sampleSchema = new mongoose.Schema(schema, {
+    const sampleSchema = new mongoose.Schema(schema || {}, {
       strict,
       collection: collectionName,
     });

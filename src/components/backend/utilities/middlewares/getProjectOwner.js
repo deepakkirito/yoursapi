@@ -10,7 +10,10 @@ export const getProjectOwner = async ({ userId, projectId }) => {
     );
 
     if (!project) {
-      throw new Error("Project not found");
+      return NextResponse.json(
+        { message: "Project not found" },
+        { status: 400 }
+      );
     }
 
     const user = project.userId;
@@ -20,14 +23,20 @@ export const getProjectOwner = async ({ userId, projectId }) => {
       !user.project ||
       (!user.project.includes(projectId) && !user.trash.includes(projectId))
     ) {
-      throw new Error("Project is not accessible by you");
+      return NextResponse.json(
+        { message: "Project is not accessible by you" },
+        { status: 400 }
+      );
     }
 
     if (
       user._id.toString() !== userId.toString() &&
       !project.shared.includes(userId)
     ) {
-      throw new Error("Project is not accessible by you");
+      return NextResponse.json(
+        { message: "Project is not accessible by you" },
+        { status: 400 }
+      );
     }
 
     return {

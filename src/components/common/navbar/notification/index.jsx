@@ -58,6 +58,12 @@ const Notification = () => {
 
   useEffect(() => {
     getNotification();
+
+    const interval = setInterval(() => {
+      getNotification();
+    }, 1000 * 60);
+
+    return () => clearInterval(interval);
   }, []);
 
   const getNotification = (loading = true) => {
@@ -235,11 +241,20 @@ const Notification = () => {
               </div>
             ))
           ) : (
-            <div className="flex gap-2 items-center">
+            <>
               {!loading && (
-                <div className="flex gap-2 items-center">No notifications</div>
+                <Box
+                  className="flex gap-2 items-center justify-center py-8"
+                  sx={{
+                    backgroundColor: "background.defaultSolid",
+                  }}
+                >
+                  <Typography variant="h8" className="w-fit">
+                    No notifications
+                  </Typography>
+                </Box>
               )}
-            </div>
+            </>
           )}
           {loading && (
             <Box

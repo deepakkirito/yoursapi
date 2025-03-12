@@ -449,6 +449,7 @@ export async function PATCH(request, { params }) {
           dbConnection: connection,
           collectionName: apiData.name,
           data: parsedData,
+          schema: apiData.schema,
         });
 
         await connection.close();
@@ -463,6 +464,7 @@ export async function PATCH(request, { params }) {
           dbConnection: connection,
           collectionName: apiData.name,
           data: parsedData,
+          schema: apiData.schema,
         });
 
         await connection.close();

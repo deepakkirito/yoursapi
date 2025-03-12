@@ -58,7 +58,7 @@ export default function LayoutWrapper({ children }) {
   useEffect(() => {
     document.body.style.backgroundColor = theme.palette.background.default;
     document.body.style.backgroundImage =
-      mode === "dark"
+      theme.palette.mode === "dark"
         ? `url(${DarkBackground.src})`
         : `url(${LightBackground.src})`;
     document.body.style.scrollbarColor = `${theme.palette.loading.main} transparent`;
