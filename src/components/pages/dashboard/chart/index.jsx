@@ -43,7 +43,7 @@ import {
   typeOptions,
 } from "@/components/assets/constants/graph";
 
-const Chart = ({ getProjectsApi, title, getLiveApi }) => {
+const Chart = ({ getProjectsApi, title, getLiveApi, csvDownloadApi }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState("7");
@@ -148,7 +148,7 @@ const Chart = ({ getProjectsApi, title, getLiveApi }) => {
     try {
       setDownloadLoading(true);
 
-      const res = await downloadCsvApi(type, project, api);
+      const res = await csvDownloadApi(type, project, api);
 
       if (!res || !res.data) {
         throw new Error("No data received for CSV download");
@@ -433,7 +433,8 @@ const Chart = ({ getProjectsApi, title, getLiveApi }) => {
           position: "sticky",
           top: "0",
           zIndex: "5",
-          backdropFilter: "blur(10px)",
+          backdropFilter: "blur(0.5px)",
+          // filter: "blur(1px)",
         }}
       >
         <Grid2 item size={{ xs: 4 }} className="flex items-center gap-2">

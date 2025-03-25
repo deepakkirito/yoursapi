@@ -37,7 +37,12 @@ export const getGraphLiveDataApi = async (type, project, api, splitGraph) => {
   );
 };
 
-export const getGraphLiveShareDataApi = async (type, project, api, splitGraph) => {
+export const getGraphLiveShareDataApi = async (
+  type,
+  project,
+  api,
+  splitGraph
+) => {
   return axiosGetSelf(
     "graph/live/share?type=" +
       type +
@@ -53,6 +58,12 @@ export const getGraphLiveShareDataApi = async (type, project, api, splitGraph) =
 export const downloadCsvApi = async (type, project, api) => {
   return axiosGetSelf(
     "graph/live/csv?type=" + type + "&project=" + project + "&api=" + api
+  );
+};
+
+export const downloadCsvShareApi = async (type, project, api) => {
+  return axiosGetSelf(
+    "graph/live/csv/share?type=" + type + "&project=" + project + "&api=" + api
   );
 };
 

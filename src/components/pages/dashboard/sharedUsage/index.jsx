@@ -1,4 +1,5 @@
 import {
+  downloadCsvShareApi,
   getGraphLiveShareDataApi,
   getGraphProjectApi,
   getGraphProjectShareApi,
@@ -11,6 +12,7 @@ const SharedUsage = () => {
       getProjectsApi={getGraphProjectShareApi}
       title="Shared Usage"
       getLiveApi={getGraphLiveShareDataApi}
+      csvDownloadApi={downloadCsvShareApi}
     />
   );
 };

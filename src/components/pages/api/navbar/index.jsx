@@ -344,6 +344,7 @@ const Navbar = ({
     return (
       <TooltipCustom title="Copy Link" placement="top">
         <IconButton
+          disabled={!apiData?.value}
           onClick={() => {
             navigator.clipboard.writeText(
               `${window?.location.origin}/v1/${username}/${project}/${auth?.name ? authData.name : apiData.label}`

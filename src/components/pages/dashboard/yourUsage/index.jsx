@@ -1,4 +1,5 @@
 import {
+  downloadCsvApi,
   getGraphLiveDataApi,
   getGraphProjectApi,
 } from "@/utilities/api/graphApi";
@@ -10,6 +11,7 @@ const YourUsage = () => {
       getProjectsApi={getGraphProjectApi}
       title={"Your Usage"}
       getLiveApi={getGraphLiveDataApi}
+      csvDownloadApi={downloadCsvApi}
     />
   );
 };
