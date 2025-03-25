@@ -160,7 +160,7 @@ const Logs = () => {
             ),
           },
         ]}
-        onRowClick={(row) => router.push(row.link)}
+        onRowClick={(row) => router.push(row?.link || "/dashboard")}
         isLoading={loading}
         refresh={getLogs}
         downloadCsv={downloadCSV}

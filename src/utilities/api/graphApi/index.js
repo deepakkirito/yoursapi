@@ -37,6 +37,19 @@ export const getGraphLiveDataApi = async (type, project, api, splitGraph) => {
   );
 };
 
+export const getGraphLiveShareDataApi = async (type, project, api, splitGraph) => {
+  return axiosGetSelf(
+    "graph/live/share?type=" +
+      type +
+      "&project=" +
+      project +
+      "&api=" +
+      api +
+      "&split=" +
+      splitGraph
+  );
+};
+
 export const downloadCsvApi = async (type, project, api) => {
   return axiosGetSelf(
     "graph/live/csv?type=" + type + "&project=" + project + "&api=" + api
@@ -45,4 +58,8 @@ export const downloadCsvApi = async (type, project, api) => {
 
 export const getGraphProjectApi = async () => {
   return axiosGetSelf("graph/project");
+};
+
+export const getGraphProjectShareApi = async () => {
+  return axiosGetSelf("graph/project/share");
 };

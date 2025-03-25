@@ -340,7 +340,7 @@ const CustomTable = ({
       <TableContainer
         sx={{
           width: "100%",
-          maxHeight: fullScreen? "calc(100vh - 10rem)" : "calc(100vh - 17rem)",
+          maxHeight: fullScreen ? "calc(100vh - 10rem)" : "calc(100vh - 17rem)",
           overflow: "auto",
           marginTop: "0.5rem",
           "& .MuiTableRow-root": {
@@ -349,7 +349,7 @@ const CustomTable = ({
           },
         }}
       >
-        <Table sx={{ width: "100%", tableLayout: "fixed" }}>
+        <Table sx={{ width: "-webkit-fill-available" }}>
           <TableHead
             className="sticky top-0 z-10"
             sx={{

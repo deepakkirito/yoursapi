@@ -43,7 +43,7 @@ import {
   typeOptions,
 } from "@/components/assets/constants/graph";
 
-const Chart = ({ getProjectsApi, title }) => {
+const Chart = ({ getProjectsApi, title, getLiveApi }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState("7");
@@ -55,8 +55,8 @@ const Chart = ({ getProjectsApi, title }) => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [projectsUsed, setProjectsUsed] = useState([]);
-  const [hide, setHide] = useLocalStorage(title, false);
-  const [live, setLive] = useLocalStorage(title + "live", false);
+  const [hide, setHide] = useLocalStorage(title, true);
+  const [live, setLive] = useLocalStorage(title + "live", true);
   const [refresh, setRefresh] = useState(false);
   const [splitGraph, setSplitGraph] = useState("project");
   const [updatedSplit, setUpdatedSplit] = useState("");
@@ -132,7 +132,7 @@ const Chart = ({ getProjectsApi, title }) => {
 
   const getLiveGraphData = async () => {
     setLoading(true);
-    getGraphLiveDataApi(type, project, api, splitGraph)
+    getLiveApi(type, project, api, splitGraph)
       .then((res) => {
         setData(res.data);
       })
@@ -375,6 +375,49 @@ const Chart = ({ getProjectsApi, title }) => {
     typeOptions,
   ]);
 
+  const CustomLegend = (props) => {
+    return (
+      <div
+        style={{ maxHeight: 60, overflowY: "auto" }}
+        className="flex justify-center"
+      >
+        <ul
+          style={{
+            listStyle: "none",
+            padding: 0,
+            margin: 0,
+            display: "flex",
+            flexWrap: "wrap",
+            textAlign: "center",
+          }}
+        >
+          {props.payload.map((entry, index) => (
+            <li
+              key={`legend-item-${index}`}
+              style={{ marginRight: 10 }}
+              onMouseOver={() => setActiveLabel(entry.dataKey)}
+              onMouseOut={() => setActiveLabel("")}
+              onClick={() =>
+                setHardActiveLabel({
+                  label:
+                    entry.dataKey === hardActiveLabel.label
+                      ? null
+                      : entry.dataKey,
+                  color:
+                    entry.dataKey === hardActiveLabel.label
+                      ? null
+                      : entry.color,
+                })
+              }
+            >
+              <span style={{ color: entry.color }}>⬤</span> {entry.value}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <Box>
       <Grid2
@@ -390,6 +433,7 @@ const Chart = ({ getProjectsApi, title }) => {
           position: "sticky",
           top: "0",
           zIndex: "5",
+          backdropFilter: "blur(10px)",
         }}
       >
         <Grid2 item size={{ xs: 4 }} className="flex items-center gap-2">
@@ -606,7 +650,7 @@ const Chart = ({ getProjectsApi, title }) => {
         <div className="w-full h-full pl-4 pr-8">
           <ResponsiveContainer
             width="100%"
-            height={!hide ? 300 : 0}
+            height={!hide ? 350 : 0}
             style={{
               transition: "all 0.5s",
             }}
@@ -644,22 +688,23 @@ const Chart = ({ getProjectsApi, title }) => {
                 ]}
               />
               <Legend
+                content={<CustomLegend />}
                 verticalAlign="bottom"
                 align="center"
-                onMouseOver={(event) => setActiveLabel(event.dataKey)}
-                onMouseOut={() => setActiveLabel("")}
-                onClick={(event) =>
-                  setHardActiveLabel({
-                    label:
-                      event.dataKey === hardActiveLabel.label
-                        ? null
-                        : event.dataKey,
-                    color:
-                      event.dataKey === hardActiveLabel.label
-                        ? null
-                        : event.color,
-                  })
-                }
+                // onMouseOver={(event) => setActiveLabel(event.dataKey)}
+                // onMouseOut={() => setActiveLabel("")}
+                // onClick={(event) =>
+                //   setHardActiveLabel({
+                //     label:
+                //       event.dataKey === hardActiveLabel.label
+                //         ? null
+                //         : event.dataKey,
+                //     color:
+                //       event.dataKey === hardActiveLabel.label
+                //         ? null
+                //         : event.color,
+                //   })
+                // }
               />
             </LineChart>
           </ResponsiveContainer>

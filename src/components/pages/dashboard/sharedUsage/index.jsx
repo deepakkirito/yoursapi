@@ -1,8 +1,18 @@
-import { getGraphProjectApi } from "@/utilities/api/graphApi";
+import {
+  getGraphLiveShareDataApi,
+  getGraphProjectApi,
+  getGraphProjectShareApi,
+} from "@/utilities/api/graphApi";
 import Chart from "../chart";
 
 const SharedUsage = () => {
-  return <Chart getProjectsApi={getGraphProjectApi} title="Shared Usage" />;
+  return (
+    <Chart
+      getProjectsApi={getGraphProjectShareApi}
+      title="Shared Usage"
+      getLiveApi={getGraphLiveShareDataApi}
+    />
+  );
 };
 
 export default SharedUsage;

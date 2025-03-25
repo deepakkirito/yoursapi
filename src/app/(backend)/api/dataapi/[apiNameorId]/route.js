@@ -39,15 +39,20 @@ export async function GET(request, { params }) {
 
     const { projectId, name } = dataApi;
 
-    const { ownerUserId, fetchData, mongoDbKey, ownerProjectName } =
-      await getProjectOwner({ projectId, userId });
+    const {
+      ownerUserId,
+      fetchData,
+      mongoDbKey,
+      ownerProjectName,
+      ownerUsername,
+    } = await getProjectOwner({ projectId, userId });
 
     const dbString =
       fetchData === "self" ? process.env.MONGODB_KEY_MAIN : mongoDbKey;
 
     const dbName =
       fetchData === "self"
-        ? `${username}_${ownerProjectName}`
+        ? `${ownerUsername}_${ownerProjectName}`
         : ownerProjectName;
 
     const connection = await connectToDatabase(dbString, dbName);

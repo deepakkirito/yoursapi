@@ -14,4 +14,5 @@ export const typeOptions = [
   { label: "Put", value: "put" },
   { label: "Patch", value: "patch" },
   { label: "Delete", value: "delete" },
+  { label: "Head", value: "head" },
 ];
