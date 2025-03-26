@@ -22,26 +22,32 @@ const apisSchema = new Schema(
     getRequest: {
       used: { type: Number, default: 0 },
       active: { type: Boolean, default: true },
+      secured: { type: Boolean, default: true },
     },
     postRequest: {
       used: { type: Number, default: 0 },
       active: { type: Boolean, default: true },
+      secured: { type: Boolean, default: true },
     },
     putRequest: {
       used: { type: Number, default: 0 },
       active: { type: Boolean, default: true },
+      secured: { type: Boolean, default: true },
     },
     deleteRequest: {
       used: { type: Number, default: 0 },
       active: { type: Boolean, default: true },
+      secured: { type: Boolean, default: true },
     },
     headRequest: {
       used: { type: Number, default: 0 },
       active: { type: Boolean, default: true },
+      secured: { type: Boolean, default: true },
     },
     patchRequest: {
       used: { type: Number, default: 0 },
       active: { type: Boolean, default: true },
+      secured: { type: Boolean, default: true },
     },
     schema: { type: Object, default: null },
     strict: { type: Boolean, default: false },

@@ -27,18 +27,19 @@ const Settings = ({
     { label: "Inactive", value: false },
   ];
 
-  const handleUpdateApiData = async (key, value) => {
+  const handleUpdateApiData = async (key, value, type) => {
     setLoading({ [key]: true });
     const body = {
       key: key,
       value: value,
+      type: type,
     };
     await updateApiStatusApi(id, body)
       .then((res) => {
         showNotification({
           content: res.data.message,
         });
-        setApiData({ ...apiData, [key]: { ...apiData[key], active: value } });
+        setApiData({ ...apiData, [key]: { ...apiData[key], [type]: value } });
       })
       .catch((err) => {
         refetch(false);
@@ -94,11 +95,15 @@ const Settings = ({
                 <Divider />
               </div>
               <Box className="flex gap-6 items-center">
-                <Typography variant="h7">Used</Typography>
+                <Typography variant="h7" width={"5rem"}>
+                  Used
+                </Typography>
                 <Typography variant="h7">{apiData[key].used} times</Typography>
               </Box>
               <Box className="flex gap-2 items-center">
-                <Typography variant="h7">Status</Typography>
+                <Typography variant="h7" width={"5rem"}>
+                  Status
+                </Typography>
                 {!loading[key] && (
                   <CustomToggle
                     options={toggleOptions}
@@ -106,7 +111,29 @@ const Settings = ({
                     disabled={!getPermission}
                     handleChange={(value) => {
                       if (apiData[key].active !== value && value !== null) {
-                        handleUpdateApiData(key, value);
+                        handleUpdateApiData(key, value, "active");
+                      } else {
+                        setLoading({ [key]: true });
+                        setTimeout(() => {
+                          setLoading({ [key]: false });
+                        }, 10);
+                      }
+                    }}
+                  />
+                )}
+              </Box>
+              <Box className="flex gap-2 items-center">
+                <Typography variant="h7" width={"5rem"}>
+                  Secured
+                </Typography>
+                {!loading[key] && (
+                  <CustomToggle
+                    options={toggleOptions}
+                    value={apiData[key].secured}
+                    disabled={!getPermission || apiData.authType === "none"}
+                    handleChange={(value) => {
+                      if (apiData[key].secured !== value && value !== null) {
+                        handleUpdateApiData(key, value, "secured");
                       } else {
                         setLoading({ [key]: true });
                         setTimeout(() => {

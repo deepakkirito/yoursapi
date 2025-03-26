@@ -82,7 +82,8 @@ export async function GET(request, { params }) {
       }
     )
       .populate("createdBy", "name profile email")
-      .populate("updatedBy", "name profile email");
+      .populate("updatedBy", "name profile email")
+      .lean();
 
     if (!apiData) {
       return NextResponse.json(
@@ -92,6 +93,12 @@ export async function GET(request, { params }) {
         { status: 400 }
       );
     }
+
+    const projectData = await ProjectsModel.findOne({
+      _id: projectId,
+    })
+      .populate("authId")
+      .lean();
 
     const user = await UsersModel.findOne({
       _id: userId,
@@ -108,7 +115,10 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({
       data,
-      apiData,
+      apiData: {
+        ...apiData,
+        authType: projectData?.authId?.authType || "none",
+      },
       permission:
         userId.toString() === ownerUserId.toString()
           ? null
@@ -281,6 +291,7 @@ export async function PATCH(request, { params }) {
       oldApiName,
       projectName,
       projectId,
+      type,
     } = body;
 
     const apiData = await ApisModel.findOne({
@@ -339,7 +350,7 @@ export async function PATCH(request, { params }) {
         { _id: apiNameorId },
         {
           $set: {
-            [key]: { ...apiData.toObject()[key], active: Boolean(value) },
+            [key]: { ...apiData.toObject()[key], [type]: Boolean(value) },
             updatedAt: Date.now(),
             updatedBy: userId,
           },
@@ -350,7 +361,7 @@ export async function PATCH(request, { params }) {
       logShared({
         userId: ownerUserId,
         projectId: apiData.projectId,
-        log: `Data API '${apiData.name}' status ${value ? "enabled" : "disabled"} in project '${ownerProjectName}'`,
+        log: `Data API '${apiData.name}' ${key} ${type === "active" ? "status" : "secured"} ${value ? "enabled" : "disabled"} in project '${ownerProjectName}'`,
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
