@@ -633,7 +633,9 @@ const Chart = ({ getProjectsApi, title, getLiveApi, csvDownloadApi }) => {
             <TooltipCustom title="Download CSV" placement="top">
               <IconButton
                 onClick={live ? downloadCSVLive : downloadCSV}
-                disabled={!data?.length || hide}
+                disabled={
+                  !data?.length || hide || projectsOptions?.length === 0
+                }
                 sx={{
                   ":disabled": {
                     opacity: 0.3,
@@ -647,7 +649,7 @@ const Chart = ({ getProjectsApi, title, getLiveApi, csvDownloadApi }) => {
         </Grid2>
       </Grid2>
       <br />
-      {data?.length > 0 ? (
+      {data?.length > 0 && projectsOptions?.length > 0 ? (
         <div className="w-full h-full pl-4 pr-8">
           <ResponsiveContainer
             width="100%"
@@ -720,7 +722,9 @@ const Chart = ({ getProjectsApi, title, getLiveApi, csvDownloadApi }) => {
           }}
         >
           <Typography variant="h6" fontWeight={"bold"}>
-            No data available
+            {projectsOptions?.length === 0
+              ? "No projects available"
+              : "No data available"}
           </Typography>
         </div>
       )}
