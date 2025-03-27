@@ -71,108 +71,108 @@ export const checkRequest = async ({
     }
 
     // ✅ Check and Reset Usage If Needed
-    const today = convertToIST(convertToIST(new Date())).setHours(0, 0, 0, 0);
-    const lastResetDate = convertToIST(new Date(user.lastReset)).setHours(
-      0,
-      0,
-      0,
-      0
-    );
+    // const today = convertToIST(convertToIST(new Date())).setHours(0, 0, 0, 0);
+    // const lastResetDate = convertToIST(new Date(user.lastReset)).setHours(
+    //   0,
+    //   0,
+    //   0,
+    //   0
+    // );
 
-    if (lastResetDate < today) {
-      // Find all projects owned by the user
-      const userProjects = await ProjectsModel.find({
-        userId: user._id,
-      }).lean();
+    // if (lastResetDate < today) {
+    //   // Find all projects owned by the user
+    //   const userProjects = await ProjectsModel.find({
+    //     userId: user._id,
+    //   }).lean();
 
-      const projectIds = [];
+    //   const projectIds = [];
 
-      const projectsUsed = await Promise.all(
-        userProjects.map(async (project) => {
-          projectIds.push(project._id);
-          const apis = await ApisModel.find({
-            projectId: project._id,
-          }).lean();
+    //   const projectsUsed = await Promise.all(
+    //     userProjects.map(async (project) => {
+    //       projectIds.push(project._id);
+    //       const apis = await ApisModel.find({
+    //         projectId: project._id,
+    //       }).lean();
 
-          const auths = await AuthsModel.findOne({
-            projectId: project._id,
-          }).lean();
+    //       const auths = await AuthsModel.findOne({
+    //         projectId: project._id,
+    //       }).lean();
 
-          return {
-            id: project._id,
-            apiUsed: [
-              ...apis.map((api) => ({
-                id: api._id,
-                headUsed: api.headRequest?.used || 0,
-                getUsed: api.getRequest?.used || 0,
-                postUsed: api.postRequest?.used || 0,
-                putUsed: api.putRequest?.used || 0,
-                patchUsed: api.patchRequest?.used || 0,
-                deleteUsed: api.deleteRequest?.used || 0,
-                logs: api.logs || [],
-              })),
-              ...(auths
-                ? [
-                    {
-                      id: auths._id,
-                      headUsed: auths.headRequest?.used || 0,
-                      getUsed: auths.getRequest?.used || 0,
-                      postUsed: auths.postRequest?.used || 0,
-                      putUsed: auths.putRequest?.used || 0,
-                      patchUsed: auths.patchRequest?.used || 0,
-                      deleteUsed: auths.deleteRequest?.used || 0,
-                      logs: auths.logs || [],
-                    },
-                  ]
-                : []),
-            ],
-          };
-        })
-      );
+    //       return {
+    //         id: project._id,
+    //         apiUsed: [
+    //           ...apis.map((api) => ({
+    //             id: api._id,
+    //             headUsed: api.headRequest?.used || 0,
+    //             getUsed: api.getRequest?.used || 0,
+    //             postUsed: api.postRequest?.used || 0,
+    //             putUsed: api.putRequest?.used || 0,
+    //             patchUsed: api.patchRequest?.used || 0,
+    //             deleteUsed: api.deleteRequest?.used || 0,
+    //             logs: api.logs || [],
+    //           })),
+    //           ...(auths
+    //             ? [
+    //                 {
+    //                   id: auths._id,
+    //                   headUsed: auths.headRequest?.used || 0,
+    //                   getUsed: auths.getRequest?.used || 0,
+    //                   postUsed: auths.postRequest?.used || 0,
+    //                   putUsed: auths.putRequest?.used || 0,
+    //                   patchUsed: auths.patchRequest?.used || 0,
+    //                   deleteUsed: auths.deleteRequest?.used || 0,
+    //                   logs: auths.logs || [],
+    //                 },
+    //               ]
+    //             : []),
+    //         ],
+    //       };
+    //     })
+    //   );
 
-      await StatisticsModel.create({
-        userId: user._id,
-        totalUsed: user.usedReq,
-        projectsUsed,
-      });
+    //   await StatisticsModel.create({
+    //     userId: user._id,
+    //     totalUsed: user.usedReq,
+    //     projectsUsed,
+    //   });
 
-      // Reset user request count
-      await UsersModel.updateOne(
-        { _id: user._id },
-        { $set: { usedReq: 0, lastReset: convertToIST(new Date()) } }
-      );
+    //   // Reset user request count
+    //   await UsersModel.updateOne(
+    //     { _id: user._id },
+    //     { $set: { usedReq: 0, lastReset: convertToIST(new Date()) } }
+    //   );
 
-      // Reset all APIs & auth APIs usage in user's projects
-      await ApisModel.updateMany(
-        { projectId: { $in: projectIds } },
-        {
-          $set: {
-            "getRequest.used": 0,
-            "postRequest.used": 0,
-            "putRequest.used": 0,
-            "deleteRequest.used": 0,
-            "headRequest.used": 0,
-            "patchRequest.used": 0,
-            logs: [],
-          },
-        }
-      );
+    //   // Reset all APIs & auth APIs usage in user's projects
+    //   await ApisModel.updateMany(
+    //     { projectId: { $in: projectIds } },
+    //     {
+    //       $set: {
+    //         "getRequest.used": 0,
+    //         "postRequest.used": 0,
+    //         "putRequest.used": 0,
+    //         "deleteRequest.used": 0,
+    //         "headRequest.used": 0,
+    //         "patchRequest.used": 0,
+    //         logs: [],
+    //       },
+    //     }
+    //   );
 
-      await AuthsModel.updateMany(
-        { projectId: { $in: projectIds } },
-        {
-          $set: {
-            "getRequest.used": 0,
-            "postRequest.used": 0,
-            "putRequest.used": 0,
-            "deleteRequest.used": 0,
-            "headRequest.used": 0,
-            "patchRequest.used": 0,
-            logs: [],
-          },
-        }
-      );
-    }
+    //   await AuthsModel.updateMany(
+    //     { projectId: { $in: projectIds } },
+    //     {
+    //       $set: {
+    //         "getRequest.used": 0,
+    //         "postRequest.used": 0,
+    //         "putRequest.used": 0,
+    //         "deleteRequest.used": 0,
+    //         "headRequest.used": 0,
+    //         "patchRequest.used": 0,
+    //         logs: [],
+    //       },
+    //     }
+    //   );
+    // }
 
     // ✅ Check API usage limit after reset
     if (user.totalReq <= user.usedReq) {

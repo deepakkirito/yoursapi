@@ -131,7 +131,7 @@ usersSchema.pre("findOneAndUpdate", function (next) {
 
 // **Indexes for search and automatic reset cleanup**
 usersSchema.index({ email: "text", referralCode: "text", username: "text" }); // Full-text search
-usersSchema.index({ lastReset: 1 }, { expireAfterSeconds: 86400 }); // TTL index for daily reset
+// usersSchema.index({ lastReset: 1 }, { expireAfterSeconds: 86400 }); // TTL index for daily reset
 
 const UsersModel =
   mongoose.models?.users || mongoose.model("users", usersSchema);
