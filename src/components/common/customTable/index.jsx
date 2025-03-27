@@ -120,10 +120,20 @@ const CustomTable = ({
   const getValue = (obj, path) =>
     path.split(".").reduce((acc, part) => acc && acc[part], obj) || "-";
 
-  const getColumnOptions = (columnId) =>
-    Array.from(
-      new Set(data.map((row) => getValue(row, columnId)?.toString() || "-"))
+  const getColumnOptions = (columnId) => {
+    const column = columns.find((col) => col.id === columnId);
+
+    return Array.from(
+      new Set(
+        data.map((row) => {
+          if (column?.filterValue) {
+            return column.filterValue(row); // Use filterValue if defined
+          }
+          return getValue(row, columnId)?.toString() || "-";
+        })
+      )
     );
+  };
 
   const filteredData = useMemo(() => {
     return (
@@ -140,16 +150,22 @@ const CustomTable = ({
         //   })
         // )
         .filter((row) =>
-          Object.entries(filters).every(([key, value]) =>
-            value
-              ? getValue(row, key)
-                  ?.toString()
-                  .toLowerCase()
-                  .includes(value.toLowerCase())
-              : true
-          )
+          Object.entries(filters).every(([key, value]) => {
+            if (!value) return true;
+
+            const column = columns.find((col) => col.id === key);
+            let cellValue = getValue(row, key)?.toString().toLowerCase() || "";
+
+            // Apply filterValue transformation if the column has one
+            if (column?.filterValue) {
+              cellValue = column.filterValue(row).toLowerCase();
+            }
+
+            return cellValue.includes(value.toLowerCase());
+          })
         )
     );
+
     // .sort((a, b) => {
     //   const aValue = getValue(a, orderBy);
     //   const bValue = getValue(b, orderBy);

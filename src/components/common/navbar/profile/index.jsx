@@ -143,28 +143,31 @@ const Profile = ({ userData, setLogin, router }) => {
             >
               {userData?.totalReq - userData?.usedReq || 0}
             </Typography>
-          </div>
           {Boolean(userData?.additionalReq) && (
             <div className="flex gap-2 items-center my-2">
-              <Typography variant="h7">Available Requests</Typography>
-              <Typography variant="h7">Additional Requests</Typography>
+              <Typography variant="h7">+</Typography>
               <Typography
                 variant="h8"
                 sx={{
-                  width: "2rem",
-                  height: "2rem",
-                  backgroundColor: "background.defaultSolid",
-                  color: "text.primary",
-                  borderRadius: "1rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  minWidth: "2rem",
+                maxWidth: "fit-content",
+                height: "2rem",
+                backgroundColor: "background.foreground",
+                color: "text.primary",
+                borderRadius: "1rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid",
+                borderColor: "background.border",
+                padding: "0 0.5rem",
                 }}
               >
                 {userData?.additionalReq}
               </Typography>
             </div>
           )}
+          </div>
           <Divider className="w-full" />
         </div>
       </CustomMenu>

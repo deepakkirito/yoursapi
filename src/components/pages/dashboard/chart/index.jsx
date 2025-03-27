@@ -247,8 +247,8 @@ const Chart = ({ getProjectsApi, title, getLiveApi, csvDownloadApi }) => {
 
   const customLabel = ({ x, y, value }) => (
     <text
-      x={x - 2}
-      y={y}
+      x={x - 5}
+      y={y + 30}
       dy={-10}
       fill={palette.text.primary}
       fontSize={12}

@@ -87,11 +87,16 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    getUser();
+    getUser(true);
+    const intervalId = setInterval(() => {
+      getUser(false);
+    }, 1000 * 60);
+
+    return () => clearInterval(intervalId);
   }, []);
 
-  const getUser = () => {
-    setLoading(true);
+  const getUser = (loading) => {
+    setLoading(loading);
     getUsersApi()
       .then((res) => {
         // setProfile(res.data.data?.profile);

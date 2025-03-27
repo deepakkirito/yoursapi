@@ -127,7 +127,7 @@ const Logs = () => {
           {
             id: "log",
             label: "Log",
-            width: 900,
+            width: 800,
             cell: (row) => renderNotification(row.log),
           },
           {
@@ -142,7 +142,7 @@ const Logs = () => {
             label: "User",
             width: 250,
             filterValue: (row) =>
-              `${row.createdBy.name} ${row.createdBy.email}`, // Use name & email for filtering
+              `${row.createdBy.email}`, // Use name & email for filtering
             cell: (row) => (
               <div className="flex gap-2 items-center">
                 <Image
