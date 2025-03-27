@@ -169,17 +169,18 @@ const Profile = () => {
                         transition: "all 0.5s",
                       },
                       ".upload": {
-                        transform: "translate(-7rem, 3rem)",
+                        transform: "translate(-6.9rem, 2.6rem)",
                         zIndex: -1,
                         opacity: 0,
                         transition: "all 0.5s",
                         backgroundColor: "background.default",
-                        border: "1px solid",
+                        border: "2px solid",
                         borderColor: "background.defaultSolid",
                       },
                       ":hover": {
                         ".image": {
                           filter: "blur(4px)",
+                          padding: "1rem",
                         },
                         ".upload": {
                           opacity: 1,

@@ -15,6 +15,8 @@ import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken"
 import { redirectToLogin } from "@/components/backend/utilities/middlewares/customResponse";
 import { copyDatabase } from "@/components/backend/utilities/middlewares/mongoose";
 import { NextResponse } from "next/server";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/utilities/helpers/firebaseConfig";
 
 export async function GET(request) {
   try {
@@ -117,11 +119,31 @@ export async function PATCH(request) {
 
     // Update profile picture or name
     if (profile || newName) {
+      var downloadURL = "";
+      if (profile) {
+        const base64ToBlob = (base64String) => {
+          const byteCharacters = atob(base64String.split(",")[1]); // Remove "data:image/jpeg;base64,"
+          const byteArrays = [];
+
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteArrays.push(byteCharacters.charCodeAt(i));
+          }
+
+          return new Blob([new Uint8Array(byteArrays)], { type: "image/jpeg" }); // Adjust MIME type if needed
+        };
+
+        const fileBlob = base64ToBlob(profile);
+        const fileRef = ref(storage, `profile-images/${user.email}`);
+
+        const snapshot = await uploadBytes(fileRef, fileBlob);
+        downloadURL = await getDownloadURL(snapshot.ref);
+      }
+
       const updatedUser = await UsersModel.findOneAndUpdate(
         { _id: userId },
         {
           $set: {
-            profile: profile || user.profile,
+            profile: downloadURL || user.profile,
             name: newName || user.name,
           },
         },
