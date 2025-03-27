@@ -247,12 +247,15 @@ const CustomTable = ({
         justifyContent="space-between"
         gap={"1rem"}
         mb={1}
+        sx={{
+          overflowX: "auto",
+        }}
       >
         <Box className="flex gap-6 items-center">
           <Typography
             sx={{ fontWeight: "bold" }}
             fontSize={{
-              xs: "0.8rem",
+              xs: "0.9rem",
               sm: "1.2rem",
             }}
           >

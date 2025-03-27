@@ -437,7 +437,7 @@ const Chart = ({ getProjectsApi, title, getLiveApi, csvDownloadApi }) => {
           // filter: "blur(1px)",
         }}
       >
-        <Grid2 item size={{ xs: 4 }} className="flex items-center gap-2">
+        <Grid2 item size={{ xs: 6, sm: 4 }} className="flex items-center gap-2">
           <Typography
             fontWeight={"bold"}
             fontSize={{
@@ -507,11 +507,13 @@ const Chart = ({ getProjectsApi, title, getLiveApi, csvDownloadApi }) => {
         </Grid2>
         <Grid2
           item
-          size={{ xs: 8 }}
+          size={{ xs: 6, sm: 8 }}
           className="flex items-center gap-2 overflow-x-auto pt-2"
-          sx={{
-            scrollbarWidth: "none",
-          }}
+          sx={
+            {
+              // scrollbarWidth: "none",
+            }
+          }
         >
           <CustomSelect
             labelTop="Project"
