@@ -1,5 +1,10 @@
 import { getLogsApi } from "@/utilities/api/logsApi";
-import { catchError, isValidJson } from "@/utilities/helpers/functions";
+import {
+  catchError,
+  convertToIST,
+  getDate,
+  isValidJson,
+} from "@/utilities/helpers/functions";
 import { Avatar, Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -125,7 +130,13 @@ const Logs = () => {
             width: 900,
             cell: (row) => renderNotification(row.log),
           },
-          { id: "createdAt", label: "Date", width: 200 },
+          {
+            id: "createdAt",
+            label: "Date",
+            width: 200,
+            filterValue: (row) => getDate(convertToIST(row.createdAt)).split(",")[0],
+            cell: (row) => getDate(convertToIST(row.createdAt)),
+          },
           {
             id: "createdBy.email",
             label: "User",

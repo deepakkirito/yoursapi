@@ -9,7 +9,7 @@ import {
 } from "@/components/backend/utilities/helpers/password";
 import { getSessionDetails } from "@/components/backend/utilities/helpers/session";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
-import { convertToIST } from "@/utilities/helpers/functions";
+import { convertToIST, getDate } from "@/utilities/helpers/functions";
 import axios from "axios";
 import { NextResponse } from "next/server";
 
@@ -116,7 +116,7 @@ export async function POST(request) {
         template: "login",
         context: {
           username: user.name,
-          loginDate: convertToIST(new Date()),
+          loginDate: getDate(new Date()),
           location: `${sessionDetails.city}, ${sessionDetails.country}`,
           device: sessionDetails.device,
           browser: sessionDetails.browser,

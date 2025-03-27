@@ -9,7 +9,7 @@ import { comparePassword } from "@/components/backend/utilities/helpers/password
 import { getSessionDetails } from "@/components/backend/utilities/helpers/session";
 import { validateRequest } from "@/components/backend/utilities/helpers/validator";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
-import { convertToIST } from "@/utilities/helpers/functions";
+import { convertToIST, getDate } from "@/utilities/helpers/functions";
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
@@ -109,7 +109,7 @@ export async function POST(request) {
         template: "login",
         context: {
           username: user.name,
-          loginDate: convertToIST(new Date()),
+          loginDate: getDate(new Date()),
           location: `${sessionDetails.city}, ${sessionDetails.country}`,
           device: sessionDetails.device,
           browser: sessionDetails.browser,

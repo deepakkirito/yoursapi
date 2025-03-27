@@ -87,5 +87,5 @@ export const isValidJson = (str) => {
 
 // Function to convert any date to IST
 export const convertToIST = (date) => {
-  return moment(date).tz("Asia/Kolkata").toDate();
+  return moment.utc(date).tz("Asia/Kolkata").toDate();
 };
