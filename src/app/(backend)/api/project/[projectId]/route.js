@@ -193,8 +193,7 @@ export async function DELETE(request, { params }) {
           uri: user.mongoDbKey ? decrypt(user.mongoDbKey) : null,
           projectName: project.name,
           userName: user.username,
-          saveInternal: user.saveInternal,
-          saveExternal: user.saveExternal,
+          projectUri: decrypt(project.dbString),
         });
       } catch (error) {
         console.error("Error dropping database:", error);
@@ -271,8 +270,6 @@ export async function PATCH(request, { params }) {
       ownerUsername,
       ownerEmail,
       ownerName,
-      saveExternal,
-      saveInternal,
       mongoDbKey,
       ownerProjectName,
     } = await getProjectOwner({ userId, projectId });
@@ -293,14 +290,14 @@ export async function PATCH(request, { params }) {
       return validator;
     }
 
-    if (saveInternal) {
-      await copyDatabase({
-        oldDbName: `${ownerUsername}_${ownerProjectName}`,
-        newDbName: `${ownerUsername}_${projectName}`,
-      });
-    }
+    // Self
+    await copyDatabase({
+      oldDbName: `${ownerUsername}_${ownerProjectName}`,
+      newDbName: `${ownerUsername}_${projectName}`,
+    });
 
-    if (saveExternal && mongoDbKey) {
+    // Master
+    if (mongoDbKey) {
       await copyDatabase({
         oldDbName: ownerProjectName,
         newDbName: projectName,

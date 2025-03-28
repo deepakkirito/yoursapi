@@ -80,18 +80,10 @@ const usersSchema = new Schema(
       type: String,
       default: null,
     },
-    saveInternal: {
-      type: Boolean,
-      default: true,
-    },
-    saveExternal: {
-      type: Boolean,
-      default: false,
-    },
     fetchData: {
       type: String,
       default: "self",
-      enum: ["self", "user"],
+      enum: ["self", "master"],
     },
     project: [{ type: Schema.Types.ObjectId, ref: "projects" }],
     trash: [{ type: Schema.Types.ObjectId, ref: "projects" }],
@@ -100,7 +92,11 @@ const usersSchema = new Schema(
         permission: {
           type: String,
           default: "read",
-          enum: ["read", "write", "admin"],
+          enum: ["read", "write", "admin", "custom"],
+        },
+        permissionDetails: {
+          type: Map,
+          of: String,
         },
         project: { type: Schema.Types.ObjectId, ref: "projects" },
         owner: { type: Schema.Types.ObjectId, ref: "users" },

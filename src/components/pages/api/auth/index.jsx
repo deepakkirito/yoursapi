@@ -159,7 +159,7 @@ const AuthApi = ({ shared = false }) => {
               <Navbar
                 title="Auth Api"
                 shared={shared}
-                endpoint="auth"
+                endpoint="authapi"
                 query={false}
                 auth={{
                   name: authData?.name,

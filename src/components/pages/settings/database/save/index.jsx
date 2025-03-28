@@ -18,13 +18,12 @@ const SaveDatabase = ({ fetchData = () => {} }) => {
     if (dbString[dbString.length - 1] !== "/") {
       updatedString = dbString + "/";
     }
-        
+
     const encrypted = encrypt(updatedString);
 
     await saveDBStringApi({
       dbString: encrypted,
-      saveExternal: true,
-      saveInternal: true,
+      fetchData: "master",
     })
       .then((res) => {
         showNotification({

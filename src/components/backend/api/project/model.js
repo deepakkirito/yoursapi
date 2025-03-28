@@ -22,6 +22,12 @@ const projectsSchema = new Schema(
     apiIds: [{ type: Schema.Types.ObjectId, ref: "apis" }],
     shared: [{ type: Schema.Types.ObjectId, ref: "users" }],
     authId: { type: Schema.Types.ObjectId, ref: "auths" },
+    dbString: { type: String, default: null },
+    fetchData: {
+      type: String,
+      default: "self",
+      enum: ["self", "master", "project"],
+    },
   },
   {
     timestamps: true, // Disable Mongoose default timestamps

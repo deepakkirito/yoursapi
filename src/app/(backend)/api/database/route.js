@@ -1,4 +1,5 @@
 import LoggersModel from "@/components/backend/api/logger";
+import ProjectsModel from "@/components/backend/api/project/model";
 import UsersModel from "@/components/backend/api/users/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { connectToDatabase } from "@/components/backend/utilities/middlewares/mongoose";
@@ -12,7 +13,7 @@ export async function GET(request) {
 
     const user = await UsersModel.findOne(
       { _id: userId },
-      { mongoDbKey: 1, saveExternal: 1, saveInternal: 1, fetchData: 1 }
+      { mongoDbKey: 1, fetchData: 1 }
     );
 
     return NextResponse.json(user);
@@ -26,13 +27,7 @@ export async function POST(request) {
   try {
     const { userId, body } = await verifyToken(request);
 
-    const { dbString, saveExternal, saveInternal, fetchData } = body;
-
-    if (!saveExternal && !saveInternal) {
-      return NextResponse.json({
-        message: "Can not deactivate both databases",
-      });
-    }
+    const { dbString, fetchData } = body;
 
     const user = await UsersModel.findOne({ _id: userId }).lean();
 
@@ -62,49 +57,91 @@ export async function POST(request) {
         _id: userId,
       },
       {
-        mongoDbKey: dbString ? dbString : null,
-        saveExternal: Boolean(saveExternal),
-        saveInternal: Boolean(saveInternal),
-        fetchData:
-          saveExternal && saveInternal
-            ? fetchData === "user"
-              ? "user"
-              : "self"
-            : saveExternal
-              ? "user"
-              : "self",
+        mongoDbKey: dbString || user.mongoDbKey || null,
+        fetchData: fetchData || user.fetchData || "self",
         updatedAt: convertToIST(new Date()),
         updatedBy: userId,
       },
       { new: true, lean: true }
     );
 
-    const getMessage = () => {
-      if (saveInternal !== user.saveInternal) {
-        return `${process.env.COMPANY_NAME} database status updated to ${updatedData.saveInternal ? "activated" : "disabled"}`;
-      }
+    if (dbString) {
+      await LoggersModel.create({
+        userId: userId,
+        type: "user",
+        createdBy: userId,
+        log: `Database connection string added`,
+      });
+    }
 
-      if (saveExternal !== user.saveExternal) {
-        return `Your database status updated to ${updatedData.saveExternal ? "activated" : "disabled"}`;
-      }
+    if (fetchData) {
+      await LoggersModel.create({
+        userId: userId,
+        type: "user",
+        createdBy: userId,
+        log: `Data will be fetch and saved to ${updatedData.fetchData === "self" ? "our database" : "master database"}`,
+      });
+    }
 
-      if (dbString !== user.mongoDbKey) {
-        return `Database dbString updated`;
-      }
+    return NextResponse.json({ message: "Database updated successfully" });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ message: "Error in getProjectOwner" });
+  }
+}
 
-      if (fetchData !== user.fetchData) {
-        return `Database fetch data updated to ${updatedData.fetchData}`;
-      }
+export async function DELETE(request) {
+  try {
+    const { userId } = await verifyToken(request);
 
-      return "Invalid option triggered";
-    };
+    const user = await UsersModel.findOne({ _id: userId }).lean();
 
-    await LoggersModel.create({
-      userId: userId,
-      type: "user",
-      createdBy: userId,
-      log: getMessage(),
-    });
+    if (!user) {
+      return NextResponse.json({
+        message: "User not found",
+      });
+    }
+
+    if (user.mongoDbKey) {
+      await LoggersModel.create({
+        userId: userId,
+        type: "user",
+        createdBy: userId,
+        log: `Database connection string removed`,
+      });
+
+      await LoggersModel.create({
+        userId: userId,
+        type: "user",
+        createdBy: userId,
+        log: `Data will be fetch and saved to our database`,
+      });
+    }
+
+    await UsersModel.findOneAndUpdate(
+      {
+        _id: userId,
+      },
+      {
+        mongoDbKey: null,
+        fetchData: "self",
+        updatedAt: convertToIST(new Date()),
+        updatedBy: userId,
+      },
+      { new: true, lean: true }
+    );
+
+    await ProjectsModel.updateMany(
+      { userId, fetchData: "master" },
+      {
+        $set: {
+          fetchData: "self",
+        },
+        updatedAt: convertToIST(new Date()),
+        updatedBy: userId,
+      },
+      { new: true, lean: true }
+    );
 
     return NextResponse.json({ message: "Database updated successfully" });
   } catch (error) {

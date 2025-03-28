@@ -19,24 +19,32 @@ export const dropDb = async ({
   uri = MONGO_URI,
   projectName,
   userName,
-  saveInternal,
-  saveExternal,
+  projectUri,
 }) => {
   try {
-    if (saveInternal) {
-      const dbName = `${userName}_${projectName}`;
-      const connection = await connectToDatabase(MONGO_URI, dbName);
-      await connection.db.dropDatabase();
-      await connection.close();
-      console.log(`Dropped internal database: ${dbName}`);
-    }
+    // Self
+    const dbName = `${userName}_${projectName}`;
+    const connection = await connectToDatabase(MONGO_URI, dbName);
+    await connection.db.dropDatabase();
+    await connection.close();
+    console.log(`Dropped internal database: ${dbName}`);
 
-    if (saveExternal && uri) {
+    // Master
+    if (uri) {
       const dbName = projectName;
       const connection = await connectToDatabase(uri, dbName);
       await connection.db.dropDatabase();
       await connection.close();
       console.log(`Dropped external database: ${dbName}`);
+    }
+
+    // Project
+    if (projectUri) {
+      const dbName = projectName;
+      const connection = await connectToDatabase(projectUri, dbName);
+      await connection.db.dropDatabase();
+      await connection.close();
+      console.log(`Dropped project database: ${dbName}`);
     }
   } catch (error) {
     console.error("Error dropping database:", error);

@@ -5,7 +5,7 @@ const Page = (props) => {
   const projectId = props.params.projectId;
 
   const router = useRouter();
-  router.push(`/projects/shared/${projectId}/data`);
+  router.push(`/projects/shared/${projectId}/dataapi`);
   return null;
 };
 export default Page;

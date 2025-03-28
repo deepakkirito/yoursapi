@@ -46,20 +46,32 @@ const mainList = [
 
 const projectList = [
   {
-    link: "data",
+    link: "dataapi",
     name: "Data Api",
     icon: <DataArrayRoundedIcon color="secondary" />,
   },
   {
-    link: "auth",
+    link: "authapi",
     name: "Auth Api",
     icon: <LockRoundedIcon color="secondary" />,
   },
   {
-    link: "websockets",
+    link: "websocketapi",
     name: "Websockets Api",
     icon: <StreamRoundedIcon color="secondary" />,
   },
+  {
+    name: "divider",
+  },
+  {
+    name: "header",
+    label: "Settings",
+  },
+  {
+    link: "database",
+    name: "Database",
+    icon: <StorageRoundedIcon color="secondary" />,
+  }
 ];
 
 const profileList = [

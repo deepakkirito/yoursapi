@@ -13,6 +13,7 @@ import {
   connectToDatabase,
   getModelData,
   renameCollection,
+  updateModel,
 } from "@/components/backend/utilities/middlewares/mongoose";
 import { NextResponse } from "next/server";
 
@@ -30,6 +31,7 @@ export async function GET(request, { params }) {
       ownerProjectName,
       fetchData,
       mongoDbKey,
+      projectMongoDbKey,
     } = await getProjectOwner({ userId, projectId });
 
     const { searchParams } = new URL(request.url);
@@ -63,11 +65,31 @@ export async function GET(request, { params }) {
 
     if (data === "true") {
       const dbString =
-        fetchData === "self" ? process.env.MONGODB_KEY_MAIN : mongoDbKey;
+        fetchData === "self"
+          ? process.env.MONGODB_KEY_MAIN
+          : fetchData === "master"
+            ? mongoDbKey
+            : fetchData === "project"
+              ? projectMongoDbKey
+              : null;
+
       const dbName =
         fetchData === "self"
           ? `${ownerUsername}_${ownerProjectName}`
-          : ownerProjectName;
+          : fetchData === "master"
+            ? ownerProjectName
+            : fetchData === "project"
+              ? ownerProjectName
+              : null;
+
+      if (!dbString) {
+        return NextResponse.json(
+          {
+            message: "No database connection found",
+          },
+          { status: 400 }
+        );
+      }
 
       const connection = await connectToDatabase(dbString, dbName);
 
@@ -135,7 +157,7 @@ export async function POST(request, { params }) {
     }
 
     const newAuth = await AuthsModel.create({
-      name: apiName || "auth",
+      name: apiName?.toLowerCase() || "auth",
       userId: ownerUserId,
       projectId,
       createdBy: ownerUserId,
@@ -160,8 +182,8 @@ export async function POST(request, { params }) {
       projectId: projectId,
       authId: newAuth._id,
       createdBy: userId,
-      link: `/projects/${projectId}/auth`,
-      linkShared: `/projects/shared/${projectId}/auth`,
+      link: `/projects/${projectId}/authapi`,
+      linkShared: `/projects/shared/${projectId}/authapi`,
     });
 
     mailShared({
@@ -220,10 +242,10 @@ export async function PATCH(request, { params }) {
       ownerEmail,
       ownerName,
       ownerProjectName,
-      saveExternal,
-      saveInternal,
       mongoDbKey,
       ownerUsername,
+      fetchData,
+      projectMongoDbKey,
     } = await getProjectOwner({ userId, projectId: authData.projectId });
 
     if (apiName) {
@@ -266,19 +288,19 @@ export async function PATCH(request, { params }) {
         );
       }
 
-      if (saveInternal) {
-        const dbString = process.env.MONGODB_KEY_MAIN;
-        const dbName = `${ownerUsername}_${ownerProjectName}`;
+      // Self
+      const dbString = process.env.MONGODB_KEY_MAIN;
+      const dbName = `${ownerUsername}_${ownerProjectName}`;
 
-        await renameCollection({
-          uri: dbString,
-          dbName,
-          oldCollectionName: authData.name,
-          newCollectionName: apiName,
-        });
-      }
+      await renameCollection({
+        uri: dbString,
+        dbName,
+        oldCollectionName: authData.name,
+        newCollectionName: apiName,
+      });
 
-      if (saveExternal && mongoDbKey) {
+      // Master
+      if (mongoDbKey) {
         const dbName = ownerProjectName;
 
         await renameCollection({
@@ -289,54 +311,30 @@ export async function PATCH(request, { params }) {
         });
       }
 
+      // Project
+      if (projectMongoDbKey) {
+        const dbString = projectMongoDbKey;
+        const dbName = ownerProjectName;
+
+        await renameCollection({
+          uri: dbString,
+          dbName,
+          oldCollectionName: authData.name,
+          newCollectionName: apiName,
+        });
+      }
+
       await AuthsModel.findOneAndUpdate(
         { _id: authId },
         {
           $set: {
-            name: apiName,
+            name: apiName.toLowerCase(),
             updatedAt: Date.now(),
             updatedBy: userId,
           },
         },
         { new: true, lean: true }
       );
-
-      if (data) {
-        const parsedData = validateData(data || "[]");
-
-        if (saveInternal) {
-          const dbString = process.env.MONGODB_KEY_MAIN;
-          const dbName = `${ownerUsername}_${ownerProjectName}`;
-
-          const connection = await connectToDatabase(dbString, dbName);
-
-          await updateModel({
-            dbConnection: connection,
-            collectionName: apiName,
-            data: parsedData,
-          });
-
-          await connection.close();
-        }
-
-        if (saveExternal && mongoDbKey) {
-          const dbName = ownerProjectName;
-
-          const connection = await connectToDatabase(mongoDbKey, dbName);
-
-          await updateModel({
-            dbConnection: connection,
-            collectionName: apiName,
-            data: parsedData,
-          });
-
-          await connection.close();
-        }
-
-        return NextResponse.json({
-          message: "Data updated successfully",
-        });
-      }
 
       logShared({
         userId: ownerUserId,
@@ -345,12 +343,68 @@ export async function PATCH(request, { params }) {
         projectId: authData.projectId,
         authId: authData._id,
         createdBy: userId,
-        link: `/projects/${authData.projectId}/auth`,
-        linkShared: `/projects/shared/${authData.projectId}/auth`,
+        link: `/projects/${authData.projectId}/authapi`,
+        linkShared: `/projects/shared/${authData.projectId}/authapi`,
       });
 
       return NextResponse.json({
         message: "Api name updated successfully",
+      });
+    }
+
+    if (data) {
+      const parsedData = validateData(data || "[]");
+
+      const dbString =
+        fetchData === "self"
+          ? process.env.MONGODB_KEY_MAIN
+          : fetchData === "master"
+            ? mongoDbKey
+            : fetchData === "project"
+              ? projectMongoDbKey
+              : null;
+
+      const dbName =
+        fetchData === "self"
+          ? `${ownerUsername}_${ownerProjectName}`
+          : fetchData === "project"
+            ? ownerProjectName
+            : fetchData === "master"
+              ? ownerProjectName
+              : null;
+
+      if (!dbString) {
+        return NextResponse.json(
+          {
+            message: "No database connection found",
+          },
+          { status: 400 }
+        );
+      }
+
+      const connection = await connectToDatabase(dbString, dbName);
+
+      await updateModel({
+        dbConnection: connection,
+        collectionName: apiName,
+        data: parsedData,
+      });
+
+      await connection.close();
+
+      logShared({
+        userId: ownerUserId,
+        log: `Auth API '${authData.name}' data updated in project '${ownerProjectName}'`,
+        type: "auth",
+        projectId: authData.projectId,
+        authId: authData._id,
+        createdBy: userId,
+        link: `/projects/${authData.projectId}/authapi`,
+        linkShared: `/projects/shared/${authData.projectId}/authapi`,
+      });
+
+      return NextResponse.json({
+        message: "Data updated successfully",
       });
     }
 
@@ -411,8 +465,8 @@ export async function PATCH(request, { params }) {
         type: "auth",
         authId: authData._id,
         createdBy: userId,
-        link: `/projects/${authData.projectId}/auth`,
-        linkShared: `/projects/shared/${authData.projectId}/auth`,
+        link: `/projects/${authData.projectId}/authapi`,
+        linkShared: `/projects/shared/${authData.projectId}/authapi`,
       });
 
       return NextResponse.json({
@@ -460,13 +514,13 @@ export async function DELETE(request, { params }) {
       ownerEmail,
       ownerName,
       ownerProjectName,
-      saveExternal,
-      saveInternal,
       mongoDbKey,
       ownerUsername,
+      projectMongoDbKey,
     } = await getProjectOwner({ userId, projectId: authData.projectId });
 
-    if (saveExternal) {
+    // Master
+    if (mongoDbKey) {
       const dbName = ownerProjectName;
 
       const connection = await connectToDatabase(mongoDbKey, dbName);
@@ -476,9 +530,20 @@ export async function DELETE(request, { params }) {
       await connection.close();
     }
 
-    if (saveInternal) {
-      const dbString = process.env.MONGODB_KEY_MAIN;
-      const dbName = `${ownerUsername}_${ownerProjectName}`;
+    // Self
+    const dbString = process.env.MONGODB_KEY_MAIN;
+    const dbName = `${ownerUsername}_${ownerProjectName}`;
+
+    const connection = await connectToDatabase(dbString, dbName);
+
+    await connection.db.collection(authData.name).drop();
+
+    await connection.close();
+
+    // Project
+    if (projectMongoDbKey) {
+      const dbString = projectMongoDbKey;
+      const dbName = ownerProjectName;
 
       const connection = await connectToDatabase(dbString, dbName);
 
@@ -507,8 +572,8 @@ export async function DELETE(request, { params }) {
       type: "auth",
       authId: authData._id,
       createdBy: userId,
-      link: `/projects/${authData.projectId}/auth`,
-      linkShared: `/projects/shared/${authData.projectId}/auth`,
+      link: `/projects/${authData.projectId}/authapi`,
+      linkShared: `/projects/shared/${authData.projectId}/authapi`,
     });
 
     return NextResponse.json({ message: "Auth API deleted successfully" });

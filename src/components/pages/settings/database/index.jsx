@@ -2,6 +2,7 @@
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import style from "./style.module.scss";
 import {
+  deleteDBStringApi,
   getDatabaseInfoApi,
   saveDBStringApi,
 } from "@/utilities/api/databaseApi";
@@ -14,13 +15,10 @@ import { decrypt } from "@/utilities/helpers/encryption";
 import { CreateAlertContext } from "@/utilities/context/alert";
 
 const DataBase = () => {
-  const [{ dbString, saveInternal, saveExternal, apiDatabase }, setData] =
-    useState({
-      dbString: "",
-      saveInternal: false,
-      saveExternal: false,
-      apiDatabase: "",
-    });
+  const [{ dbString, apiDatabase }, setData] = useState({
+    dbString: "",
+    apiDatabase: "",
+  });
   const [loading, setLoading] = useState(true);
   const [buttonLoading, setButtonLoading] = useState(false);
   const { alert, setAlert } = useContext(CreateAlertContext);
@@ -35,8 +33,6 @@ const DataBase = () => {
       .then((res) => {
         setData({
           dbString: res.data.mongoDbKey ? decrypt(res.data.mongoDbKey) : "",
-          saveInternal: res.data.saveInternal,
-          saveExternal: res.data.saveExternal,
           apiDatabase: res.data.fetchData,
         });
       })
@@ -53,10 +49,8 @@ const DataBase = () => {
     setButtonLoading(true);
     const body = {
       dbString: "",
-      saveInternal: true,
-      saveExternal: false,
     };
-    await saveDBStringApi(body)
+    await deleteDBStringApi()
       .then((res) => {
         showNotification({
           content: res.data.message,
@@ -148,8 +142,6 @@ const DataBase = () => {
                 {dbString && (
                   <DatabaseDetails
                     dbString={dbString}
-                    saveInternal={saveInternal}
-                    saveExternal={saveExternal}
                     apiDatabase={apiDatabase}
                     fetchData={(value) => getDatabaseInfo({ load: value })}
                   />

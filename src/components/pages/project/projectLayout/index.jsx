@@ -417,7 +417,7 @@ const ProjectLayout = ({
                                 (location === "/projects/shared" &&
                                   item.status !== "inactive")) && (
                                 <Link
-                                  href={`${location}/${item._id}/data`}
+                                  href={`${location}/${item._id}/dataapi`}
                                   onClick={() =>
                                     window.localStorage.setItem(
                                       "project_" + item._id,

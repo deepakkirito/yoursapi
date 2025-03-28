@@ -90,6 +90,22 @@ const updateSharedProjectNameApi = (id, body) => {
   return axiosPatchSelf(`project/${id}`, body);
 };
 
+export const getProjectDatabaseApi = (id) => {
+  return axiosGetSelf(`project/database/${id}`);
+};
+
+export const saveProjectDatabaseApi = (id, body) => {
+  return axiosPostSelf(`project/database/${id}`, body);
+};
+
+export const updateProjectDatabaseApi = (id, body) => {
+  return axiosPatchSelf(`project/database/${id}`, body);
+};
+
+export const deleteProjectDatabaseApi = (id) => {
+  return axiosDeleteSelf(`project/database/${id}`);
+};
+
 export {
   getProjectApi,
   createProjectApi,

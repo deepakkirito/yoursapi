@@ -1,4 +1,12 @@
-const { axiosGet, axiosPost, axiosPut, axiosDelete, axiosGetSelf, axiosPostSelf } = require("..");
+const {
+  axiosGet,
+  axiosPost,
+  axiosPut,
+  axiosDelete,
+  axiosGetSelf,
+  axiosPostSelf,
+  axiosDeleteSelf,
+} = require("..");
 
 const getDatabaseInfoApi = () => {
   return axiosGetSelf(`database`);
@@ -14,6 +22,10 @@ const postMigrateDataApi = (option, body) => {
 
 const saveDBStringApi = (body) => {
   return axiosPostSelf(`database`, body);
+};
+
+export const deleteDBStringApi = () => {
+  return axiosDeleteSelf(`database`);
 };
 
 export {

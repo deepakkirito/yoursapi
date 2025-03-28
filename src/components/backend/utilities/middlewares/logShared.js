@@ -14,7 +14,7 @@ export const logShared = async ({
 }) => {
   const project = await ProjectsModel.findOne({ _id: projectId }).lean();
 
-  let userIds = [userId, ...project.shared];
+  let userIds = [userId, ...(project?.shared ?? [])];
 
   // if (userId.toString() === createdBy.toString()) {
   //   userIds = project.shared;

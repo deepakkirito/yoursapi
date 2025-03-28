@@ -37,13 +37,7 @@ import DataTransfer from "@/components/assets/json/dataTransfer.json";
 import Lottie from "react-lottie";
 import { encrypt } from "@/utilities/helpers/encryption";
 
-const DatabaseDetails = ({
-  dbString,
-  saveInternal,
-  saveExternal,
-  apiDatabase,
-  fetchData = () => {},
-}) => {
+const DatabaseDetails = ({ dbString, apiDatabase, fetchData = () => {} }) => {
   const [loading, setLoading] = useState(false);
   const [migrateSelect, setMigrateSelect] = useState("");
   const [migrateData, setMigrateData] = useState([]);
@@ -129,13 +123,10 @@ const DatabaseDetails = ({
       });
   };
 
-  const handleSave = async ({ internal, external, apiDatabaseSelect }) => {
+  const handleSave = async ({ key, value }) => {
     setLoading(true);
     await saveDBStringApi({
-      dbString: encrypt(dbString),
-      saveExternal: external,
-      saveInternal: internal,
-      fetchData: apiDatabaseSelect,
+      [key]: value,
     })
       .then((res) => {
         showNotification({
@@ -173,7 +164,7 @@ const DatabaseDetails = ({
       {/* Database Details Section */}
       <Box className="flex flex-col gap-4">
         <Box className="flex gap-2 items-center">
-          <Typography variant="h5">Connected Database Details</Typography>
+          <Typography variant="h5">Connected Database Details (Master)</Typography>
           {loading && <CircularProgress color="secondary" size={24} />}
         </Box>
         {/* Section one */}
@@ -192,10 +183,13 @@ const DatabaseDetails = ({
               alignItems: "center",
             }}
           >
-            <Typography variant="h7" sx={{
-              display: "block",
-              wordBreak: "break-all",
-            }}> 
+            <Typography
+              variant="h7"
+              sx={{
+                display: "block",
+                wordBreak: "break-all",
+              }}
+            >
               {dbstringArray[0]}:{dbstringArray[1]}:**your-password**@
               {dbstringArray[2]?.split("@")[1]}
             </Typography>
@@ -219,7 +213,7 @@ const DatabaseDetails = ({
         </Box>
         <Grid2 container spacing={2}>
           {/* Section two */}
-          <Grid2
+          {/* <Grid2
             item
             size={{ xs: 12, md: 6 }}
             className="flex gap-3 flex-col"
@@ -274,7 +268,7 @@ const DatabaseDetails = ({
                 />
               </Box>
             </Box>
-          </Grid2>
+          </Grid2> */}
           {/* Section three */}
           <Grid2
             item
@@ -287,7 +281,7 @@ const DatabaseDetails = ({
           >
             <FormControl>
               <FormLabel id="radio-buttons-group-label" className="mb-4">
-                Select from which database your apis will fetch data
+                Select from which database your apis will fetch and save data
               </FormLabel>
               <RadioGroup
                 row
@@ -296,17 +290,15 @@ const DatabaseDetails = ({
                 value={apiDatabase}
                 onChange={(event) =>
                   handleSave({
-                    apiDatabaseSelect: event.target.value,
-                    internal: saveInternal,
-                    external: saveExternal,
+                    key: "fetchData",
+                    value: event.target.value,
                   })
                 }
               >
                 <FormControlLabel
-                  value="user"
+                  value="master"
                   control={
                     <Radio
-                      disabled={!(saveExternal && saveInternal)}
                       sx={{
                         color: "checkbox",
                         "&.Mui-checked": {
@@ -315,13 +307,12 @@ const DatabaseDetails = ({
                       }}
                     />
                   }
-                  label="Your Database"
+                  label="Master Database"
                 />
                 <FormControlLabel
                   value="self"
                   control={
                     <Radio
-                      disabled={!(saveExternal && saveInternal)}
                       sx={{
                         color: "checkbox",
                         "&.Mui-checked": {

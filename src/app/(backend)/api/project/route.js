@@ -134,13 +134,20 @@ export async function POST(request) {
 
     await saveData({
       data,
-      saveInternal: user.saveInternal,
-      saveExternal: user.saveExternal,
-      mongoDbKey: decrypt(user.mongoDbKey),
-      projectName: body.projectName,
+      mongoDbKey:
+        user.fetchData === "self"
+          ? process.env.MONGODB_KEY_MAIN
+          : user.fetchData === "master"
+            ? decrypt(user.mongoDbKey)
+            : null,
       apiName: body.apiName,
       schema: user.schema,
-      username: username,
+      dbName:
+        user.fetchData === "self"
+          ? `${username}_${body.projectName}`
+          : user.fetchData === "master"
+            ? body.projectName
+            : null,
     });
 
     const newProject = await ProjectsModel.create({

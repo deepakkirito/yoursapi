@@ -157,7 +157,7 @@ const DataApi = ({ shared = false }) => {
       <Navbar
         title="Data Api"
         shared={shared}
-        endpoint="data"
+        endpoint="dataapi"
         query={true}
         refetch={() => getApiDetails(id, false)}
         openApi={openApi}
