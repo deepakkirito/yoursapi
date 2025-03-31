@@ -187,7 +187,7 @@ const AddEdit = ({ id = "" }) => {
           <Button
             variant="contained"
             size="small"
-            disabled={loading || !data?.name || !data?.requests || pageLoading}
+            disabled={loading || !data?.name || pageLoading}
             onClick={!id ? handleSave : handleUpdate}
             endIcon={loading ? <CircularProgress size={16} /> : ""}
           >

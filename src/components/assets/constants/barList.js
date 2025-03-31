@@ -7,31 +7,31 @@ import DataArrayRoundedIcon from "@mui/icons-material/DataArrayRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import StreamRoundedIcon from "@mui/icons-material/StreamRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
-import ImportantDevicesRoundedIcon from '@mui/icons-material/ImportantDevicesRounded';
-import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
-import SubscriptionsRoundedIcon from '@mui/icons-material/SubscriptionsRounded';
-import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
+import ImportantDevicesRoundedIcon from "@mui/icons-material/ImportantDevicesRounded";
+import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
+import SubscriptionsRoundedIcon from "@mui/icons-material/SubscriptionsRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 
 const mainList = [
   {
     link: "/dashboard",
     name: "Dashboard",
-    icon: <SpaceDashboardRoundedIcon color="secondary" />,
+    icon: <SpaceDashboardRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     link: "/projects",
     name: "Projects",
-    icon: <AccountTreeRoundedIcon color="secondary" />,
+    icon: <AccountTreeRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     link: "/projects/shared",
     name: "Shared Projects",
-    icon: <SendRoundedIcon color="secondary" />,
+    icon: <SendRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     link: "/projects/inactive",
     name: "Inactive Projects",
-    icon: <HideSourceRoundedIcon color="secondary" />,
+    icon: <HideSourceRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     name: "divider",
@@ -43,55 +43,67 @@ const mainList = [
   {
     link: "/settings/database",
     name: "Database",
-    icon: <StorageRoundedIcon color="secondary" />,
+    icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
   },
 ];
 
 const projectList = [
   {
-    link: "dataapi",
-    name: "Data Api",
-    icon: <DataArrayRoundedIcon color="secondary" />,
-  },
-  {
-    link: "authapi",
-    name: "Auth Api",
-    icon: <LockRoundedIcon color="secondary" />,
-  },
-  {
-    link: "websocketapi",
-    name: "Websockets Api",
-    icon: <StreamRoundedIcon color="secondary" />,
+    link: "hosting",
+    name: "Web Hosting",
+    icon: <DataArrayRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     name: "divider",
   },
   {
     name: "header",
-    label: "Settings",
+    label: "Youpi Api",
+  },
+  {
+    link: "dataapi",
+    name: "Data Api",
+    icon: <DataArrayRoundedIcon color="secondary" fontSize="small" />,
+  },
+  {
+    link: "authapi",
+    name: "Auth Api",
+    icon: <LockRoundedIcon color="secondary" fontSize="small" />,
+  },
+  {
+    link: "websocketapi",
+    name: "Websockets Api",
+    icon: <StreamRoundedIcon color="secondary" fontSize="small" />,
+  },
+  {
+    name: "divider",
+  },
+  {
+    name: "header",
+    label: "Api Settings",
   },
   {
     link: "database",
     name: "Database",
-    icon: <StorageRoundedIcon color="secondary" />,
+    icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     link: "instance",
     name: "Instance",
-    icon: <ElectricalServicesIcon color="secondary" />,
-  }
+    icon: <ElectricalServicesIcon color="secondary" fontSize="small" />,
+  },
 ];
 
 const profileList = [
   {
     link: "/profile",
     name: "Profile",
-    icon: <AccountCircleRoundedIcon color="secondary" />,
+    icon: <AccountCircleRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     link: "/profile/sessions",
     name: "Sessions",
-    icon: <ImportantDevicesRoundedIcon color="secondary" />,
+    icon: <ImportantDevicesRoundedIcon color="secondary" fontSize="small" />,
   },
 ];
 
@@ -99,17 +111,17 @@ const adminList = [
   {
     link: "/admin/subscriptions",
     name: "Subscriptions",
-    icon: <SubscriptionsRoundedIcon color="secondary" />,
+    icon: <SubscriptionsRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     link: "/admin/users",
     name: "Users",
-    icon: <PeopleAltRoundedIcon color="secondary" />,
+    icon: <PeopleAltRoundedIcon color="secondary" fontSize="small" />,
   },
   {
     link: "/admin/projects",
     name: "Projects",
-    icon: <StorageRoundedIcon color="secondary" />,
+    icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
   },
 ];
 

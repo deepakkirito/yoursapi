@@ -41,7 +41,7 @@ const CustomInput = ({
         id={name}
         name={name}
         type={type}
-        value={props.value || ""}
+        // value={props.value || ""}
         autoComplete={autoComplete}
         sx={{
           ...props.sx,

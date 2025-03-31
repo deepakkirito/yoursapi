@@ -99,7 +99,7 @@ const Sidebar = () => {
             overflow: "hidden",
           },
           "& .MuiTypography-root": {
-            fontSize: sidebarOpen ? "1rem" : "0rem !important",
+            fontSize: sidebarOpen ? "0.9rem" : "0rem !important",
             opacity: sidebarOpen ? "1" : "0 !important",
             transition: "all 1000ms, color 10ms",
           },
@@ -134,7 +134,7 @@ const Sidebar = () => {
               return <Divider key={index} className="my-2" />;
             if (item.name === "header") {
               return sidebarOpen ? (
-                <InputLabel key={index} className="px-4 pb-2">
+                <InputLabel key={index} className="px-4" shrink>
                   {item.label}
                 </InputLabel>
               ) : null;
@@ -166,7 +166,13 @@ const Sidebar = () => {
                       title={sidebarOpen ? "" : item.name}
                       placement="right"
                     >
-                      <ListItemIcon>{item.icon}</ListItemIcon>
+                      <ListItemIcon
+                        sx={{
+                          minWidth: "2rem",
+                        }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
                     </TooltipCustom>
                     <ListItemText primary={item.name} />
                   </ListItemButton>

@@ -305,7 +305,7 @@ const Profile = () => {
                   <Typography variant="h6">Plan Details</Typography>
                   <div className="flex gap-1 flex-col items-start">
                     <Typography variant="h7">
-                      {userData?.planId.requests} requests
+                      {userData?.planId.requests} requests / day
                     </Typography>
                     {userData?.planId.cpuLimit > 0 && (
                       <div className="flex gap-12  items-center">

@@ -23,7 +23,7 @@ const subscriptionSchema = new Schema(
     },
     requests: {
       type: Number,
-      default: 0,
+      default: null,
     },
     ramLimit: {
       type: Number,

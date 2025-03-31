@@ -15,7 +15,7 @@ export default function MainProject() {
   return (
     <Suspense fallback={<CircularProgress />}>
       <Box
-        className="px-2"
+        className="pr-2"
         sx={{
           // backgroundColor: "background.invert",
           height: "calc(100vh - 7rem)",

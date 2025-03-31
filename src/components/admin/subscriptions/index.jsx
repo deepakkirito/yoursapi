@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { showNotification } from "@/components/common/notification";
 
 const Subscriptions = () => {
-  const [filter, setFilter] = useState("name");
+  const [filter, setFilter] = useState("createdAt");
   const [sort, setSort] = useState("lth");
   const [search, setSearch] = useState("");
 

@@ -47,9 +47,9 @@ export default function Layout({ children }) {
                 width: {
                   xs: sidebarOpen ? "60vw" : "0vw",
                   sm: sidebarOpen ? "40vw" : "0vw",
-                  md: sidebarOpen ? "20%" : "4rem",
-                  lg: sidebarOpen ? "15%" : "4rem",
-                  xl: sidebarOpen ? "13%" : "4rem",
+                  md: sidebarOpen ? "20%" : "3.7rem",
+                  lg: sidebarOpen ? "15%" : "3.7rem",
+                  xl: sidebarOpen ? "11%" : "3.7rem",
                 },
                 position: {
                   xs: "fixed",
@@ -77,7 +77,7 @@ export default function Layout({ children }) {
                   xs: "100vw",
                   md: sidebarOpen ? "80%" : "calc(100% - 3.5rem)",
                   lg: sidebarOpen ? "85%" : "calc(100% - 3.7rem)",
-                  xl: sidebarOpen ? "87%" : "calc(100% - 3.7rem)",
+                  xl: sidebarOpen ? "89%" : "calc(100% - 3.7rem)",
                 },
                 height: "fit-content",
               }}

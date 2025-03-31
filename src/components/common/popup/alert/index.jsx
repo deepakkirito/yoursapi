@@ -23,7 +23,7 @@ const Alert = ({
   handleClose = () => {},
   handleSuccess = () => {},
 }) => {
-  const { alert } = useContext(CreateAlertContext);
+  const { alert, setAlert } = useContext(CreateAlertContext);
   return (
     <Box>
       <Dialog
@@ -31,7 +31,10 @@ const Alert = ({
         variant="outlined"
         TransitionComponent={Transition}
         keepMounted
-        onClose={handleClose}
+        onClose={() => {
+          setAlert({ ...alert, open: false });
+          handleClose();
+        }}
         aria-describedby="alert-dialog-slide-description"
         sx={{
           "& .MuiPaper-root": {
@@ -41,9 +44,10 @@ const Alert = ({
       >
         <Box
           sx={{
-            backgroundColor: "background.invert",
-            border: "0.5rem solid",
-            borderColor: "background.default",
+            background: "none",
+            backgroundColor: "background.defaultSolid",
+            border: "0.2rem solid",
+            borderColor: "divider",
             borderRadius: "1rem",
             padding: "0 0 1rem",
           }}
@@ -54,38 +58,42 @@ const Alert = ({
               {alert.content}
             </DialogContentText>
           </DialogContent>
-          <DialogActions className="flex justify-around">
-            <Button
-              onClick={alert.handleClose}
-              variant="outlined"
-              sx={{
-                padding: "0.3rem 1.5rem",
-                borderRadius: "2rem",
-                fontSize: "14px",
-                fontWeight: "700",
-                backgroundColor: "status.red",
-                color: "common.button",
-              }}
-            >
-              Disagree
-            </Button>
-            <Button
-              variant="outlined"
-              sx={{
-                padding: "0.3rem 1.5rem",
-                borderRadius: "2rem",
-                fontSize: "14px",
-                fontWeight: "700",
-                backgroundColor: "background.default",
-              }}
-              onClick={() => {
-                alert.handleSuccess();
-                alert.handleClose();
-              }}
-            >
-              Agree
-            </Button>
-          </DialogActions>
+          {!alert?.hideButton && (
+            <DialogActions className="flex justify-around">
+              <Button
+                onClick={alert.handleClose}
+                variant="contained"
+                color="error"
+                sx={{
+                  padding: "0.5rem 1.5rem",
+                  borderRadius: "2rem",
+                  fontSize: "14px",
+                  fontWeight: "700",
+                  // backgroundColor: "status.red",
+                  // color: "common.button",
+                }}
+              >
+                {alert?.cancelButton || "Disagree"}
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                sx={{
+                  padding: "0.5rem 1.5rem",
+                  borderRadius: "2rem",
+                  fontSize: "14px",
+                  fontWeight: "700",
+                  // backgroundColor: "background.default",
+                }}
+                onClick={() => {
+                  alert.handleSuccess();
+                  alert.handleClose();
+                }}
+              >
+                {alert?.agreeButton || "Agree"}
+              </Button>
+            </DialogActions>
+          )}
         </Box>
       </Dialog>
     </Box>

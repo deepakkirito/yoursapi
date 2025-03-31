@@ -166,9 +166,10 @@ const ProjectInstance = ({ shared = false }) => {
   }, [nodeVersion]);
 
   const getMarksRam = useMemo(() => {
-    return Array.from({ length: ramLimit / 512 }, (_, index) => ({
-      value: index * (100 / (ramLimit / 512 - 1)),
-      label: (index + 1) * 512,
+    const divider = ramLimit < 2048 ? 128 : 512;
+    return Array.from({ length: ramLimit / divider }, (_, index) => ({
+      value: index * (100 / (ramLimit / divider - 1)),
+      label: (index + 1) * divider,
     }));
   }, [ramLimit]);
 

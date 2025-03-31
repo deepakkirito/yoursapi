@@ -100,17 +100,6 @@ export async function POST(request) {
       return validateProject;
     }
 
-    const validateApi = await validateRequest(
-      { ...request, body },
-      validateApiName
-    );
-
-    if (validateApi) {
-      return validateApi;
-    }
-
-    const data = await validateData(body?.data || "[]");
-
     const project = await ProjectsModel.findOne({
       name: body.projectName,
       userId,
@@ -132,24 +121,6 @@ export async function POST(request) {
       );
     }
 
-    await saveData({
-      data,
-      mongoDbKey:
-        user.fetchData === "self"
-          ? process.env.MONGODB_KEY_MAIN
-          : user.fetchData === "master"
-            ? decrypt(user.mongoDbKey)
-            : null,
-      apiName: body.apiName,
-      schema: user.schema,
-      dbName:
-        user.fetchData === "self"
-          ? `${username}_${body.projectName}`
-          : user.fetchData === "master"
-            ? body.projectName
-            : null,
-    });
-
     const newProject = await ProjectsModel.create({
       name: body.projectName,
       userId,
@@ -157,25 +128,7 @@ export async function POST(request) {
       createdBy: userId,
     });
 
-    const newApi = await ApisModel.create({
-      name: body.apiName,
-      projectId: newProject._id,
-      userId,
-      createdBy: userId,
-      updatedBy: userId,
-    });
-
-    await ProjectsModel.findOneAndUpdate(
-      { _id: newProject._id },
-      {
-        $push: {
-          apiIds: newApi._id,
-        },
-      },
-      { new: true, lean: true }
-    );
-
-    const userUpdate = await UsersModel.findOneAndUpdate(
+    await UsersModel.findOneAndUpdate(
       { _id: userId },
       {
         $push: {
@@ -185,28 +138,13 @@ export async function POST(request) {
       { new: true, lean: true }
     );
 
-    if (!userUpdate) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 401, statusText: "Unauthorized" }
-      );
-    }
-
     await LoggersModel.create({
       userId: userId,
       type: "project",
       createdBy: userId,
       projectId: newProject._id,
       log: `Project '${body.projectName}' created`,
-    });
-
-    await LoggersModel.create({
-      userId: userId,
-      type: "api",
-      createdBy: userId,
-      projectId: newProject._id,
-      apiId: newApi._id,
-      log: `New api created '${newApi.name}' for project '${newProject.name}'`,
+      link: `${process.env.COMPANY_URL}projects/${newProject._id}`,
     });
 
     await sendMail({

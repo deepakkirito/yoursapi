@@ -47,6 +47,7 @@ import DrawRoundedIcon from "@mui/icons-material/DrawRounded";
 import CustomInput from "@/components/common/customTextField";
 import { CreateAlertContext } from "@/utilities/context/alert";
 import useCustomWindow from "@/utilities/helpers/hooks/window";
+import AddProjectNew from "../addProjectNew";
 
 const ProjectLayout = ({
   getApi,
@@ -75,7 +76,7 @@ const ProjectLayout = ({
   const [saveLoading, setSaveLoading] = useState(false);
   const [showEdit, setShowEdit] = useState("");
   const window = useCustomWindow();
-  
+
   useEffect(() => {
     !popup.open && getProject();
   }, [pagination, filter, search, sort, popup]);
@@ -239,12 +240,11 @@ const ProjectLayout = ({
               variant="contained"
               startIcon={<Add />}
               onClick={() =>
-                setPopup({
-                  ...popup,
+                setAlert({
                   open: true,
-                  title: "Add New Project",
-                  element: <AddProject getProject={getProject} />,
-                  image: CreateProject,
+                  title: "Create Project",
+                  content: <AddProjectNew handleSuccess={getProject} />,
+                  hideButton: true,
                 })
               }
             >
@@ -329,6 +329,9 @@ const ProjectLayout = ({
                           width: "100%",
                           boxShadow:
                             "0 0 0.1rem " + theme.palette.border.default,
+                          ":hover": {
+                            backgroundColor: "background.defaultSolid",
+                          },
                         })}
                       >
                         <Box className="flex justify-between items-center w-[100%]">
