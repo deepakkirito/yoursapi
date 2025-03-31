@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { redirectToLogin } from "./components/backend/utilities/middlewares/customResponse";
-import getRequestDetails from "./components/backend/utilities/middlewares/getRequestDetails";
 import { jwtVerify } from "jose";
 
 const JWT_SECRET = process.env.JWT_KEY;
