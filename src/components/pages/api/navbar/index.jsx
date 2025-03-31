@@ -347,7 +347,7 @@ const Navbar = ({
           disabled={!apiData?.value}
           onClick={() => {
             navigator.clipboard.writeText(
-              `${window?.location.origin}/v1/${username}/${project}/${auth?.name ? authData.name : apiData.label}`
+              `http://${project}-${username}.youpi.${process.env.NEXT_PUBLIC_ENVIRONMENT === "dev" ? "com" : "pro"}/${auth?.name ? authData.name : apiData.label}`
             );
             showNotification({
               content: "Link copied to clipboard",
@@ -519,57 +519,7 @@ const Navbar = ({
               >
                 Your Api:
               </Typography>
-              <Typography>{window?.location.origin}/v1/</Typography>
-              <CustomInput
-                fullWidth
-                value={username}
-                label="Username"
-                type="text"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                inputProps={{
-                  readOnly: shared,
-                }}
-                onChange={(event) => {
-                  setUsername(event.target.value.toLowerCase());
-                }}
-                disabled={saveUsernameLoading}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <TooltipCustom title="Save Username" placement="top">
-                          <IconButton
-                            aria-label="save username"
-                            edge="end"
-                            disabled={
-                              saveUsernameLoading ||
-                              usernameExists ||
-                              username === currentUsername
-                            }
-                            onClick={() => {
-                              handleUpdateUsername();
-                            }}
-                            sx={{
-                              "&.Mui-disabled": {
-                                opacity: 0.3,
-                              },
-                            }}
-                          >
-                            {saveUsernameLoading ? (
-                              <CircularProgress size={16} color="secondary" />
-                            ) : (
-                              <SaveRounded color="secondary" />
-                            )}
-                          </IconButton>
-                        </TooltipCustom>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-              /
+              <Typography variant="h7">http://</Typography>
               <CustomInput
                 fullWidth
                 value={project}
@@ -622,7 +572,62 @@ const Navbar = ({
                   },
                 }}
               />
-              /
+              -
+              <CustomInput
+                fullWidth
+                value={username}
+                label="Username"
+                type="text"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{
+                  readOnly: shared,
+                }}
+                onChange={(event) => {
+                  setUsername(event.target.value.toLowerCase());
+                }}
+                disabled={saveUsernameLoading}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <TooltipCustom title="Save Username" placement="top">
+                          <IconButton
+                            aria-label="save username"
+                            edge="end"
+                            disabled={
+                              saveUsernameLoading ||
+                              usernameExists ||
+                              username === currentUsername
+                            }
+                            onClick={() => {
+                              handleUpdateUsername();
+                            }}
+                            sx={{
+                              "&.Mui-disabled": {
+                                opacity: 0.3,
+                              },
+                            }}
+                          >
+                            {saveUsernameLoading ? (
+                              <CircularProgress size={16} color="secondary" />
+                            ) : (
+                              <SaveRounded color="secondary" />
+                            )}
+                          </IconButton>
+                        </TooltipCustom>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+              <Typography variant="h7">
+                .youpi.
+                {process.env.NEXT_PUBLIC_ENVIRONMENT === "prod"
+                  ? "pro/"
+                  : "com/"}
+              </Typography>
               {Boolean(apiId || !query) && (
                 <CustomInput
                   fullWidth
