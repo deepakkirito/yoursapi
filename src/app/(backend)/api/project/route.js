@@ -197,7 +197,7 @@ export async function POST(request) {
       type: "project",
       createdBy: userId,
       projectId: newProject._id,
-      log: `Project ${body.projectName} created`,
+      log: `Project '${body.projectName}' created`,
     });
 
     await LoggersModel.create({
@@ -206,7 +206,7 @@ export async function POST(request) {
       createdBy: userId,
       projectId: newProject._id,
       apiId: newApi._id,
-      log: `New api created ${newApi.name} for project ${newProject.name}`,
+      log: `New api created '${newApi.name}' for project '${newProject.name}'`,
     });
 
     await sendMail({

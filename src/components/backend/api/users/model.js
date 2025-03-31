@@ -43,6 +43,11 @@ const usersSchema = new Schema(
       type: String,
       default: "free",
     },
+    planId: {
+      type: Schema.Types.ObjectId,
+      ref: "subscriptions",
+      default: null,
+    },
     validity: {
       type: Date,
       default: () => convertToIST(new Date()),
@@ -68,6 +73,14 @@ const usersSchema = new Schema(
       default: 0,
     },
     additionalReq: {
+      type: Number,
+      default: 0,
+    },
+    usedCpu: {
+      type: Number,
+      default: 0,
+    },
+    usedRam: {
       type: Number,
       default: 0,
     },

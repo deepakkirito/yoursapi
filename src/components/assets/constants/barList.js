@@ -8,6 +8,9 @@ import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import StreamRoundedIcon from "@mui/icons-material/StreamRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import ImportantDevicesRoundedIcon from '@mui/icons-material/ImportantDevicesRounded';
+import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
+import SubscriptionsRoundedIcon from '@mui/icons-material/SubscriptionsRounded';
+import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 
 const mainList = [
   {
@@ -71,6 +74,11 @@ const projectList = [
     link: "database",
     name: "Database",
     icon: <StorageRoundedIcon color="secondary" />,
+  },
+  {
+    link: "instance",
+    name: "Instance",
+    icon: <ElectricalServicesIcon color="secondary" />,
   }
 ];
 
@@ -87,6 +95,24 @@ const profileList = [
   },
 ];
 
+const adminList = [
+  {
+    link: "/admin/subscriptions",
+    name: "Subscriptions",
+    icon: <SubscriptionsRoundedIcon color="secondary" />,
+  },
+  {
+    link: "/admin/users",
+    name: "Users",
+    icon: <PeopleAltRoundedIcon color="secondary" />,
+  },
+  {
+    link: "/admin/projects",
+    name: "Projects",
+    icon: <StorageRoundedIcon color="secondary" />,
+  },
+];
+
 const mainListUrl = mainList.map((item) => item.link);
 
-export { mainList, projectList, mainListUrl, profileList };
+export { mainList, projectList, mainListUrl, profileList, adminList };

@@ -10,6 +10,7 @@ const SearchFilter = ({
   value,
   label,
   getSearch,
+  placeholder = "Search projects",
   getSort = () => {},
 }) => {
   const [sort, setSort] = useState("lth");
@@ -38,7 +39,7 @@ const SearchFilter = ({
           fullWidth
           type="search"
           variant="outlined"
-          placeholder="Search projects"
+          placeholder={placeholder}
           onChange={(event) => getSearch(event.target.value)}
         />
       </Grid2>

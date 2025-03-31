@@ -28,6 +28,14 @@ const projectsSchema = new Schema(
       default: "self",
       enum: ["self", "master", "project"],
     },
+    instance: {
+      nodeVersion: { type: String, default: "node:18-alpine" },
+      dependencies: [{ type: String }],
+      environmentVariables: { type: Object },
+      ramUsage: { type: Number, default: 512 },
+      cpuUsage: { type: Number, default: 0.5 },
+      status: { type: Boolean, default: false },
+    },
   },
   {
     timestamps: true, // Disable Mongoose default timestamps

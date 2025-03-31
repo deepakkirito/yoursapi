@@ -61,7 +61,7 @@ const Logs = () => {
         return (
           <div key={index} className="flex gap-2 items-center">
             <Typography variant="h7">
-              {parsedItem.content.replace(user.email, "you")}
+              {parsedItem.content.replace(user?.email, "you")}
             </Typography>
           </div>
         );

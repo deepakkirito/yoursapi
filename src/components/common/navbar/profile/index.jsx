@@ -8,6 +8,8 @@ import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import TooltipCustom from "../../tooltip";
 import { getDate } from "@/utilities/helpers/functions";
 import CloudSyncRoundedIcon from "@mui/icons-material/CloudSyncRounded";
+import SurroundSoundRoundedIcon from "@mui/icons-material/SurroundSoundRounded";
+import AutofpsSelectRoundedIcon from "@mui/icons-material/AutofpsSelectRounded";
 
 const Profile = ({ userData, setLogin, router }) => {
   const { palette } = useTheme();
@@ -69,7 +71,7 @@ const Profile = ({ userData, setLogin, router }) => {
                 <Typography variant="h6">{userData?.name}</Typography>
                 <TooltipCustom
                   title={
-                    userData?.plan === "free" ? (
+                    userData?.planId?.name === "FREE" ? (
                       ""
                     ) : (
                       <Typography variant="h7">
@@ -83,10 +85,13 @@ const Profile = ({ userData, setLogin, router }) => {
                   <span
                     style={{
                       background:
-                        userData?.plan === "free"
+                        userData?.planId?.name === "FREE"
                           ? "linear-gradient(135deg,rgba(39, 174, 95, 0.84),rgba(46, 204, 112, 0.91))"
                           : "linear-gradient(135deg,rgba(212, 175, 55, 0.3),rgba(241, 196, 15, 0.39))", // Gradient for premium feel
-                      color: userData?.plan === "free" ? "#EDEDED" : "#D4AF37",
+                      color:
+                        userData?.planId?.name === "FREE"
+                          ? "#EDEDED"
+                          : "#D4AF37",
                       padding: "1px 4px",
                       borderRadius: "6px",
                       fontSize: "0.8rem",
@@ -94,7 +99,7 @@ const Profile = ({ userData, setLogin, router }) => {
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
                       border:
-                        userData?.plan === "free"
+                        userData?.planId?.name === "FREE"
                           ? "1px solid rgba(39, 174, 96, 0.8)"
                           : "1px solid rgba(212, 175, 55, 0.8)",
                       boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)", // Adds subtle depth
@@ -103,7 +108,7 @@ const Profile = ({ userData, setLogin, router }) => {
                       gap: "1px",
                     }}
                   >
-                    {userData?.plan !== "free" && (
+                    {userData?.planId?.name !== "FREE" && (
                       <WorkspacePremiumRoundedIcon
                         fontSize="small"
                         sx={{
@@ -111,7 +116,7 @@ const Profile = ({ userData, setLogin, router }) => {
                         }}
                       />
                     )}
-                    {userData?.plan}
+                    {userData?.planId?.name}
                   </span>
                 </TooltipCustom>
               </div>
@@ -141,33 +146,51 @@ const Profile = ({ userData, setLogin, router }) => {
                 padding: "0 0.5rem",
               }}
             >
-              {userData?.totalReq - userData?.usedReq || 0}
+              {userData?.planId.requests - (userData?.usedReq || 0)}
             </Typography>
-          {Boolean(userData?.additionalReq) && (
-            <div className="flex gap-2 items-center my-2">
-              <Typography variant="h7">+</Typography>
-              <Typography
-                variant="h8"
-                sx={{
-                  minWidth: "2rem",
-                maxWidth: "fit-content",
-                height: "2rem",
-                backgroundColor: "background.foreground",
-                color: "text.primary",
-                borderRadius: "1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "1px solid",
-                borderColor: "background.border",
-                padding: "0 0.5rem",
-                }}
-              >
-                {userData?.additionalReq}
-              </Typography>
+            {Boolean(userData?.additionalReq) && (
+              <div className="flex gap-2 items-center my-2">
+                <Typography variant="h7">+</Typography>
+                <Typography
+                  variant="h8"
+                  sx={{
+                    minWidth: "2rem",
+                    maxWidth: "fit-content",
+                    height: "2rem",
+                    backgroundColor: "background.foreground",
+                    color: "text.primary",
+                    borderRadius: "1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "1px solid",
+                    borderColor: "background.border",
+                    padding: "0 0.5rem",
+                  }}
+                >
+                  {userData?.additionalReq}
+                </Typography>
+              </div>
+            )}
+          </div>
+          {userData.planId.cpuLimit > 0 && (
+            <div className="flex gap-2 items-center mb-2">
+              <Typography variant="h7">Available</Typography>
+              <div className="flex gap-2 items-center">
+                <SurroundSoundRoundedIcon fontSize="small" />
+                <Typography variant="h7">
+                  {userData.planId.cpuLimit - (userData?.usedCpu || 0)} CORE CPU
+                </Typography>
+              </div>
+              |
+              <div className="flex gap-2 items-center">
+                <AutofpsSelectRoundedIcon fontSize="small" />
+                <Typography variant="h7">
+                  {userData.planId.ramLimit - (userData?.usedRam || 0)} MB RAM
+                </Typography>
+              </div>
             </div>
           )}
-          </div>
           <Divider className="w-full" />
         </div>
       </CustomMenu>

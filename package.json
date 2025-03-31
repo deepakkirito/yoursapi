@@ -31,6 +31,7 @@
     "firebase": "^11.5.0",
     "framer-motion": "^12.4.7",
     "generate-password": "^1.7.1",
+    "jose": "^6.0.10",
     "js-cookie": "^3.0.5",
     "json5": "^2.2.3",
     "jsonwebtoken": "^9.0.2",

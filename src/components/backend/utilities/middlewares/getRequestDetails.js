@@ -12,7 +12,7 @@ const getRequestDetails = async (req) => {
   } catch (error) {
     return redirectToLogin(req);
   }
-  const { userId, email, name, role, username } = decoded;
+  const { userId, email, name, role, username } = decoded;  
 
   let body = {};
 

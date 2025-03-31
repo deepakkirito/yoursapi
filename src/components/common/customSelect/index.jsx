@@ -42,12 +42,13 @@ const CustomSelect = ({
   buttonDisable = false,
   multiple = false,
   maxWidth = "200px",
+  labelWidth = "100%",
   ...props
 }) => {
   return (
     <Box className="flex gap-4 items-center w-[100%]" sx={style}>
       {label && (
-        <Box width={"100%"} className="flex justify-end">
+        <Box width={labelWidth} className="flex justify-end">
           <Typography width={"fit-content"} textAlign={"right"}>
             {label}
           </Typography>

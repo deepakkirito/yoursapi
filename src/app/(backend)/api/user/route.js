@@ -17,6 +17,7 @@ import { copyDatabase } from "@/components/backend/utilities/middlewares/mongoos
 import { NextResponse } from "next/server";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/utilities/helpers/firebaseConfig";
+import SubscriptionModel from "@/components/backend/api/subscription/model";
 
 export async function GET(request) {
   try {
@@ -35,7 +36,13 @@ export async function GET(request) {
         validity: 1,
         usedReq: 1,
         additionalReq: 1,
+        planId: 1,
+        usedCpu: 1,
+        usedRam: 1,
       }
+    ).populate(
+      "planId",
+      "name requests ramLimit cpuLimit projectLimit apiLimit"
     );
 
     if (!user) {

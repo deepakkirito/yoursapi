@@ -1,4 +1,6 @@
-import { FormControl, FormLabel, TextField } from "@mui/material";
+import { FormControl, FormLabel, TextField, Tooltip } from "@mui/material";
+import TooltipCustom from "../tooltip";
+import { InfoOutlined } from "@mui/icons-material";
 
 const CustomInput = ({
   children,
@@ -8,9 +10,10 @@ const CustomInput = ({
   formRequired,
   formClassName,
   type = "text",
-  formSX = {}, 
-  autoComplete, 
+  formSX = {},
+  autoComplete,
   name,
+  tooltip = "",
   ...props
 }) => {
   return (
@@ -24,15 +27,21 @@ const CustomInput = ({
       }}
     >
       {/* Label for better association */}
-      <FormLabel htmlFor={name} className="mb-1">
-        {formLabel}
-      </FormLabel>
+      <div className="flex gap-2 items-center mb-2">
+        <FormLabel htmlFor={name}>{formLabel}</FormLabel>
+        {tooltip && (
+          <TooltipCustom title={tooltip}>
+            <InfoOutlined fontSize="small" className="mt-[0.1rem]" />
+          </TooltipCustom>
+        )}
+      </div>
 
       {/* ✅ Pass autoComplete inside both TextField and inputProps */}
       <TextField
         id={name}
         name={name}
         type={type}
+        value={props.value || ""}
         autoComplete={autoComplete}
         sx={{
           ...props.sx,

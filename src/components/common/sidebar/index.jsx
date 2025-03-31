@@ -22,6 +22,7 @@ import Link from "next/link";
 import TooltipCustom from "../tooltip";
 import { KeyboardArrowLeftRounded } from "@mui/icons-material";
 import {
+  adminList,
   mainList,
   mainListUrl,
   profileList,
@@ -58,6 +59,11 @@ const Sidebar = () => {
     if (location.includes("/profile")) {
       setIsIncluded(false);
       return profileList;
+    }
+
+    if (location.includes("/admin")) {
+      setIsIncluded(false);
+      return adminList;
     }
     setIsIncluded(true);
     return projectList;
