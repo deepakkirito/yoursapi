@@ -145,13 +145,12 @@ const DataApi = ({ shared = false }) => {
   return (
     <Box
       sx={{
-        borderRadius: "1rem",
         border: "0.2rem solid",
-        borderColor: "background.default",
-        boxShadow: "0 0 1rem background.default",
-        height: "calc(100vh - 7rem)",
-        backgroundColor: "background.foreground",
-        overflow: "auto",
+        borderTop: "0.1rem solid",
+        borderLeft: "0.1rem solid",
+        borderColor: "divider",
+        height: "inherit",
+        overflow: "hidden",
       }}
     >
       <Navbar
@@ -169,11 +168,14 @@ const DataApi = ({ shared = false }) => {
             <CircularProgress color="secondary" size={24} />
           ) : (
             <>
-              {/* <Typography variant="h4" sx={{
-                  transform: "translateY(100%)"
-                }}>
-                  Create your first api to get started
-                </Typography> */}
+              <Typography
+                variant="h5"
+                sx={{
+                  transform: "translateY(100%)",
+                }}
+              >
+                Create your first api to get started
+              </Typography>
               <Lottie
                 options={{
                   animationData: CreateApi,
@@ -193,10 +195,7 @@ const DataApi = ({ shared = false }) => {
           sx={{
             padding: "1rem",
             overflow: "auto",
-            height: {
-              lg: "calc(100vh - 12.3rem)",
-              xs: "100%",
-            },
+            height: "inherit",
             marginBottom: {
               xs: "5rem",
               lg: "0rem",

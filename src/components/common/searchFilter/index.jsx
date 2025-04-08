@@ -24,6 +24,8 @@ const SearchFilter = ({
         borderRadius: "0.5rem",
         padding: "0.5rem",
         alignItems: "center",
+        border: "0.1rem solid",
+        borderColor: "divider",
       }}
     >
       <Grid2

@@ -2,7 +2,8 @@ export const dark = {
   mode: "dark",
   common: {
     link: "#0B6BCB",
-    button: "#acf1ff"
+    button: "#acf1ff",
+    link: "#0078D4"
   },
   primary: {
     main: "#acf1ff",
@@ -40,5 +41,7 @@ export const dark = {
   status: {
     green: "#006633",
     red: "#993333",
-  }
+  },
+  divider: "rgba(255, 255, 255, 0.12)",
+  reverse: "#41bce7",
 };

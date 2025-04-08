@@ -3,6 +3,7 @@ import UsersModel from "@/components/backend/api/users/model";
 import ApisModel from "@/components/backend/api/api/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
 import { NextResponse } from "next/server";
+import PermissionsModel from "@/components/backend/api/permissions/model";
 
 export async function GET(request) {
   try {
@@ -16,9 +17,12 @@ export async function GET(request) {
     const filter = searchParams.get("filter") || "createdAt";
     const sort = searchParams.get("sort") || "desc";
 
-    const user = await UsersModel.findOne({ _id: userId }).populate(
-      "shared.project"
-    );
+    const user = await UsersModel.findOne({ _id: userId })
+      .populate("shared.project")
+      .populate("shared.permission");
+
+    console.log("User", user);
+    
 
     if (!user) {
       return NextResponse.json(
@@ -44,6 +48,7 @@ export async function GET(request) {
       _id: 1,
       updatedBy: 1,
       shared: 1,
+      description: 1,
     })
       .sort({ [filter]: sort === "lth" ? 1 : -1 })
       .skip(page * rows)
@@ -51,6 +56,7 @@ export async function GET(request) {
       .populate("updatedBy", "name email profile")
       .populate("shared", "name email profile")
       .populate("userId", "name email profile")
+      .populate("shared.shared.permission")
       .populate("apiIds", "name")
       .lean();
 
@@ -61,10 +67,9 @@ export async function GET(request) {
         updatedBy: project.updatedBy,
         shared: project.shared,
         owner: project.userId,
-        permission:
-          user.shared.find(
-            (s) => s.project._id.toString() === project._id.toString()
-          )?.permission || "read",
+        permission: user.shared.find(
+          (s) => s.project._id.toString() === project._id.toString()
+        )?.permission,
         status: await getProjectStatus(project._id, project.userId._id),
       }))
     );

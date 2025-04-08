@@ -7,133 +7,7 @@ import SubscriptionModel from "@/components/backend/api/subscription/model";
 import { logShared } from "@/components/backend/utilities/middlewares/logShared";
 import LoggersModel from "@/components/backend/api/logger";
 import { axiosPost } from "@/utilities/api";
-
-export async function GET(request, { params }) {
-  try {
-    const { projectId } = await params;
-
-    const { userId, token, email, name, role } = await verifyToken(request);
-
-    const { ownerUserId } = await getProjectOwner({ userId, projectId });
-
-    const user = await UsersModel.findOne({ _id: ownerUserId })
-      .populate("planId")
-      .lean();
-
-    const project = await ProjectsModel.findOne(
-      {
-        _id: projectId,
-      },
-      {
-        _id: 1,
-        instance: 1,
-      }
-    ).lean();
-
-    if (!project) {
-      return NextResponse.json(
-        { message: "Project not found" },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json({
-      ...project,
-      cpuLimit: user.planId.cpuLimit,
-      ramLimit: user.planId.ramLimit,
-    });
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PATCH(request, { params }) {
-  try {
-    const { projectId } = await params;
-
-    const { userId, token, email, name, role, body } =
-      await verifyToken(request);
-
-    const { ownerUserId } = await getProjectOwner({ userId, projectId });
-
-    const project = await ProjectsModel.findOne(
-      {
-        _id: projectId,
-        userId: ownerUserId,
-      },
-      {
-        _id: 1,
-        instance: 1,
-        name: 1,
-      }
-    ).lean();
-
-    if (!project) {
-      return NextResponse.json(
-        { message: "Project not found" },
-        { status: 400 }
-      );
-    }
-
-    const {
-      nodeVersion,
-      dependencies,
-      environmentVariables,
-      ramUsage,
-      cpuUsage,
-    } = body;
-
-    await ProjectsModel.findOneAndUpdate(
-      { _id: projectId },
-      {
-        $set: {
-          instance: {
-            nodeVersion:
-              nodeVersion || project?.instance?.nodeVersion || "node:18-alpine",
-            dependencies: dependencies || project?.instance?.dependencies || [],
-            environmentVariables:
-              environmentVariables ||
-              project?.instance?.environmentVariables ||
-              {},
-            ramUsage: ramUsage || project?.instance?.ramUsage || 0,
-            cpuUsage: cpuUsage || project?.instance?.cpuUsage || 0,
-            status: project?.instance?.status || false,
-          },
-        },
-      },
-      { new: true, lean: true }
-    );
-
-    await logShared({
-      userId: ownerUserId,
-      log: `Instance updated for project '${project.name}'`,
-      type: "project",
-      projectId,
-      authId: null,
-      apiId: null,
-      createdBy: ownerUserId,
-      link: `/projects/${projectId}/instance`,
-      linkShared: `/projects/${projectId}/instance`,
-    });
-
-    return NextResponse.json(
-      { message: "Instance updated successfully" },
-      {
-        status: 200,
-      }
-    );
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
-  }
-}
+import DockersModel from "@/components/backend/api/docker/model";
 
 export async function POST(request, { params }) {
   try {
@@ -142,30 +16,20 @@ export async function POST(request, { params }) {
     const { userId, token, email, name, role, body, username } =
       await verifyToken(request);
 
-    const { ownerUserId } = await getProjectOwner({ userId, projectId });
+    const { ownerUserId, ownerUsername } = await getProjectOwner({
+      userId,
+      projectId,
+    });
 
-    const user = await UsersModel.findOne({ _id: ownerUserId })
-      .populate("planId")
+    const searchParams = new URL(request.url).searchParams;
+    const environment = searchParams.get("environment") || "production";
+
+    const project = await ProjectsModel.findOne({
+      _id: projectId,
+      userId: ownerUserId,
+    })
+      .populate("domains")
       .lean();
-
-    if (!user) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 401, statusText: "Unauthorized" }
-      );
-    }
-
-    const project = await ProjectsModel.findOne(
-      {
-        _id: projectId,
-        userId: ownerUserId,
-      },
-      {
-        _id: 1,
-        instance: 1,
-        name: 1,
-      }
-    ).lean();
 
     if (!project) {
       return NextResponse.json(
@@ -174,62 +38,56 @@ export async function POST(request, { params }) {
       );
     }
 
-    if (project.instance.status) {
+    if (project.data[environment]?.instance?.status) {
       return NextResponse.json(
         { message: "Instance is already running" },
         { status: 400 }
       );
     }
 
-    if (
-      user.planId.cpuLimit < (user?.usedCpu || 0) + project.instance.cpuUsage ||
-      user.planId.ramLimit < (user?.usedRam || 0) + project.instance.ramUsage
-    ) {
-      return NextResponse.json(
-        { message: "Insufficient resources" },
-        { status: 400 }
-      );
-    }
+    const subscriptionId = project.data[environment].activeSubscription.data;
+
+    const subscription = await SubscriptionModel.findOne({
+      _id: subscriptionId,
+    }).lean();
 
     await axiosPost("/docker/create", {
-      username: user.username,
+      username: ownerUsername,
       projectName: project.name,
+      environment,
       config: {
-        baseImage: project.instance.nodeVersion,
-        dependencies: project.instance.dependencies,
-        envVars: project.instance.environmentVariables,
+        baseImage: project.environment.data + ":" + project.environment.version,
+        dependencies: project.dependencies.data,
+        envVars: project.data[environment].environmentVariables.data,
       },
     });
 
-    console.log("Docker started");
-
-    await axiosPost("/docker/start/instance", {
-      username: user.username,
+    const docker = await axiosPost("/docker/start/instance", {
+      username: ownerUsername,
       projectName: project.name,
+      environment,
       config: {
         additionalConfig: {
-          memoryLimit: project.instance.ramUsage.toString() + "m",
-          cpuLimit: project.instance.cpuUsage.toString(),
+          memoryLimit: subscription.ram.data * 1024 + "m",
+          cpuLimit: subscription.cpus.data.toString(),
         },
       },
+      customDomains:
+        project?.domains.filter((item) => item.type === "custom") || [],
+    });
+
+    await DockersModel.create({
+      containerId: docker.data.containerId,
+      name: project.name + "-" + ownerUsername + "-" + environment,
     });
 
     await ProjectsModel.findOneAndUpdate(
       { _id: projectId },
       {
         $set: {
-          "instance.status": true,
-        },
-      },
-      { new: true, lean: true }
-    );
-
-    await UsersModel.findOneAndUpdate(
-      { _id: ownerUserId },
-      {
-        $set: {
-          usedCpu: (user?.usedCpu || 0) + project.instance.cpuUsage,
-          usedRam: (user?.usedRam || 0) + project.instance.ramUsage,
+          [`data.${environment}.instance.status`]: true,
+          [`data.${environment}.instance.updatedAt`]: new Date(),
+          [`data.${environment}.instance.containerId`]: docker.data.containerId,
         },
       },
       { new: true, lean: true }
@@ -237,14 +95,14 @@ export async function POST(request, { params }) {
 
     await logShared({
       userId: ownerUserId,
-      log: `Instance started for project '${project.name}'`,
+      log: `Instance started in project '${project.name}' for environment '${environment}'`,
       type: "project",
       projectId,
       authId: null,
       apiId: null,
       createdBy: userId,
-      link: `/projects/${projectId}/instance`,
-      linkShared: `/projects/${projectId}/instance`,
+      link: `/projects/${projectId}/server`,
+      linkShared: `/projects/${projectId}/server`,
     });
 
     return NextResponse.json(
@@ -266,30 +124,18 @@ export async function DELETE(request, { params }) {
     const { userId, token, email, name, role, body, username } =
       await verifyToken(request);
 
-    const { ownerUserId } = await getProjectOwner({ userId, projectId });
+    const searchParams = new URL(request.url).searchParams;
+    const environment = searchParams.get("environment") || "production";
 
-    const user = await UsersModel.findOne({ _id: ownerUserId })
-      .populate("planId")
-      .lean();
+    const { ownerUserId, ownerUsername } = await getProjectOwner({
+      userId,
+      projectId,
+    });
 
-    if (!user) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 401, statusText: "Unauthorized" }
-      );
-    }
-
-    const project = await ProjectsModel.findOne(
-      {
-        _id: projectId,
-        userId: ownerUserId,
-      },
-      {
-        _id: 1,
-        instance: 1,
-        name: 1,
-      }
-    ).lean();
+    const project = await ProjectsModel.findOne({
+      _id: projectId,
+      userId: ownerUserId,
+    }).lean();
 
     if (!project) {
       return NextResponse.json(
@@ -298,34 +144,26 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    if (!project.instance.status) {
+    if (!project.data[environment].instance.status) {
       return NextResponse.json(
         { message: "Instance is not running" },
         { status: 400 }
       );
     }
 
-    await axiosPost("/docker/stop/instance", {
-      username: user.username,
+    await axiosPost("/docker/delete", {
+      username: ownerUsername,
       projectName: project.name,
+      environment,
     });
 
     await ProjectsModel.findOneAndUpdate(
       { _id: projectId },
       {
         $set: {
-          "instance.status": false,
-        },
-      },
-      { new: true, lean: true }
-    );
-
-    await UsersModel.findOneAndUpdate(
-      { _id: ownerUserId },
-      {
-        $set: {
-          usedCpu: user.usedCpu - project.instance.cpuUsage,
-          usedRam: user.usedRam - project.instance.ramUsage,
+          [`data.${environment}.instance.status`]: false,
+          [`data.${environment}.instance.updatedAt`]: new Date(),
+          [`data.${environment}.instance.containerId`]: null,
         },
       },
       { new: true, lean: true }
@@ -333,7 +171,7 @@ export async function DELETE(request, { params }) {
 
     await logShared({
       userId: ownerUserId,
-      log: `Instance stopped for project '${project.name}'`,
+      log: `Instance stopped in project '${project.name}' for environment '${environment}'`,
       type: "project",
       projectId,
       authId: null,

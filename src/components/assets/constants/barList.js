@@ -15,7 +15,7 @@ import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 const mainList = [
   {
     link: "/dashboard",
-    name: "Dashboard",
+    name: "Overview",
     icon: <SpaceDashboardRoundedIcon color="secondary" fontSize="small" />,
   },
   {
@@ -33,24 +33,24 @@ const mainList = [
     name: "Inactive Projects",
     icon: <HideSourceRoundedIcon color="secondary" fontSize="small" />,
   },
+  // {
+  //   name: "divider",
+  // },
+  // {
+  //   name: "header",
+  //   label: "Settings",
+  // },
   {
-    name: "divider",
-  },
-  {
-    name: "header",
-    label: "Settings",
-  },
-  {
-    link: "/settings/database",
-    name: "Database",
+    link: "/teams",
+    name: "Teams",
     icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
   },
 ];
 
 const projectList = [
   {
-    link: "hosting",
-    name: "Web Hosting",
+    link: "server",
+    name: "Server",
     icon: <DataArrayRoundedIcon color="secondary" fontSize="small" />,
   },
   {

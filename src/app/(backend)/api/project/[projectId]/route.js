@@ -14,6 +14,9 @@ import { validateRequest } from "@/components/backend/utilities/helpers/validato
 import { validateProjectName } from "@/components/backend/api/project/validator";
 import { logShared } from "@/components/backend/utilities/middlewares/logShared";
 import { convertToIST } from "@/utilities/helpers/functions";
+import PermissionsModel from "@/components/backend/api/permissions/model";
+import SubscriptionModel from "@/components/backend/api/subscription/model";
+import DomainsModel from "@/components/backend/api/domain/model";
 
 export async function GET(request, { params }) {
   try {
@@ -21,14 +24,20 @@ export async function GET(request, { params }) {
 
     const { projectId } = await params;
 
-    const { ownerUserId, ownerUsername, ownerEmail, ownerName } =
-      await getProjectOwner({ userId, projectId });
+    const searchParams = new URL(request.url).searchParams;
 
-    const project = await ProjectsModel.findOne(
-      { _id: projectId },
-      { apiIds: 1, name: 1 }
-    )
+    const environment = searchParams.get("environment") || "production";
+
+    const { ownerUserId, ownerUsername } = await getProjectOwner({
+      userId,
+      projectId,
+    });
+
+    const project = await ProjectsModel.findOne({ _id: projectId })
       .populate("apiIds")
+      .populate("shared.shared.permission")
+      .populate("userId", "username")
+      .populate("domains")
       .lean();
 
     if (!project) {
@@ -38,9 +47,17 @@ export async function GET(request, { params }) {
       );
     }
 
-    const user = await UsersModel.findOne({ _id: userId }).populate(
-      "shared.project"
-    );
+    if (project?.data?.[environment]?.activeSubscription?.data) {
+      const sub = await SubscriptionModel.findById(
+        project.data[environment].activeSubscription.data
+      ).lean();
+
+      project.data[environment].activeSubscription.data = sub;
+    }
+
+    const user = await UsersModel.findOne({ _id: userId })
+      .populate("shared.project")
+      .populate("shared.permission");
 
     if (!user) {
       return NextResponse.json(
@@ -50,7 +67,8 @@ export async function GET(request, { params }) {
     }
 
     const data = {
-      name: project.name,
+      ...project,
+      data: project.data[environment],
       apiIds: project.apiIds.map(({ name, _id }) => ({
         label: name,
         value: _id,
@@ -59,8 +77,7 @@ export async function GET(request, { params }) {
       permission:
         ownerUserId.toString() === userId.toString()
           ? null
-          : user.shared.find((s) => s.project.equals(project._id))
-              ?.permission || "read",
+          : user.shared.find((s) => s.project.equals(project._id))?.permission,
     };
 
     return NextResponse.json(data);
@@ -80,8 +97,7 @@ export async function PUT(request, { params }) {
 
     const { projectId } = await params;
 
-    const { ownerUserId, ownerUsername, ownerEmail, ownerName } =
-      await getProjectOwner({ userId, projectId });
+    const { ownerUserId } = await getProjectOwner({ userId, projectId });
 
     const updatedUser = await UsersModel.findByIdAndUpdate(
       { _id: ownerUserId },
@@ -147,9 +163,18 @@ export async function DELETE(request, { params }) {
       );
     }
 
+    if (
+      project?.data.production.instance?.status ||
+      project?.data.development.instance?.status
+    ) {
+      return NextResponse.json(
+        { message: "Cannot delete project while instance is running" },
+        { status: 400 }
+      );
+    }
+
     if (soft === "true") {
-      var { ownerUserId, ownerUsername, ownerEmail, ownerName } =
-        await getProjectOwner({ userId, projectId });
+      var { ownerUserId } = await getProjectOwner({ userId, projectId });
 
       const updatedUser = await UsersModel.findByIdAndUpdate(
         { _id: ownerUserId },
@@ -179,30 +204,6 @@ export async function DELETE(request, { params }) {
     }
 
     if (soft === "false") {
-      const user = await UsersModel.findOne({ _id: userId }).lean();
-
-      if (!user) {
-        return NextResponse.json(
-          { message: "User not found" },
-          { status: 401, statusText: "Unauthorized" }
-        );
-      }
-
-      try {
-        await dropDb({
-          uri: user.mongoDbKey ? decrypt(user.mongoDbKey) : null,
-          projectName: project.name,
-          userName: user.username,
-          projectUri: decrypt(project.dbString),
-        });
-      } catch (error) {
-        console.error("Error dropping database:", error);
-        return NextResponse.json(
-          { message: "Database drop failed" },
-          { status: 500, statusText: "Internal Server Error" }
-        );
-      }
-
       const { apiIds, name: projectName, shared, authId } = project;
 
       await ApisModel.deleteMany({ _id: { $in: apiIds } });
@@ -265,14 +266,10 @@ export async function PATCH(request, { params }) {
 
     const { projectName } = body;
 
-    const {
-      ownerUserId,
-      ownerUsername,
-      ownerEmail,
-      ownerName,
-      mongoDbKey,
-      ownerProjectName,
-    } = await getProjectOwner({ userId, projectId });
+    const { ownerProjectName, projectData } = await getProjectOwner({
+      userId,
+      projectId,
+    });
 
     if (ownerProjectName === projectName) {
       return NextResponse.json(
@@ -290,20 +287,34 @@ export async function PATCH(request, { params }) {
       return validator;
     }
 
-    // Self
-    await copyDatabase({
-      oldDbName: `${ownerUsername}_${ownerProjectName}`,
-      newDbName: `${ownerUsername}_${projectName}`,
+    const project = await ProjectsModel.findOne({
+      id: projectId,
     });
 
-    // Master
-    if (mongoDbKey) {
-      await copyDatabase({
-        oldDbName: ownerProjectName,
-        newDbName: projectName,
-        mongoDbKey,
-      });
+    if (
+      project?.data.production.instance?.status ||
+      project?.data.development.instance?.status
+    ) {
+      return NextResponse.json(
+        { message: "Cannot rename project while instance is running" },
+        { status: 400 }
+      );
     }
+
+    Promise.all(
+      Object.keys(projectData).map(async (environmentType) => {
+        const dbString = projectData[environmentType].dbString.data;
+        const dbName = ownerProjectName;
+
+        if (dbString) {
+          await copyDatabase({
+            oldDbName: dbName,
+            newDbName: projectName,
+            mongoDbKey: decrypt(dbString),
+          });
+        }
+      })
+    );
 
     await ProjectsModel.findOneAndUpdate(
       {

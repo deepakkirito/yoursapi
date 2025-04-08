@@ -8,11 +8,16 @@ import { CreateAlertContext } from "@/utilities/context/alert";
 import { catchError } from "@/utilities/helpers/functions";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
+import AccountTreeRoundedIcon from "@mui/icons-material/AccountTreeRounded";
+import DescriptionIcon from "@mui/icons-material/Description";
+import CustomSelect from "@/components/common/customSelect";
 
 const AddProjectNew = ({ handleSuccess = () => {} }) => {
   const { alert, setAlert } = useContext(CreateAlertContext);
   const [loading, setLoading] = useState(false);
   const [projectName, setProjectName] = useState("");
+  const [projectDescription, setProjectDescription] = useState("");
+  const [projectType, setProjectType] = useState("youpiapi");
   const [projectValidator, setProjectValidator] = useState("");
   const [validator, setValidator] = useState([]);
 
@@ -36,6 +41,8 @@ const AddProjectNew = ({ handleSuccess = () => {} }) => {
 
     createProjectApi({
       projectName: projectName,
+      description: projectDescription,
+      type: projectType,
     })
       .then((res) => {
         showNotification({
@@ -64,20 +71,75 @@ const AddProjectNew = ({ handleSuccess = () => {} }) => {
 
   return (
     <Box className="flex flex-col">
-      <CustomInput
-        label="Project Name"
-        placeholder="Enter project name"
-        sx={{
-          width: {
-            xs: "15rem",
-            md: "25rem",
-          },
-        }}
-        value={projectName}
-        onChange={(event) => {
-          setProjectName(event.target.value);
-        }}
-      />
+      <div className="flex flex-col gap-1 items-start">
+        <CustomInput
+          placeholder="Enter project name"
+          sx={{
+            width: {
+              xs: "15rem",
+              md: "25rem",
+            },
+          }}
+          value={projectName}
+          onChange={(event) => {
+            setProjectName(event.target.value);
+          }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <AccountTreeRoundedIcon
+                  color="secondary"
+                  fontSize="small"
+                  className="mr-2"
+                />
+              ),
+            },
+          }}
+        />
+
+        <CustomInput
+          placeholder="Enter project description"
+          multiline
+          sx={{
+            width: {
+              xs: "15rem",
+              md: "25rem",
+            },
+          }}
+          value={projectDescription}
+          onChange={(event) => {
+            setProjectDescription(event.target.value);
+          }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <DescriptionIcon
+                  color="secondary"
+                  fontSize="small"
+                  className="mr-2"
+                />
+              ),
+            },
+          }}
+        />
+        <CustomSelect
+          label="Project Type"
+          size="medium"
+          none={false}
+          options={[
+            { label: "Youpi Api", value: "youpiapi" },
+            { label: "Web Hosting", value: "webhosting" },
+          ]}
+          value={projectType}
+          handleChange={(event) => {
+            setProjectType(event.target.value);
+          }}
+          labelWidth="10rem"
+          sx={{
+            marginTop: "0.5rem",
+          }}
+        />
+      </div>
       <ul>
         {projectValidator && (
           <Typography className="text-red-500 list-disc" component={"li"}>
@@ -105,7 +167,7 @@ const AddProjectNew = ({ handleSuccess = () => {} }) => {
             borderRadius: "3rem",
             padding: "0.5rem 2rem",
           }}
-          disabled={loading || !projectName}
+          disabled={loading || !projectName || !projectDescription}
           endIcon={loading ? <CircularProgress size={16} /> : null}
           onClick={handleCreate}
         >

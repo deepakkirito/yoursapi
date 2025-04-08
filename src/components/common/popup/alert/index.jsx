@@ -54,7 +54,7 @@ const Alert = ({
         >
           <DialogTitle>{alert.title}</DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
+            <DialogContentText id="alert-dialog-slide-description" component={"div"}>
               {alert.content}
             </DialogContentText>
           </DialogContent>

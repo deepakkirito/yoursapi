@@ -44,10 +44,9 @@ export const getProjectOwner = async ({ userId, projectId }) => {
       ownerUsername: user.username,
       ownerEmail: user.email,
       ownerName: user.name,
-      fetchData: project.dbString ? project.fetchData : user.fetchData,
-      mongoDbKey: user.mongoDbKey ? decrypt(user.mongoDbKey) : null,
-      projectMongoDbKey: project.dbString ? decrypt(project.dbString) : null,
+      projectData: project.data,
       ownerProjectName: project.name,
+      ownerProjectType: project.type,
     };
   } catch (error) {
     console.error("Error in getProjectOwner:", error);

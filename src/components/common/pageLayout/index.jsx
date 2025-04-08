@@ -4,22 +4,20 @@ const PageLayout = ({ navContent, children }) => {
   return (
     <Box
       sx={{
-        height: "100%",
-        // width: "100%",
-        backgroundColor: "background.foreground",
-        border: "2px solid",
-        borderColor: "background.default",
-        borderRadius: "1rem",
-        margin: "0 0.5rem",
+        height: "calc(100vh - 4.7rem)",
+        border: "0.2rem solid",
+        borderTop: "0.1rem solid",
+        borderLeft: "0.1rem solid",
+        borderColor: "divider",
+        overflow: "hidden",
       }}
     >
       <Box
         sx={{
-          padding: "1rem",
+          padding: "1rem 1rem",
           backgroundColor: "background.foreground",
-          borderBottom: "2px solid",
-          borderColor: "background.default",
-          borderRadius: "1rem 1rem 0 0",
+          borderBottom: "0.1rem solid",
+          borderColor: "divider",
         }}
       >
         {navContent}
@@ -27,7 +25,7 @@ const PageLayout = ({ navContent, children }) => {
       <Box
         sx={{
           padding: "0.5rem",
-          height: "calc(100vh - 11.5rem)",
+          height: "inherit",
           overflow: "auto",
         }}
       >

@@ -34,7 +34,7 @@ const statisticsSchema = new Schema(
                 },
                 createdAt: {
                   type: Date,
-                  default: () => convertToIST(new Date()),
+                  default: new Date(),
                 },
               },
             ],
@@ -44,31 +44,17 @@ const statisticsSchema = new Schema(
     ],
     createdAt: {
       type: Date,
-      default: () => convertToIST(new Date()),
+      default: new Date(),
     },
     updatedAt: {
       type: Date,
-      default: () => convertToIST(new Date()),
+      default: new Date(),
     },
   },
   {
     timestamps: true,
   }
 );
-
-// **Middleware to update timestamps on update**
-statisticsSchema.pre("save", function (next) {
-  if (this.createdAt) {
-    this.createdAt = convertToIST(new Date(this.createdAt));
-  }
-  this.updatedAt = convertToIST(new Date());
-  next();
-});
-
-statisticsSchema.pre("findOneAndUpdate", function (next) {
-  this.set({ updatedAt: convertToIST(new Date()) });
-  next();
-});
 
 statisticsSchema.index({ userId: 1, createdAt: 1 });
 

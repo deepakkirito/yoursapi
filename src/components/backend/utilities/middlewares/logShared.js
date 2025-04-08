@@ -36,6 +36,8 @@ export const logShared = async ({
         apiId,
         createdBy,
         link: userId.toString() === user.toString() ? link : linkShared,
+        updatedAt: new Date(),
+        createdAt: new Date(),
       });
     })
   );

@@ -33,24 +33,11 @@ const usersSchema = new Schema(
     },
     updatedAt: {
       type: Date,
-      default: () => convertToIST(new Date()),
+      default: new Date(),
     },
     createdAt: {
       type: Date,
-      default: () => convertToIST(new Date()),
-    },
-    plan: {
-      type: String,
-      default: "free",
-    },
-    planId: {
-      type: Schema.Types.ObjectId,
-      ref: "subscriptions",
-      default: null,
-    },
-    validity: {
-      type: Date,
-      default: () => convertToIST(new Date()),
+      default: new Date(),
     },
     role: {
       type: String,
@@ -64,52 +51,18 @@ const usersSchema = new Schema(
       type: String,
       default: "https://cdn-icons-png.freepik.com/512/11390/11390805.png",
     },
-    totalReq: {
-      type: Number,
-      default: 300,
-    },
-    usedReq: {
-      type: Number,
-      default: 0,
-    },
-    additionalReq: {
-      type: Number,
-      default: 0,
-    },
-    usedCpu: {
-      type: Number,
-      default: 0,
-    },
-    usedRam: {
-      type: Number,
-      default: 0,
-    },
     referralCode: {
       type: String,
       default: generateReferralCode,
     },
-    referredBy: { type: Schema.Types.ObjectId, ref: "users", default: null },
-    mongoDbKey: {
-      type: String,
-      default: null,
-    },
-    fetchData: {
-      type: String,
-      default: "self",
-      enum: ["self", "master"],
-    },
+    referredUsers: [{ type: Schema.Types.ObjectId, ref: "users"}],
     project: [{ type: Schema.Types.ObjectId, ref: "projects" }],
     trash: [{ type: Schema.Types.ObjectId, ref: "projects" }],
     shared: [
       {
         permission: {
-          type: String,
-          default: "read",
-          enum: ["read", "write", "admin", "custom"],
-        },
-        permissionDetails: {
-          type: Map,
-          of: String,
+          type: Schema.Types.ObjectId,
+          ref: "permissions",
         },
         project: { type: Schema.Types.ObjectId, ref: "projects" },
         owner: { type: Schema.Types.ObjectId, ref: "users" },
@@ -117,30 +70,31 @@ const usersSchema = new Schema(
       },
     ],
     sharedUsers: [{ type: Schema.Types.ObjectId, ref: "users" }],
-    lastReset: { type: Date, default: () => convertToIST(new Date()) }, // Track last reset time
+    lastReset: { type: Date, default: new Date() },
+    credits: {
+      data: {
+        type: Number,
+        default: 50000,
+      },
+      updatedAt: {
+        type: Date,
+        default: new Date(),
+      },
+      timeline: [
+        {
+          createdAt: { type: Date, default: new Date() },
+          value: { type: Number, default: 0 },
+          transactionId: { type: String, default: null },
+        },
+      ],
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// **Middleware to update timestamps**
-usersSchema.pre("save", function (next) {
-  if (this.createdAt) {
-    this.createdAt = convertToIST(new Date(this.createdAt));
-  }
-  this.updatedAt = convertToIST(new Date());
-  next();
-});
-
-usersSchema.pre("findOneAndUpdate", function (next) {
-  this.set({ updatedAt: convertToIST(new Date()) });
-  next();
-});
-
-// **Indexes for search and automatic reset cleanup**
-usersSchema.index({ email: "text", referralCode: "text", username: "text" }); // Full-text search
-// usersSchema.index({ lastReset: 1 }, { expireAfterSeconds: 86400 }); // TTL index for daily reset
+usersSchema.index({ email: "text", referralCode: "text", username: "text" });
 
 const UsersModel =
   mongoose.models?.users || mongoose.model("users", usersSchema);

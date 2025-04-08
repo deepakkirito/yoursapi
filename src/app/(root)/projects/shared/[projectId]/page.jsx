@@ -1,11 +1,14 @@
 "use client";
-import { useRouter } from "next/navigation";
 
-const Page = (props) => {
-  const projectId = props.params.projectId;
+import { CreateServerTabContext } from "@/utilities/context/serverTab";
+import { useContext, useEffect } from "react";
 
-  const router = useRouter();
-  router.push(`/projects/shared/${projectId}/dataapi`);
-  return null;
-};
-export default Page;
+export default function Page() {
+  const { activeTab, setActiveTab } = useContext(CreateServerTabContext);
+
+  useEffect(() => {
+    setActiveTab(0);
+  }, []);
+
+  return <div className="h-[inherit]">Dashboard</div>;
+}

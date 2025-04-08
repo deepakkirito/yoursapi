@@ -15,28 +15,26 @@ import {
   renameCollection,
   updateModel,
 } from "@/components/backend/utilities/middlewares/mongoose";
+import { decrypt } from "@/utilities/helpers/encryption";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
   try {
     const { authorProjectId: projectId } = await params;
 
-    const { userId, token, email, name, role, body } =
-      await verifyToken(request);
+    const { userId, token, email, name, role } = await verifyToken(request);
 
-    const {
-      ownerUserId,
-      ownerEmail,
-      ownerName,
-      ownerProjectName,
-      fetchData,
-      mongoDbKey,
-      projectMongoDbKey,
-    } = await getProjectOwner({ userId, projectId });
+    const { ownerUserId, ownerProjectName, projectData } =
+      await getProjectOwner({
+        userId,
+        projectId,
+      });
 
     const { searchParams } = new URL(request.url);
+    const data = searchParams.get("data");
+    const environmentType = searchParams.get("type");
 
-    const { data } = body;
+    const dbString = projectData[environmentType].dbString.data;
 
     const authData = await AuthsModel.findOne({
       userId: ownerUserId,
@@ -57,30 +55,18 @@ export async function GET(request, { params }) {
             ownerUserId.toString() === userId.toString()
               ? null
               : user.shared.find((s) => s.project.equals(projectId))
-                  ?.permission || "read",
+                  ?.permission,
         },
         { status: 200 }
       );
     }
 
-    if (data === "true") {
-      const dbString =
-        fetchData === "self"
-          ? process.env.MONGODB_KEY_MAIN
-          : fetchData === "master"
-            ? mongoDbKey
-            : fetchData === "project"
-              ? projectMongoDbKey
-              : null;
+    var data = [];
 
-      const dbName =
-        fetchData === "self"
-          ? `${ownerUsername}_${ownerProjectName}`
-          : fetchData === "master"
-            ? ownerProjectName
-            : fetchData === "project"
-              ? ownerProjectName
-              : null;
+    if (data === "true") {
+      const parsedString = dbString ? decrypt(dbString) : null;
+
+      const dbName = ownerProjectName;
 
       if (!dbString) {
         return NextResponse.json(
@@ -91,9 +77,9 @@ export async function GET(request, { params }) {
         );
       }
 
-      const connection = await connectToDatabase(dbString, dbName);
+      const connection = await connectToDatabase(parsedString, dbName);
 
-      var data = await getModelData({
+      data = await getModelData({
         dbConnection: connection,
         collectionName: authData.name,
       });
@@ -139,8 +125,10 @@ export async function POST(request, { params }) {
       return validator;
     }
 
-    const { ownerUserId, ownerEmail, ownerName, ownerProjectName } =
-      await getProjectOwner({ userId, projectId });
+    const { ownerUserId, ownerProjectName } = await getProjectOwner({
+      userId,
+      projectId,
+    });
 
     const authData = await AuthsModel.findOne({
       userId: ownerUserId,
@@ -219,9 +207,8 @@ export async function PATCH(request, { params }) {
       authType,
       tokenAge,
       schema,
-      reqType,
-      reqValue,
       captcha,
+      environmentType,
     } = body;
 
     const authData = await AuthsModel.findOne({
@@ -237,16 +224,10 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    const {
-      ownerUserId,
-      ownerEmail,
-      ownerName,
-      ownerProjectName,
-      mongoDbKey,
-      ownerUsername,
-      fetchData,
-      projectMongoDbKey,
-    } = await getProjectOwner({ userId, projectId: authData.projectId });
+    const { ownerUserId, ownerProjectName, projectData } =
+      await getProjectOwner({ userId, projectId: authData.projectId });
+
+    const dbString = projectData[environmentType].dbString.data;
 
     if (apiName) {
       const validator = await validateRequest(
@@ -288,36 +269,12 @@ export async function PATCH(request, { params }) {
         );
       }
 
-      // Self
-      const dbString = process.env.MONGODB_KEY_MAIN;
-      const dbName = `${ownerUsername}_${ownerProjectName}`;
-
-      await renameCollection({
-        uri: dbString,
-        dbName,
-        oldCollectionName: authData.name,
-        newCollectionName: apiName,
-      });
-
-      // Master
-      if (mongoDbKey) {
+      const parsedString = dbString ? decrypt(dbString) : null;
+      if (parsedString) {
         const dbName = ownerProjectName;
 
         await renameCollection({
-          uri: mongoDbKey,
-          dbName,
-          oldCollectionName: authData.name,
-          newCollectionName: apiName,
-        });
-      }
-
-      // Project
-      if (projectMongoDbKey) {
-        const dbString = projectMongoDbKey;
-        const dbName = ownerProjectName;
-
-        await renameCollection({
-          uri: dbString,
+          uri: parsedString,
           dbName,
           oldCollectionName: authData.name,
           newCollectionName: apiName,
@@ -355,25 +312,11 @@ export async function PATCH(request, { params }) {
     if (data) {
       const parsedData = validateData(data || "[]");
 
-      const dbString =
-        fetchData === "self"
-          ? process.env.MONGODB_KEY_MAIN
-          : fetchData === "master"
-            ? mongoDbKey
-            : fetchData === "project"
-              ? projectMongoDbKey
-              : null;
+      const parsedString = dbString ? decrypt(dbString) : null;
 
-      const dbName =
-        fetchData === "self"
-          ? `${ownerUsername}_${ownerProjectName}`
-          : fetchData === "project"
-            ? ownerProjectName
-            : fetchData === "master"
-              ? ownerProjectName
-              : null;
+      const dbName = ownerProjectName;
 
-      if (!dbString) {
+      if (!parsedString) {
         return NextResponse.json(
           {
             message: "No database connection found",
@@ -382,7 +325,7 @@ export async function PATCH(request, { params }) {
         );
       }
 
-      const connection = await connectToDatabase(dbString, dbName);
+      const connection = await connectToDatabase(parsedString, dbName);
 
       await updateModel({
         dbConnection: connection,
@@ -408,29 +351,22 @@ export async function PATCH(request, { params }) {
       });
     }
 
-    if (
-      authType ||
-      schema ||
-      tokenAge ||
-      (reqType && reqValue !== undefined) ||
-      captcha !== undefined
-    ) {
+    if (authType || schema || tokenAge || captcha !== undefined) {
       const newAuthapi = authData.toObject();
 
       const updatedFields = {
-        authType: authType || newAuthapi.authType,
-        schema: schema || newAuthapi.schema,
-        tokenAge: tokenAge || newAuthapi.tokenAge,
+        [`data.${environmentType}.authType`]:
+          authType || newAuthapi.data[environmentType].authType,
+        [`data.${environmentType}.schema`]: {
+          data: schema || newAuthapi.data[environmentType].schema.data,
+          updatedAt: schema || newAuthapi.data[environmentType].schema.updatedAt,
+        },
+        [`data.${environmentType}.tokenAge`]:
+          tokenAge || newAuthapi.data[environmentType].tokenAge,
+        [`data.${environmentType}.captcha`]:
+          captcha || newAuthapi.data[environmentType].captcha,
         updatedBy: userId,
-        captcha: captcha || newAuthapi.captcha,
       };
-
-      if (reqType && reqValue !== undefined) {
-        updatedFields[reqType] = {
-          used: newAuthapi[reqType].used,
-          active: Boolean(reqValue),
-        };
-      }
 
       await AuthsModel.findOneAndUpdate(
         { _id: authId },
@@ -442,19 +378,16 @@ export async function PATCH(request, { params }) {
 
       const getMessage = () => {
         if (authType) {
-          return `Auth API '${newAuthapi.name}' auth type updated to ${authType} from ${newAuthapi.authType} in project '${ownerProjectName}'`;
+          return `Auth API '${newAuthapi.name}' auth type updated to ${authType} from ${newAuthapi.authType} in project '${ownerProjectName}' in environment '${environmentType}'`;
         }
         if (schema) {
-          return `Auth API '${newAuthapi.name}' schema updated to ~${String(schema)}~ from ~${String(newAuthapi.schema)}~ in project '${ownerProjectName}'`;
+          return `Auth API '${newAuthapi.name}' schema updated to ~${String(schema)}~ from ~${String(newAuthapi.schema)}~ in project '${ownerProjectName} in environment '${environmentType}'`;
         }
         if (tokenAge) {
-          return `Auth API '${newAuthapi.name}' token age updated to ${tokenAge} from ${newAuthapi.tokenAge} in project '${ownerProjectName}'`;
-        }
-        if (reqType && reqValue !== undefined) {
-          return `Auth API '${newAuthapi.name}' request type ${reqType} status updated to ${reqValue ? "enabled" : "disabled"} in project '${ownerProjectName}'`;
+          return `Auth API '${newAuthapi.name}' token age updated to ${tokenAge} from ${newAuthapi.tokenAge} in project '${ownerProjectName}' in environment '${environmentType}'`;
         }
         if (captcha !== undefined) {
-          return `Auth API '${newAuthapi.name}' captcha updated to ${captcha} from ${newAuthapi.captcha} in project '${ownerProjectName}'`;
+          return `Auth API '${newAuthapi.name}' captcha updated to ${captcha} from ${newAuthapi.captcha} in project '${ownerProjectName}' in environment '${environmentType}'`;
         }
       };
 
@@ -496,6 +429,9 @@ export async function DELETE(request, { params }) {
     const { userId, token, email, name, role, body } =
       await verifyToken(request);
 
+    const { searchParams } = new URL(request.url);
+    const environmentType = searchParams.get("type");
+
     const authData = await AuthsModel.findOne({
       _id: authId,
     });
@@ -509,43 +445,17 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    const {
-      ownerUserId,
-      ownerEmail,
-      ownerName,
-      ownerProjectName,
-      mongoDbKey,
-      ownerUsername,
-      projectMongoDbKey,
-    } = await getProjectOwner({ userId, projectId: authData.projectId });
+    const { ownerUserId, ownerProjectName, projectData } =
+      await getProjectOwner({ userId, projectId: authData.projectId });
 
-    // Master
-    if (mongoDbKey) {
+    const dbString = projectData[environmentType].dbString.data;
+
+    const parsedString = dbString ? decrypt(dbString) : null;
+
+    if (parsedString) {
       const dbName = ownerProjectName;
 
-      const connection = await connectToDatabase(mongoDbKey, dbName);
-
-      await connection.db.collection(authData.name).drop();
-
-      await connection.close();
-    }
-
-    // Self
-    const dbString = process.env.MONGODB_KEY_MAIN;
-    const dbName = `${ownerUsername}_${ownerProjectName}`;
-
-    const connection = await connectToDatabase(dbString, dbName);
-
-    await connection.db.collection(authData.name).drop();
-
-    await connection.close();
-
-    // Project
-    if (projectMongoDbKey) {
-      const dbString = projectMongoDbKey;
-      const dbName = ownerProjectName;
-
-      const connection = await connectToDatabase(dbString, dbName);
+      const connection = await connectToDatabase(parsedString, dbName);
 
       await connection.db.collection(authData.name).drop();
 

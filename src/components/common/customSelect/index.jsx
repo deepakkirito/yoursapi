@@ -46,7 +46,7 @@ const CustomSelect = ({
   ...props
 }) => {
   return (
-    <Box className="flex gap-4 items-center w-[100%]" sx={style}>
+    <Box className="flex gap-4 items-center w-[fit-content]" sx={style}>
       {label && (
         <Box width={labelWidth} className="flex justify-end">
           <Typography width={"fit-content"} textAlign={"right"}>
@@ -103,7 +103,7 @@ const CustomSelect = ({
                 marginTop: "0.5rem",
                 boxShadow: "none",
                 border: "1px solid",
-                borderColor: "background.defaultSolid",
+                borderColor: "divider",
                 "& .MuiList-padding": {
                   padding: "0rem",
                 },

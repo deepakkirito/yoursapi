@@ -31,18 +31,8 @@ export async function GET(request) {
         email: 1,
         profile: 1,
         username: 1,
-        totalReq: 1,
-        plan: 1,
-        validity: 1,
-        usedReq: 1,
-        additionalReq: 1,
-        planId: 1,
-        usedCpu: 1,
-        usedRam: 1,
+        credits: 1,
       }
-    ).populate(
-      "planId",
-      "name requests ramLimit cpuLimit projectLimit apiLimit"
     );
 
     if (!user) {
@@ -80,7 +70,14 @@ export async function PATCH(request) {
       return validator;
     }
 
-    const { username, name: newName, newPassword, profile, oldPassword } = body;
+    const {
+      username,
+      name: newName,
+      newPassword,
+      profile,
+      oldPassword,
+      referralCode,
+    } = body;
 
     const user = await UsersModel.findOne({ _id: userId });
 
@@ -179,16 +176,6 @@ export async function PATCH(request) {
             { status: 400 }
           );
         }
-
-        await Promise.all(
-          projects.map(async (project) => {
-            await copyDatabase({
-              oldDbName: `${oldUsername}_${project.name.toLowerCase()}`,
-              newDbName: `${username}_${project.name.toLowerCase()}`,
-              dropOldDb: true,
-            });
-          })
-        );
       }
 
       const updatedUser = await UsersModel.findOneAndUpdate(
@@ -200,16 +187,25 @@ export async function PATCH(request) {
         }
       );
 
-      const token = generateToken(
-        updatedUser,
-        process.env.AUTH_EXPIRES_REMEMBER
-      );
+      if (referralCode) {
+        const user = await UsersModel.findOneAndUpdate(
+          { _id: userId },
+          {
+            $set: {
+              referralCode: referralCode,
+            },
+          },
+          { new: true }
+        );
 
-      await SessionsModel.findOneAndUpdate(
-        { jwt: oldToken.value },
-        { $set: { jwt: token } },
-        { new: true }
-      );
+        await UsersModel.findOneAndUpdate(
+          { referralCode },
+          {
+            $push: { referredUsers: userId },
+          },
+          { new: true }
+        );
+      }
 
       const response = NextResponse.json(
         { message: "Username updated successfully" },
@@ -217,14 +213,6 @@ export async function PATCH(request) {
           status: 200,
         }
       );
-
-      response.cookies.set("accessToken", token, {
-        httpOnly: true, // Prevent client-side access
-        secure: process.env.NODE_ENV === "production", // Secure in production
-        maxAge: process.env.AUTH_EXPIRES_REMEMBER,
-        path: "/",
-        sameSite: "lax", // Strictly follow the same-site cookie policy
-      });
 
       return response;
     }
@@ -242,8 +230,12 @@ export async function PATCH(request) {
         return `Password updated`;
       }
 
-      if (username) {
+      if (username && !referralCode) {
         return `Username ${user.username} updated to ${username}`;
+      }
+
+      if (username && referralCode) {
+        return `Username ${user.username} updated to ${username} and referral code updated to ${referralCode}`;
       }
 
       return "Invalid option triggered";

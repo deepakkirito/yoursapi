@@ -8,11 +8,11 @@ const loggerSchema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
     createdAt: {
       type: Date,
-      default: () => convertToIST(new Date()), // Store in IST
+      default: new Date(),
     },
     updatedAt: {
       type: Date,
-      default: () => convertToIST(new Date()), // Store in IST
+      default: new Date(),
     },
     createdBy: { type: Schema.Types.ObjectId, ref: "users", required: true },
     log: { type: String, required: true },
@@ -27,25 +27,12 @@ const loggerSchema = new Schema(
     read: { type: Boolean, default: false },
     status: { type: String, enum: ["success", "error"], default: "success" },
     link: { type: String },
+    environment: { type: String, enum: ["production", "development"] },
   },
   {
-    timestamps: true, // Disable automatic timestamps to manually control IST storage
+    timestamps: true,
   }
 );
-
-// Middleware to update `updatedAt` before save/update operations
-loggerSchema.pre("save", function (next) {
-  if (this.createdAt) {
-    this.createdAt = convertToIST(new Date(this.createdAt));
-  }
-  this.updatedAt = convertToIST(new Date());
-  next();
-});
-
-loggerSchema.pre("findOneAndUpdate", function (next) {
-  this.set({ updatedAt: convertToIST(new Date()) });
-  next();
-});
 
 loggerSchema.index({ userId: 1, log: "text" });
 

@@ -153,7 +153,7 @@ const Subscriptions = () => {
                 </Grid2>
               ) : (
                 subscriptions?.map((item, index) => (
-                  <Grid2 item size={{ xs: 12, md: 6, lg: 4 }} key={index}>
+                  <Grid2 item size={{ xs: 12, md: 6, lg: 4, xl: 3 }} key={index}>
                     <SubscriptionCard
                       data={item}
                       deleteLoading={deleteLoading === item._id}

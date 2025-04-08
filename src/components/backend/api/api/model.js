@@ -1,7 +1,31 @@
-import { convertToIST } from "@/utilities/helpers/functions";
 import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
+
+const environmentTypeData = {
+  getRequest: {
+    secured: { type: Boolean, default: true },
+  },
+  postRequest: {
+    secured: { type: Boolean, default: true },
+  },
+  putRequest: {
+    secured: { type: Boolean, default: true },
+  },
+  deleteRequest: {
+    secured: { type: Boolean, default: true },
+  },
+  headRequest: {
+    secured: { type: Boolean, default: true },
+  },
+  patchRequest: {
+    secured: { type: Boolean, default: true },
+  },
+  schema: {
+    data: { type: Object, default: null },
+    updatedAt: { type: Date, default: new Date() },
+  },
+};
 
 const apisSchema = new Schema(
   {
@@ -11,88 +35,29 @@ const apisSchema = new Schema(
     },
     createdAt: {
       type: Date,
-      default: () => convertToIST(new Date()), // Store in IST
+      default: new Date(),
     },
     updatedAt: {
       type: Date,
-      default: () => convertToIST(new Date()), // Store in IST
+      default: new Date(),
     },
     updatedBy: { type: Schema.Types.ObjectId, ref: "users", required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: "users", required: true },
-    getRequest: {
-      used: { type: Number, default: 0 },
-      active: { type: Boolean, default: true },
-      secured: { type: Boolean, default: true },
+    data: {
+      environMentType: {
+        type: String,
+        default: "production",
+        enum: ["production", "development"],
+      },
+      data: environmentTypeData,
     },
-    postRequest: {
-      used: { type: Number, default: 0 },
-      active: { type: Boolean, default: true },
-      secured: { type: Boolean, default: true },
-    },
-    putRequest: {
-      used: { type: Number, default: 0 },
-      active: { type: Boolean, default: true },
-      secured: { type: Boolean, default: true },
-    },
-    deleteRequest: {
-      used: { type: Number, default: 0 },
-      active: { type: Boolean, default: true },
-      secured: { type: Boolean, default: true },
-    },
-    headRequest: {
-      used: { type: Number, default: 0 },
-      active: { type: Boolean, default: true },
-      secured: { type: Boolean, default: true },
-    },
-    patchRequest: {
-      used: { type: Number, default: 0 },
-      active: { type: Boolean, default: true },
-      secured: { type: Boolean, default: true },
-    },
-    schema: { type: Object, default: null },
-    strict: { type: Boolean, default: false },
     userId: { type: Schema.Types.ObjectId, ref: "users", required: true },
     projectId: { type: Schema.Types.ObjectId, ref: "projects", required: true },
-    logs: [
-      {
-        type: {
-          type: String,
-          enum: [
-            "headRequest",
-            "getRequest",
-            "postRequest",
-            "putRequest",
-            "patchRequest",
-            "deleteRequest",
-          ],
-        },
-        createdAt: {
-          type: Date,
-          default: () => convertToIST(new Date()), // Store log timestamps in IST
-        },
-      },
-    ],
   },
   {
-    timestamps: true, // Mongoose automatically handles createdAt & updatedAt
+    timestamps: true,
   }
 );
-
-// Middleware to enforce IST conversion when saving or updating
-apisSchema.pre("save", function (next) {
-  if (this.createdAt) {
-    this.createdAt = convertToIST(new Date(this.createdAt));
-  }
-  if (this.updatedAt) {
-    this.updatedAt = convertToIST(new Date());
-  }
-  next();
-});
-
-apisSchema.pre("findOneAndUpdate", function (next) {
-  this.set({ updatedAt: convertToIST(new Date()) });
-  next();
-});
 
 apisSchema.index({ name: "text", userId: 1 });
 

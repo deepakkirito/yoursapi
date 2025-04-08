@@ -8,6 +8,7 @@ import AutoDeleteRoundedIcon from "@mui/icons-material/AutoDeleteRounded";
 import { CreatePopupContext } from "@/utilities/context/popup";
 import ShareProject from "../shareProject";
 import ShareProjectimage from "@/components/assets/svg/shareProject.svg";
+import ShareProjectPermission from "../shareProject/permission";
 
 export default function MainProject() {
   const { popup, setPopup } = useContext(CreatePopupContext);
@@ -15,11 +16,9 @@ export default function MainProject() {
   return (
     <Suspense fallback={<CircularProgress />}>
       <Box
-        className="pr-2"
         sx={{
-          // backgroundColor: "background.invert",
-          height: "calc(100vh - 7rem)",
-          overflow: "auto",
+          height: "inherit",
+          overflow: "hidden",
         }}
       >
         <ProjectLayout
@@ -39,7 +38,8 @@ export default function MainProject() {
               open: true,
               title: "Share Project",
               element: <ShareProject id={id} />,
-              image: ShareProjectimage,
+              hideImage: true,
+              secondElement: <ShareProjectPermission id={id} />,
             })
           }
         />

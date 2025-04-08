@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import TooltipCustom from "../tooltip";
@@ -30,6 +30,7 @@ import {
 } from "@/components/assets/constants/barList";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import useCustomWindow from "@/utilities/helpers/hooks/window";
+import { CreateSidebarContext } from "@/utilities/context/sidebar";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -42,7 +43,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 const Sidebar = () => {
   const location = usePathname();
   const theme = useTheme();
-  const [sidebarOpen, setSidebarOpen] = useLocalStorage("sidebar", true);
+  const { sidebarOpen, setSidebarOpen } = useContext(CreateSidebarContext);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [isIncluded, setIsIncluded] = useState(false);
   const window = useCustomWindow();
@@ -52,10 +53,6 @@ const Sidebar = () => {
   }, [isMobile]);
 
   const data = useMemo(() => {
-    if (mainListUrl.includes(location)) {
-      setIsIncluded(false);
-      return mainList;
-    }
     if (location.includes("/profile")) {
       setIsIncluded(false);
       return profileList;
@@ -65,8 +62,13 @@ const Sidebar = () => {
       setIsIncluded(false);
       return adminList;
     }
-    setIsIncluded(true);
-    return projectList;
+
+    // if (mainListUrl.includes(location)) {
+    setIsIncluded(false);
+    return mainList;
+    // }
+    // setIsIncluded(true);
+    // return projectList;
   }, [location]);
 
   const isProjectLink = useMemo(
@@ -75,17 +77,18 @@ const Sidebar = () => {
   );
 
   return (
-    <Box>
+    <Box className="w-full h-full">
       <Drawer
         sx={{
           width: "100%",
           flexShrink: 0,
-          height: "calc(100vh - 7rem)",
+          height: "100%",
           transition: "all 500ms",
           "& .MuiDrawer-paper": {
             border: "0.2rem solid",
-            borderColor: "background.foreground",
-            borderRadius: "1rem",
+            borderTop: "0.1rem solid",
+            borderRight: "0.1rem solid",
+            borderColor: "divider",
             width: "100%",
             boxSizing: "border-box",
           },
@@ -94,7 +97,7 @@ const Sidebar = () => {
             transition: "all 500ms",
             backgroundColor: {
               xs: "background.defaultSolid",
-              md: "background.default",
+              md: "background.foreground",
             },
             overflow: "hidden",
           },
@@ -147,18 +150,18 @@ const Sidebar = () => {
                     sx={{
                       backgroundColor: !isIncluded
                         ? location === item.link
-                          ? "background.inactive"
+                          ? "background.defaultSolid"
                           : "transparent"
                         : location.includes(item.link)
-                          ? "background.inactive"
+                          ? "background.defaultSolid"
                           : "transparent",
-                      boxShadow: !isIncluded
-                        ? location === item.link
-                          ? `0 0 1rem ${theme.palette.background.active} inset`
-                          : "none"
-                        : location.includes(item.link)
-                          ? `0 0 1rem ${theme.palette.background.active} inset`
-                          : "none",
+                      // boxShadow: !isIncluded
+                      //   ? location === item.link
+                      //     ? `0 0 1rem ${theme.palette.background.invert} inset`
+                      //     : "none"
+                      //   : location.includes(item.link)
+                      //     ? `0 0 1rem ${theme.palette.background.invert} inset`
+                      //     : "none",
                       color: theme.palette.text.primary,
                     }}
                   >

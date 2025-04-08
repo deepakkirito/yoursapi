@@ -124,12 +124,11 @@ const AuthApi = ({ shared = false }) => {
   return (
     <Box
       sx={{
-        borderRadius: "1rem",
         border: "0.2rem solid",
-        borderColor: "background.default",
-        boxShadow: "0 0 1rem background.default",
-        height: "calc(100vh - 7rem)",
-        backgroundColor: "background.foreground",
+        borderTop: "0.1rem solid",
+        borderLeft: "0.1rem solid",
+        borderColor: "divider",
+        height: "inherit",
       }}
     >
       {loading ? (
@@ -209,11 +208,6 @@ const AuthApi = ({ shared = false }) => {
                     open={open}
                     items={Items}
                     defaultExpanded={"details"}
-                    // hideItems={
-                    //   shared && permission === "read"
-                    //     ? ["schema", "settings"]
-                    //     : []
-                    // }
                   />
                 </Grid2>
               </Grid2>

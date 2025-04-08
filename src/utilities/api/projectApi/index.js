@@ -37,8 +37,8 @@ export const getSharedProjectApi = (pagination, search, filter, sort) => {
   );
 };
 
-export const getSingleProjectApi = async (id) => {
-  return await axiosGetSelf(`project/${id}`);
+export const getSingleProjectApi = async (id, environment) => {
+  return await axiosGetSelf(`project/${id}?environment=${environment}`);
 };
 
 export const getSingleShareProjectAccessApi = (id) => {
@@ -109,10 +109,54 @@ export const updateProjectInstanceApi = (id, body) => {
   return axiosPatchSelf(`project/instance/${id}`, body);
 };
 
-export const startProjectInstanceApi = (id) => {
-  return axiosPostSelf(`project/instance/${id}`);
+export const startProjectInstanceApi = (id, environment) => {
+  return axiosPostSelf(`project/instance/${id}?environment=${environment}`);
 };
 
-export const stopProjectInstanceApi = (id) => {
-  return axiosDeleteSelf(`project/instance/${id}`);
+export const stopProjectInstanceApi = (id, environment) => {
+  return axiosDeleteSelf(`project/instance/${id}?environment=${environment}`);
+};
+
+export const addSubscriptionApi = (id, body) => {
+  return axiosPostSelf(`project/subscription/${id}`, body);
+};
+
+export const getProjectMetricsApi = (id, environment) => {
+  return axiosGetSelf(
+    `project/instance/metrics/${id}?environment=${environment}`
+  );
+};
+
+export const getProjectLogsApi = (id, environment) => {
+  return axiosGetSelf(`project/instance/logs/${id}?environment=${environment}`);
+};
+
+export const getProjectTotalLogsApi = ({
+  id,
+  environment,
+  search,
+  filter,
+  rows,
+  page,
+  order,
+  orderBy,
+  logType,
+}) => {
+  return axiosGetSelf(
+    `project/logs/${id}?environment=${environment}&search=${search}&filter=${filter}&rows=${rows}&page=${page}&order=${order}&orderBy=${orderBy}&logType=${logType}`
+  );
+};
+
+export const checkDomainExistApi = ({ id, domain }) => {
+  return axiosHeadSelf(`project/domain/${id}?domain=${domain}`);
+};
+
+export const addDomainApi = ({ id, body }) => {
+  return axiosPostSelf(`project/domain/${id}`, body);
+};
+
+export const removeDomainApi = ({ id, domain, environment }) => {
+  return axiosDeleteSelf(
+    `project/domain/${id}?domain=${domain}&environment=${environment}`
+  );
 };

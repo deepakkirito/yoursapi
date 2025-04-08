@@ -126,7 +126,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-[inherit]">
       <Dialog open={openCropModal} onClose={() => setOpenCropModal(false)}>
         <Box sx={{ width: 400, height: 400, position: "relative" }}>
           <Cropper
@@ -144,11 +144,10 @@ const Profile = () => {
       <Box className="h-full">
         <Box
           sx={{
-            borderRadius: "0.5rem 0.5rem 0 0",
-            padding: "1rem",
+            padding: "0.7rem 1rem",
             backgroundColor: "background.foreground",
-            borderBottom: "0.2rem solid",
-            borderColor: "background.default",
+            borderBottom: "0.1rem solid",
+            borderColor: "divider",
           }}
         >
           <Typography variant="h4">Profile Settings</Typography>
@@ -170,50 +169,8 @@ const Profile = () => {
                     {userData?.name} ({userData?.username})
                   </Typography>
                   <Typography variant="h7">{userData?.email}</Typography>
-                  <Box className="flex gap-2 items-center">
-                    <Typography variant="h7">Subscription Status:</Typography>
-                    <span
-                      style={{
-                        background:
-                          userData?.planId?.name === "FREE"
-                            ? "linear-gradient(135deg,rgba(39, 174, 95, 0.84),rgba(46, 204, 112, 0.91))"
-                            : "linear-gradient(135deg,rgba(212, 175, 55, 0.3),rgba(241, 196, 15, 0.39))", // Gradient for premium feel
-                        color:
-                          userData?.planId?.name === "FREE"
-                            ? "#EDEDED"
-                            : "#D4AF37",
-                        padding: "1px 4px",
-                        borderRadius: "6px",
-                        fontSize: "0.8rem",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.5px",
-                        border:
-                          userData?.planId?.name === "FREE"
-                            ? "1px solid rgba(39, 174, 96, 0.8)"
-                            : "1px solid rgba(212, 175, 55, 0.8)",
-                        boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)", // Adds subtle depth
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "1px",
-                      }}
-                    >
-                      {userData?.planId?.name !== "FREE" && (
-                        <WorkspacePremiumRoundedIcon
-                          fontSize="small"
-                          sx={{
-                            color: "#D4AF37",
-                          }}
-                        />
-                      )}
-                      {userData?.planId?.name}
-                    </span>
-                  </Box>
-                  {userData?.planId?.name !== "FREE" && (
-                    <Typography variant="h7">
-                      Expires on {getDate(userData?.validity)}
-                    </Typography>
-                  )}
+                  <Typography variant="h7">Available {userData?.credits?.data || 0} Credits</Typography>
+                  <Typography variant="h7">Last Recharge {getDate(userData?.credits?.updatedAt)}</Typography>
                 </Grid2>
                 <Grid2
                   className="flex items-center justify-center"
@@ -296,37 +253,6 @@ const Profile = () => {
                       )}
                     </Box>
                   )}
-                </Grid2>
-                <Grid2
-                  item
-                  size={{ xs: 12, md: 5 }}
-                  className="flex flex-col items-start"
-                >
-                  <Typography variant="h6">Plan Details</Typography>
-                  <div className="flex gap-1 flex-col items-start">
-                    <Typography variant="h7">
-                      {userData?.planId.requests} requests / day
-                    </Typography>
-                    {userData?.planId.cpuLimit > 0 && (
-                      <div className="flex gap-12  items-center">
-                        <Typography variant="h7">
-                          {userData?.planId.cpuLimit} CPU
-                        </Typography>
-                        <Typography variant="h7">
-                          {userData?.planId.ramLimit} MB RAM
-                        </Typography>
-                      </div>
-                    )}
-                    <div className="flex gap-8  items-center">
-                      <Typography variant="h7">
-                        Project Limit:{" "}
-                        {userData?.planId.projectLimit ?? "Unlimited"}
-                      </Typography>
-                      <Typography variant="h7">
-                        API Limit: {userData?.planId.apiLimit ?? "Unlimited"}
-                      </Typography>
-                    </div>
-                  </div>
                 </Grid2>
               </Grid2>
               <Divider className="w-[95%] flex m-auto" />

@@ -27,7 +27,7 @@ const ContentBar = ({
   return (
     <Box
       sx={{
-        backgroundColor: "background.default",
+        backgroundColor: "background.foreground",
         padding: "0.5rem",
         width: open ? "100%" : "4.9rem",
         height: "100%",

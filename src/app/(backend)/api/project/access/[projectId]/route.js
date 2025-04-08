@@ -6,6 +6,7 @@ import { sendMail } from "@/components/backend/utilities/nodemailer";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { logShared } from "@/components/backend/utilities/middlewares/logShared";
+import PermissionsModel from "@/components/backend/api/permissions/model";
 
 export async function GET(request, { params }) {
   try {
@@ -31,9 +32,8 @@ export async function GET(request, { params }) {
       name: s.name,
       email: s.email,
       profile: s.profile,
-      permission:
-        s.shared.find((s) => s.project.toString() === projectId)?.permission ||
-        "read",
+      permission: s.shared.find((s) => s.project.toString() === projectId)
+        ?.permission,
       self: userId.toString() === s._id.toString(),
     }));
 
@@ -76,12 +76,29 @@ export async function PATCH(request, { params }) {
 
     const { email: shareEmail, permission } = body;
 
+    const permissionObj = await PermissionsModel.findOne({
+      _id: permission,
+    });
+
+    if (!permissionObj) {
+      return NextResponse.json(
+        { message: "Permission not found" },
+        { status: 400, statusText: "Bad Request" }
+      );
+    }
+
+    const permissionName = permissionObj.name;
+
     const updatedUser = await UsersModel.findOneAndUpdate(
       {
         email: shareEmail,
         "shared.project": projectId,
       },
-      { $set: { "shared.$.permission": permission } },
+      {
+        $set: {
+          "shared.$.permission": new mongoose.Types.ObjectId(permission),
+        },
+      },
       { new: true, lean: true }
     );
 
@@ -103,7 +120,7 @@ export async function PATCH(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project '${project.name}' permission for ${shareEmail} updated to ${permission}`,
+      log: `Project '${project.name}' permission for ${shareEmail} updated to ${permissionName} level`,
       link: `/projects`,
       linkShared: `/projects/shared`,
     });
@@ -174,6 +191,19 @@ export async function POST(request, { params }) {
       );
     }
 
+    const permissionObj = await PermissionsModel.findOne({
+      _id: permission,
+    });
+
+    if (!permissionObj) {
+      return NextResponse.json(
+        { message: "Permission not found" },
+        { status: 400, statusText: "Bad Request" }
+      );
+    }
+
+    const permissionName = permissionObj.name;
+
     const sharedUser = await UsersModel.findOneAndUpdate(
       {
         email: shareEmail,
@@ -181,7 +211,7 @@ export async function POST(request, { params }) {
       {
         $push: {
           shared: {
-            permission,
+            permission: new mongoose.Types.ObjectId(permission),
             project: projectIdObj,
             owner: ownerUserId,
             sharedBy: userId,
@@ -220,7 +250,7 @@ export async function POST(request, { params }) {
       type: "project",
       createdBy: userId,
       projectId,
-      log: `Project '${updateProject.name}' shared with ${shareEmail} with permission ${permission}`,
+      log: `Project '${updateProject.name}' shared with ${shareEmail} with permission ${permissionName} level`,
       link: `/projects`,
       linkShared: `/projects/shared`,
     });

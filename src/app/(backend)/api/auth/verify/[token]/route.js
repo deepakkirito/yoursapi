@@ -37,13 +37,6 @@ export async function GET(request, { params }) {
       );
     }
 
-    // if (user.isVerified) {
-    //   return NextResponse.json(
-    //     { message: "Email already verified" },
-    //     { status: 401, statusText: "Unauthorized" }
-    //   );
-    // }
-
     if (decoded.type !== "signup" && decoded.type !== "login") {
       return NextResponse.json(
         { message: "Verify token expired" },

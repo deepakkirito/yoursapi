@@ -13,26 +13,17 @@ const sessionsSchema = new Schema(
     location: { type: Schema.Types.ObjectId, ref: "locations" },
     createdAt: {
       type: Date,
-      default: () => convertToIST(new Date()), // Store in IST
+      default: new Date(),
     },
     lastActive: {
       type: Date,
-      default: () => convertToIST(new Date()), // Store in IST
+      default: new Date(),
     },
   },
   {
     timestamps: true, // Disable Mongoose default timestamps
   }
 );
-
-// Middleware to update `lastActive` before update
-sessionsSchema.pre("findOneAndUpdate", function (next) {
-  if (this.createdAt) {
-    this.createdAt = convertToIST(new Date(this.createdAt));
-  }
-  this.set({ lastActive: convertToIST(new Date()) });
-  next();
-});
 
 sessionsSchema.index({ jwt: "text", userId: 1 });
 

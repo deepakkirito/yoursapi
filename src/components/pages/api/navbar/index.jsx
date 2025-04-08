@@ -366,10 +366,9 @@ const Navbar = ({
         className="flex items-center justify-between"
         sx={{
           backgroundColor: "background.foreground",
-          borderRadius: "0.5rem 0.5rem 0 0",
-          padding: "1rem",
-          borderBottom: "0.2rem solid",
-          borderColor: "background.default",
+          padding: "0.75rem 1rem",
+          borderBottom: "0.1rem solid",
+          borderColor: "divider",
         }}
       >
         <Typography variant="h5">{title}</Typography>
@@ -451,9 +450,9 @@ const Navbar = ({
         spacing={2}
         sx={{
           backgroundColor: "background.foreground",
-          borderBottom: openApi ? "none" : "0.2rem solid",
-          borderColor: "background.default",
-          padding: openApi ? "0rem" : "1rem",
+          borderBottom: openApi ? "none" : "0.1rem solid",
+          borderColor: "divider",
+          padding: openApi ? "0rem" : "0rem 1rem",
           position: {
             lg: "sticky",
             xs: "relative",
@@ -461,10 +460,9 @@ const Navbar = ({
           top: "0",
           zIndex: "5",
           width: "100%",
-          height: openApi ? "0rem" : "5rem",
+          height: openApi ? "0rem" : "4rem",
           overflow: openApi ? "hidden" : "auto",
           transition: "all 0.5s",
-          borderRadius: "0.5rem 0.5rem 0 0",
         }}
       >
         {loading && (

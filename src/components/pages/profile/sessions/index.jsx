@@ -151,27 +151,25 @@ const Sessions = () => {
     <Box>
       <Box
         sx={{
-          borderRadius: "1rem",
-          borderBottom: "0.2rem solid",
-          borderColor: "background.default",
+          borderBottom: "0.1rem solid",
+          borderColor: "divider",
           backgroundColor: "background.foreground",
           overflow: "auto",
           paddingBottom: "1rem",
-          borderRadius: "0.5rem 0.5rem 0 0",
-          padding: "1rem",
+          padding: "0.7rem 1rem",
           position: "sticky",
           top: "0",
         }}
       >
         <Typography variant="h4">Sessions</Typography>
       </Box>
-      <Box className="w-full p-8 overflow-auto h-[calc(100vh-14rem)]">
+      <Box className="w-full h-[calc(100vh-8.5rem)]">
         {loading ? (
-          <Box className="flex justify-center items-center h-full">
+          <Box className="flex justify-center items-center h-[inherit]">
             <CircularProgress color="secondary" size={24} />
           </Box>
         ) : (
-          <Box className="flex flex-col gap-4">
+          <Box className="flex flex-col gap-4 h-[inherit] overflow-auto p-4">
             {sessions?.length ? (
               <>
                 {currentSessions.map((item, index) =>

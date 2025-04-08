@@ -63,6 +63,9 @@ const CustomTable = ({
   orderBy = "",
   totalData = 0,
   logType = "",
+  maxHeight = "90vh",
+  maxHeightTable = "calc(100vh - 17rem)",
+  typeShow = true,
   setLogType = () => {},
   setOrder = () => {},
   setOrderBy = () => {},
@@ -207,7 +210,7 @@ const CustomTable = ({
     <Paper
       sx={{
         width: "100%",
-        maxHeight: fullScreen ? "100vh" : "90vh",
+        maxHeight: fullScreen ? "100vh" : maxHeight,
         minHeight: fullScreen ? "100vh" : "auto",
         overflow: "hidden",
         padding: 2,
@@ -261,20 +264,22 @@ const CustomTable = ({
           >
             {title}
           </Typography>
-          <CustomSelect
-            multiple={true}
-            labelTop="Type"
-            options={[
-              { label: "User", value: "user" },
-              { label: "Data Api", value: "data" },
-              { label: "Project", value: "project" },
-              { label: "Auth Api", value: "auth" },
-              { label: "Api", value: "api" },
-            ]}
-            value={logType}
-            none={false}
-            handleChange={(value) => setLogType(value)}
-          />
+          {typeShow && (
+            <CustomSelect
+              multiple={true}
+              labelTop="Type"
+              options={[
+                { label: "User", value: "user" },
+                { label: "Data Api", value: "data" },
+                { label: "Project", value: "project" },
+                { label: "Auth Api", value: "auth" },
+                { label: "Api", value: "api" },
+              ]}
+              value={logType}
+              none={false}
+              handleChange={(value) => setLogType(value)}
+            />
+          )}
         </Box>
         <Box
           display="flex"
@@ -359,7 +364,7 @@ const CustomTable = ({
       <TableContainer
         sx={{
           width: "100%",
-          maxHeight: fullScreen ? "calc(100vh - 10rem)" : "calc(100vh - 17rem)",
+          maxHeight: fullScreen ? "calc(100vh - 10rem)" : maxHeightTable,
           overflow: "auto",
           marginTop: "0.5rem",
           "& .MuiTableRow-root": {

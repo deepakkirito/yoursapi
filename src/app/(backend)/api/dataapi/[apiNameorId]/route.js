@@ -24,6 +24,9 @@ export async function GET(request, { params }) {
 
     const { apiNameorId } = await params;
 
+    const { searchParams } = new URL(request.url);
+    const environmentType = searchParams.get("type");
+
     const dataApi = await ApisModel.findOne({
       _id: apiNameorId,
     });
@@ -39,34 +42,16 @@ export async function GET(request, { params }) {
 
     const { projectId, name } = dataApi;
 
-    const {
-      ownerUserId,
-      fetchData,
-      mongoDbKey,
-      ownerProjectName,
-      ownerUsername,
-      projectMongoDbKey,
-    } = await getProjectOwner({ projectId, userId });
+    const { ownerUserId, ownerProjectName, projectData } =
+      await getProjectOwner({ projectId, userId });
 
-    const dbString =
-      fetchData === "self"
-        ? process.env.MONGODB_KEY_MAIN
-        : fetchData === "master"
-          ? mongoDbKey
-          : fetchData === "project"
-            ? projectMongoDbKey
-            : null;
+    const dbString = projectData[environmentType].dbString.data;
 
-    const dbName =
-      fetchData === "self"
-        ? `${ownerUsername}_${ownerProjectName}`
-        : fetchData === "master"
-          ? ownerProjectName
-          : fetchData === "project"
-            ? ownerProjectName
-            : null;
+    const parsedString = dbString ? decrypt(dbString) : null;
 
-    const connection = await connectToDatabase(dbString, dbName);
+    const dbName = ownerProjectName;
+
+    const connection = await connectToDatabase(parsedString, dbName);
 
     const data = await getModelData({
       dbConnection: connection,
@@ -79,17 +64,12 @@ export async function GET(request, { params }) {
       },
       {
         _id: 0,
-        headRequest: 1,
-        postRequest: 1,
-        putRequest: 1,
-        deleteRequest: 1,
-        getRequest: 1,
-        schema: 1,
+        name: 1,
+        data: 1,
         createdBy: 1,
         updatedBy: 1,
         createdAt: 1,
         updatedAt: 1,
-        patchRequest: 1,
       }
     )
       .populate("createdBy", "name profile email")
@@ -105,7 +85,7 @@ export async function GET(request, { params }) {
       );
     }
 
-    const projectData = await ProjectsModel.findOne({
+    const project = await ProjectsModel.findOne({
       _id: projectId,
     })
       .populate("authId")
@@ -127,14 +107,19 @@ export async function GET(request, { params }) {
     return NextResponse.json({
       data,
       apiData: {
-        ...apiData,
-        authType: projectData?.authId?.authType || "none",
+        _id: apiData._id,
+        name: apiData.name,
+        updatedAt: apiData.updatedAt,
+        createdAt: apiData.createdAt,
+        updatedBy: apiData.updatedBy,
+        createdBy: apiData.createdBy,
+        authType: project?.authId?.authType || "none",
+        ...apiData.data[environmentType],
       },
       permission:
         userId.toString() === ownerUserId.toString()
           ? null
-          : user.shared.find((s) => s.project.equals(projectId))?.permission ||
-            "read",
+          : user.shared.find((s) => s.project.equals(projectId))?.permission,
     });
   } catch (error) {
     console.error(error);
@@ -154,7 +139,7 @@ export async function POST(request, { params }) {
 
     const { apiNameorId: projectId } = await params;
 
-    const { apiName, data } = body;
+    const { apiName, data, environmentType } = body;
 
     const validation = await validateRequest(
       { ...request, body },
@@ -167,14 +152,10 @@ export async function POST(request, { params }) {
 
     const parsedData = validateData(data || "[]");
 
-    const {
-      ownerUserId,
-      mongoDbKey,
-      ownerProjectName,
-      ownerUsername,
-      fetchData,
-      projectMongoDbKey,
-    } = await getProjectOwner({ projectId, userId });
+    const { ownerUserId, ownerProjectName, projectData } =
+      await getProjectOwner({ projectId, userId });
+
+    const dbString = projectData[environmentType]?.dbString?.data || null;
 
     const checkApi = await ApisModel.findOne({
       projectId,
@@ -197,25 +178,11 @@ export async function POST(request, { params }) {
 
     if (data?.length) {
       try {
-        const dbString =
-          fetchData === "self"
-            ? process.env.MONGODB_KEY_MAIN
-            : fetchData === "master"
-              ? mongoDbKey
-              : fetchData === "project"
-                ? projectMongoDbKey
-                : null;
+        const parsedString = dbString ? decrypt(dbString) : null;
 
-        const dbName =
-          fetchData === "self"
-            ? `${ownerUsername}_${ownerProjectName}`
-            : fetchData === "master"
-              ? ownerProjectName
-              : fetchData === "project"
-                ? ownerProjectName
-                : null;
+        const dbName = ownerProjectName;
 
-        const connection = await connectToDatabase(dbString, dbName);
+        const connection = await connectToDatabase(parsedString, dbName);
 
         await updateModel({
           dbConnection: connection,
@@ -292,17 +259,8 @@ export async function PATCH(request, { params }) {
 
     const { apiNameorId } = await params;
 
-    const {
-      newApiName,
-      data,
-      schema,
-      key,
-      value,
-      oldApiName,
-      projectName,
-      projectId,
-      type,
-    } = body;
+    const { newApiName, data, schema, key, value, type, environmentType } =
+      body;
 
     const apiData = await ApisModel.findOne({
       _id: apiNameorId,
@@ -312,24 +270,23 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ message: "API not found" }, { status: 400 });
     }
 
-    const {
-      ownerUserId,
-      ownerProjectName,
-      ownerUsername,
-      mongoDbKey,
-      fetchData,
-      projectMongoDbKey,
-    } = await getProjectOwner({
-      projectId: apiData.projectId,
-      userId,
-    });
+    const { ownerUserId, ownerProjectName, projectData } =
+      await getProjectOwner({
+        projectId: apiData.projectId,
+        userId,
+      });
+
+    const dbString = projectData[environmentType].dbString.data;
 
     if (schema) {
       const updatedApi = await ApisModel.findOneAndUpdate(
         { _id: apiNameorId },
         {
           $set: {
-            schema: schema,
+            [`data.${environmentType}.schema`]: {
+              data: schema,
+              updatedAt: Date.now(),
+            },
             updatedAt: Date.now(),
             updatedBy: userId,
           },
@@ -342,7 +299,7 @@ export async function PATCH(request, { params }) {
         projectId: apiData.projectId,
         log: `Data API '${apiData.name}' schema updated to ~${getDataToString(
           schema
-        )}~ from ~${getDataToString(apiData.schema ? apiData.schema : {})}~ in project '${ownerProjectName}'`,
+        )}~ from ~${getDataToString(apiData.schema ? apiData.schema : {})}~ in project '${ownerProjectName}' in environment '${environmentType}'`,
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
@@ -360,7 +317,10 @@ export async function PATCH(request, { params }) {
         { _id: apiNameorId },
         {
           $set: {
-            [key]: { ...apiData.toObject()[key], [type]: Boolean(value) },
+            [`data.${environmentType}.${key}`]: {
+              ...apiData.toObject()[`data.${environmentType}.${key}`],
+              [type]: Boolean(value),
+            },
             updatedAt: Date.now(),
             updatedBy: userId,
           },
@@ -371,7 +331,7 @@ export async function PATCH(request, { params }) {
       logShared({
         userId: ownerUserId,
         projectId: apiData.projectId,
-        log: `Data API '${apiData.name}' ${key} ${type === "active" ? "status" : "secured"} ${value ? "enabled" : "disabled"} in project '${ownerProjectName}'`,
+        log: `Data API '${apiData.name}' ${key} ${type === "active" ? "status" : "secured"} ${value ? "enabled" : "disabled"} in project '${ownerProjectName}' in environment '${environmentType}'`,
         type: "data",
         apiId: apiData._id,
         createdBy: userId,
@@ -411,36 +371,13 @@ export async function PATCH(request, { params }) {
         );
       }
 
-      // Self
-      const dbString = process.env.MONGODB_KEY_MAIN;
-      const dbName = `${ownerUsername}_${ownerProjectName}`;
+      const parsedString = dbString ? decrypt(dbString) : null;
 
-      await renameCollection({
-        uri: dbString,
-        dbName,
-        oldCollectionName: apiData.name,
-        newCollectionName: newApiName,
-      });
-
-      // Master
-      if (mongoDbKey) {
+      if (parsedString) {
         const dbName = ownerProjectName;
 
         await renameCollection({
-          uri: mongoDbKey,
-          dbName,
-          oldCollectionName: apiData.name,
-          newCollectionName: newApiName,
-        });
-      }
-
-      // Project
-      if (projectMongoDbKey) {
-        const dbString = projectMongoDbKey;
-        const dbName = ownerProjectName;
-
-        await renameCollection({
-          uri: dbString,
+          uri: parsedString,
           dbName,
           oldCollectionName: apiData.name,
           newCollectionName: newApiName,
@@ -478,25 +415,11 @@ export async function PATCH(request, { params }) {
     if (data) {
       const parsedData = validateData(data || "[]");
 
-      const dbString =
-        fetchData === "self"
-          ? process.env.MONGODB_KEY_MAIN
-          : fetchData === "master"
-            ? mongoDbKey
-            : fetchData === "project"
-              ? projectMongoDbKey
-              : null;
+      const parsedString = dbString ? decrypt(dbString) : null;
 
-      const dbName =
-        fetchData === "self"
-          ? `${ownerUsername}_${ownerProjectName}`
-          : fetchData === "master"
-            ? ownerProjectName
-            : fetchData === "project"
-              ? ownerProjectName
-              : null;
+      const dbName = ownerProjectName;
 
-      const connection = await connectToDatabase(dbString, dbName);
+      const connection = await connectToDatabase(parsedString, dbName);
 
       await updateModel({
         dbConnection: connection,
@@ -542,6 +465,9 @@ export async function DELETE(request, { params }) {
 
     const { apiNameorId } = await params;
 
+    const { searchParams } = new URL(request.url);
+    const environmentType = searchParams.get("type");
+
     const apiData = await ApisModel.findOne({
       _id: apiNameorId,
     });
@@ -555,42 +481,17 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    const {
-      ownerUserId,
-      mongoDbKey,
-      ownerProjectName,
-      ownerUsername,
-      fetchData,
-      projectMongoDbKey,
-    } = await getProjectOwner({ projectId: apiData.projectId, userId });
+    const { ownerUserId, ownerProjectName, projectData } =
+      await getProjectOwner({ projectId: apiData.projectId, userId });
 
-    // Master
-    if (mongoDbKey) {
+    const dbString = projectData[environmentType].dbString.data;
+
+    const parsedString = dbString ? decrypt(dbString) : null;
+
+    if (parsedString) {
       const dbName = ownerProjectName;
 
-      const connection = await connectToDatabase(mongoDbKey, dbName);
-
-      await connection.db.collection(apiData.name).drop();
-
-      await connection.close();
-    }
-
-    // Self
-    const dbString = process.env.MONGODB_KEY_MAIN;
-    const dbName = `${ownerUsername}_${ownerProjectName}`;
-
-    const connection = await connectToDatabase(dbString, dbName);
-
-    await connection.db.collection(apiData.name).drop();
-
-    await connection.close();
-
-    // Project
-    if (projectMongoDbKey) {
-      const dbString = projectMongoDbKey;
-      const dbName = ownerProjectName;
-
-      const connection = await connectToDatabase(dbString, dbName);
+      const connection = await connectToDatabase(parsedString, dbName);
 
       await connection.db.collection(apiData.name).drop();
 

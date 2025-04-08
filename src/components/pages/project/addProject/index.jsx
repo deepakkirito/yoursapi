@@ -244,6 +244,7 @@ const AddProject = ({
                 return (
                   <FormHelperText
                     key={index}
+                    component={"div"}
                     sx={{
                       display: "flex",
                       alignItems: "center",

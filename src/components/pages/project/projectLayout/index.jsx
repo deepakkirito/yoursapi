@@ -56,7 +56,6 @@ const ProjectLayout = ({
   deleteData,
   openshare = () => {},
 }) => {
-  const [open, setOpen] = useState(false);
   const { popup, setPopup } = useContext(CreatePopupContext);
   const { alert, setAlert } = useContext(CreateAlertContext);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -204,551 +203,548 @@ const ProjectLayout = ({
   };
 
   return (
-    <div>
-      <Alert
-        open={open}
-        handleClose={() => setOpen(false)}
-        title="Are you Sure?"
-        content={alertContent}
-        handleSuccess={handleDelete}
-      />
+    <Box
+      className={style.ProjectLayout}
+      sx={{
+        border: "0.2rem solid",
+        borderTop: "0.1rem solid",
+        borderLeft: "0.1rem solid",
+        borderColor: "divider",
+        height: "inherit",
+      }}
+    >
       <Box
-        className={style.ProjectLayout}
+        className="flex items-center justify-between"
         sx={{
-          borderRadius: "1rem",
-          border: "0.2rem solid",
-          borderColor: "background.default",
           backgroundColor: "background.foreground",
+          borderBottom: "0.1rem solid",
+          borderColor: "divider",
+          padding: "0.5rem 1rem",
         }}
       >
-        <Box
-          className="flex items-center justify-between"
-          sx={{
-            backgroundColor: "background.foreground",
-            borderBottom: "0.2rem solid",
-            borderColor: "background.default",
-            padding: "0.5rem 1rem",
-            position: "sticky",
-            top: "0",
-            zIndex: "5",
-            borderRadius: "1rem 1rem 0 0",
-          }}
-        >
-          <Typography className="heading">{title}</Typography>
-          {location === "/projects" && (
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() =>
-                setAlert({
-                  open: true,
-                  title: "Create Project",
-                  content: <AddProjectNew handleSuccess={getProject} />,
-                  hideButton: true,
-                })
-              }
-            >
-              Add new project
-            </Button>
-          )}
-        </Box>
-        <Box
-          className="py-2 px-2"
-          sx={{
-            borderRadius: "0 0 1rem 1rem",
-          }}
-        >
-          <Box>
-            <SearchFilter
-              label="Sort by"
-              options={[
-                { label: "Project Name", value: "name" },
-                { label: "Created at", value: "createdAt" },
-                { label: "Last updated", value: "updatedAt" },
-              ]}
-              value={filter}
-              handleChange={(event) => setFilter(event.target.value)}
-              getSort={(value) => setSort(value)}
-              getSearch={(value) => {
-                setTimeout(() => {
-                  setSearch(value);
-                }, 200);
-              }}
-            />
-          </Box>
-          <Box
-            className={`min-h-[calc(100vh-${projects?.length ? "20.4" : "17"}rem)]`}
+        <Typography className="heading">{title}</Typography>
+        {location === "/projects" && (
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() =>
+              setAlert({
+                open: true,
+                title: "Create Project",
+                content: <AddProjectNew handleSuccess={getProject} />,
+                hideButton: true,
+              })
+            }
           >
-            {pageLoading ? (
-              <Box className="flex justify-center items-center min-h-[calc(100vh-16.2rem)]">
-                <CircularProgress size={24} color="secondary" />
-              </Box>
-            ) : (
-              <Grid2
-                container
-                spacing={4}
-                className="items-start p-4 min-h-[calc(100vh-19.4rem)] max-h-[calc(100vh-19.4rem)] overflow-auto content-baseline"
-              >
-                {!projects?.length ? (
-                  <Grid2 item size={{ xs: 12 }}>
-                    <Box className="flex flex-col items-center justify-center py-8">
-                      <Image
-                        src={NotFound}
-                        alt="no project"
-                        width={0}
-                        height={0}
-                        style={{
-                          width: "40%",
-                          height: "auto",
-                          // transform: "translateY(4rem)",
-                          paddingTop: "4rem",
-                        }}
-                      />
-                      <Typography className="notFound">
-                        No Projects found
-                      </Typography>
-                    </Box>
-                  </Grid2>
-                ) : (
-                  projects.map((item, index) => (
-                    <Grid2
-                      item
-                      size={{ xs: 12, md: 6, xl: 4 }}
-                      key={item._id}
-                      className={style.projectCard}
+            Add new project
+          </Button>
+        )}
+      </Box>
+      <Box
+        className="py-2 px-2"
+        sx={{
+          borderRadius: "0 0 1rem 1rem",
+          height: "inherit",
+        }}
+      >
+        <Box>
+          <SearchFilter
+            label="Sort by"
+            options={[
+              { label: "Project Name", value: "name" },
+              { label: "Created at", value: "createdAt" },
+              { label: "Last updated", value: "updatedAt" },
+            ]}
+            value={filter}
+            handleChange={(event) => setFilter(event.target.value)}
+            getSort={(value) => setSort(value)}
+            getSearch={(value) => {
+              setTimeout(() => {
+                setSearch(value);
+              }, 200);
+            }}
+          />
+        </Box>
+        <Box height={"inherit"}>
+          {pageLoading ? (
+            <Box className="flex justify-center items-center h-[calc(100vh-16.2rem)]">
+              <CircularProgress size={24} color="secondary" />
+            </Box>
+          ) : (
+            <Grid2
+              container
+              spacing={2}
+              className="items-start py-2 overflow-auto content-baseline h-inherit"
+            >
+              {!projects?.length ? (
+                <Grid2 item size={{ xs: 12 }}>
+                  <Box className="flex flex-col items-center justify-center py-8">
+                    <Image
+                      src={NotFound}
+                      alt="no project"
+                      width={0}
+                      height={0}
+                      style={{
+                        width: "40%",
+                        height: "auto",
+                        paddingTop: "4rem",
+                      }}
+                    />
+                    <Typography className="notFound">
+                      No Projects found
+                    </Typography>
+                  </Box>
+                </Grid2>
+              ) : (
+                projects.map((item, index) => (
+                  <Grid2
+                    item
+                    size={{ xs: 12, md: 6, lg: 4, xl: 3 }}
+                    key={item._id}
+                    className={style.projectCard}
+                  >
+                    <Box
+                      className="flex flex-col gap-2"
+                      sx={(theme) => ({
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: "0.5rem",
+                        backgroundColor: "background.default",
+                        padding: "1rem",
+                        cursor: "pointer",
+                        width: "100%",
+                        boxShadow: "0 0 0.1rem " + theme.palette.border.default,
+                        ":hover": {
+                          backgroundColor: "background.defaultSolid",
+                        },
+                      })}
                     >
-                      <Box
-                        className="flex flex-col gap-4"
-                        sx={(theme) => ({
-                          border: "1px solid",
-                          borderColor: "border.default",
-                          borderRadius: "0.5rem",
-                          backgroundColor: "background.default",
-                          padding: "1rem",
-                          cursor: "pointer",
-                          width: "100%",
-                          boxShadow:
-                            "0 0 0.1rem " + theme.palette.border.default,
-                          ":hover": {
-                            backgroundColor: "background.defaultSolid",
-                          },
-                        })}
-                      >
-                        <Box className="flex justify-between items-center w-[100%]">
-                          {(showEdit !== item._id || showEdit === "") && (
-                            <Typography
-                              variant="h5"
-                              sx={{
-                                textOverflow: "ellipsis",
-                                overflow: "hidden",
-                                whiteSpace: "nowrap",
-                              }}
-                              onDoubleClick={() => {
-                                if (location.includes("/shared")) {
-                                  if (item.permission === "admin") {
-                                    setShowEdit(item._id);
-                                    setProjectName(item.name);
-                                  }
-                                } else if (location === "/projects") {
+                      <Box className="flex justify-between items-center w-[100%]">
+                        {(showEdit !== item._id || showEdit === "") && (
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              textOverflow: "ellipsis",
+                              overflow: "hidden",
+                              whiteSpace: "nowrap",
+                            }}
+                            onDoubleClick={() => {
+                              if (location.includes("/shared")) {
+                                if (item.permission?.editName) {
                                   setShowEdit(item._id);
                                   setProjectName(item.name);
                                 }
-                              }}
-                            >
-                              {item.name}
-                            </Typography>
-                          )}
-                          {showEdit === item._id && (
-                            <CustomInput
-                              fullWidth
-                              size="small"
-                              value={projectName}
-                              label="Project Name"
-                              type="text"
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              onChange={(event) => {
-                                setProjectName(event.target.value);
-                              }}
-                              slotProps={{
-                                input: {
-                                  endAdornment: (
-                                    <InputAdornment position="end">
-                                      <TooltipCustom
-                                        title="Save project name"
-                                        placement="top"
-                                      >
-                                        <IconButton
-                                          aria-label="save project name"
-                                          edge="end"
-                                          disabled={saveLoading}
-                                          onClick={() => {
-                                            projectName !== item.name
-                                              ? location === "/projects"
-                                                ? handleUpdateProjectName(
-                                                    item._id
-                                                  )
-                                                : handleUpdateSharedProjectName(
-                                                    item._id,
-                                                    item.owner.email
-                                                  )
-                                              : setShowEdit("");
-                                          }}
-                                        >
-                                          {saveLoading ? (
-                                            <CircularProgress
-                                              size={16}
-                                              color="secondary"
-                                            />
-                                          ) : (
-                                            <SaveRounded color="secondary" />
-                                          )}
-                                        </IconButton>
-                                      </TooltipCustom>
-                                    </InputAdornment>
-                                  ),
-                                },
-                              }}
-                            />
-                          )}
-                          {deleteLoading && item._id === deleteId ? (
-                            <CircularProgress size={24} color="secondary" />
-                          ) : (
-                            <Box className="flex gap-0 items-center">
-                              {(location === "/projects" ||
-                                (location === "/projects/shared" &&
-                                  item.status !== "inactive")) && (
-                                <Link
-                                  href={`${location}/${item._id}/dataapi`}
-                                  onClick={() =>
-                                    window.localStorage.setItem(
-                                      "project_" + item._id,
-                                      item.name
-                                    )
-                                  }
-                                >
-                                  <TooltipCustom
-                                    title="Go to project"
-                                    placement="top"
-                                  >
-                                    <IconButton className={style.cardLink}>
-                                      <KeyboardArrowRightRounded color="secondary" />
-                                    </IconButton>
-                                  </TooltipCustom>
-                                </Link>
-                              )}
-                              {(location === "/projects/inactive" ||
-                                (location === "/projects/shared" &&
-                                  item.status === "inactive" &&
-                                  item.permission !== "read")) && (
-                                <Box className="flex gap-4">
-                                  <TooltipCustom
-                                    title="Activate Project"
-                                    placement="top"
-                                  >
-                                    <IconButton
-                                      className={style.cardLink}
-                                      onClick={() => {
-                                        handleRestore(item._id);
-                                        setDeleteId(item._id);
-                                      }}
+                              } else if (location === "/projects") {
+                                setShowEdit(item._id);
+                                setProjectName(item.name);
+                              }
+                            }}
+                          >
+                            {item.name}
+                          </Typography>
+                        )}
+                        {showEdit === item._id && (
+                          <CustomInput
+                            fullWidth
+                            size="small"
+                            value={projectName}
+                            label="Project Name"
+                            type="text"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            onChange={(event) => {
+                              setProjectName(event.target.value);
+                            }}
+                            slotProps={{
+                              input: {
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <TooltipCustom
+                                      title="Save project name"
+                                      placement="top"
                                     >
-                                      <RestoreRounded color="secondary" />
-                                    </IconButton>
-                                  </TooltipCustom>
-                                </Box>
-                              )}
-                              {(location === "/projects" ||
-                                (location === "/projects/shared" &&
-                                  item.permission === "admin")) && (
+                                      <IconButton
+                                        aria-label="save project name"
+                                        edge="end"
+                                        disabled={saveLoading}
+                                        onClick={() => {
+                                          projectName !== item.name
+                                            ? location === "/projects"
+                                              ? handleUpdateProjectName(
+                                                  item._id
+                                                )
+                                              : handleUpdateSharedProjectName(
+                                                  item._id,
+                                                  item.owner.email
+                                                )
+                                            : setShowEdit("");
+                                        }}
+                                      >
+                                        {saveLoading ? (
+                                          <CircularProgress
+                                            size={16}
+                                            color="secondary"
+                                          />
+                                        ) : (
+                                          <SaveRounded color="secondary" />
+                                        )}
+                                      </IconButton>
+                                    </TooltipCustom>
+                                  </InputAdornment>
+                                ),
+                              },
+                            }}
+                          />
+                        )}
+                        {deleteLoading && item._id === deleteId ? (
+                          <CircularProgress size={24} color="secondary" />
+                        ) : (
+                          <Box className="flex gap-0 items-center">
+                            {(location === "/projects" ||
+                              (location === "/projects/shared" &&
+                                item.status !== "inactive")) && (
+                              <Link
+                                href={`${location}/${item._id}`}
+                                onClick={() =>
+                                  window.localStorage.setItem(
+                                    "project_" + item._id,
+                                    item.name
+                                  )
+                                }
+                              >
                                 <TooltipCustom
-                                  title="Share Project to other members"
+                                  title="Go to project"
+                                  placement="top"
+                                >
+                                  <IconButton className={style.cardLink}>
+                                    <KeyboardArrowRightRounded color="secondary" />
+                                  </IconButton>
+                                </TooltipCustom>
+                              </Link>
+                            )}
+                            {/* RESTORE */}
+                            {(location === "/projects/inactive" ||
+                              (location === "/projects/shared" &&
+                                item.status === "inactive" &&
+                                item.permission?.restoreProject)) && (
+                              <Box className="flex gap-4">
+                                <TooltipCustom
+                                  title="Activate Project"
                                   placement="top"
                                 >
                                   <IconButton
-                                    className={style.cardShare}
-                                    onClick={() => openshare(item._id)}
+                                    className={style.cardLink}
+                                    onClick={() => {
+                                      handleRestore(item._id);
+                                      setDeleteId(item._id);
+                                    }}
                                   >
-                                    <FolderSharedRoundedIcon color="secondary" />
+                                    <RestoreRounded color="secondary" />
+                                  </IconButton>
+                                </TooltipCustom>
+                              </Box>
+                            )}
+                            {/* SHARE */}
+                            {(location === "/projects" ||
+                              (location === "/projects/shared" &&
+                                item.permission.share)) && (
+                              <TooltipCustom
+                                title="Share Project to other members"
+                                placement="top"
+                              >
+                                <IconButton
+                                  className={style.cardShare}
+                                  onClick={() => openshare(item._id)}
+                                >
+                                  <FolderSharedRoundedIcon color="secondary" />
+                                </IconButton>
+                              </TooltipCustom>
+                            )}
+                            {/* DELETE */}
+                            {item.status !== "inactive" &&
+                              (location === "/projects" ||
+                                location === "/projects/inactive" ||
+                                item.permission?.inactiveProject) && (
+                                <TooltipCustom
+                                  title={deleteData.tooltip}
+                                  placement="top"
+                                >
+                                  <IconButton
+                                    className={style.cardDelete}
+                                    onClick={() => {
+                                      setDeleteId(item._id);
+                                      setAlert({
+                                        open: true,
+                                        title: "Are you Sure?",
+                                        content: alertContent,
+                                        handleSuccess: () =>
+                                          handleDelete(item._id),
+                                        handleClose: () =>
+                                          setAlert({
+                                            open: false,
+                                          }),
+                                      });
+                                    }}
+                                  >
+                                    {deleteData.icon}
                                   </IconButton>
                                 </TooltipCustom>
                               )}
-                              {item.status !== "inactive" &&
-                                item.permission !== "read" && (
-                                  <TooltipCustom
-                                    title={deleteData.tooltip}
-                                    placement="top"
-                                  >
-                                    <IconButton
-                                      className={style.cardDelete}
-                                      onClick={() => {
-                                        // setOpen(true);
-                                        setDeleteId(item._id);
-                                        setAlert({
-                                          open: true,
-                                          title: "Are you Sure?",
-                                          content: alertContent,
-                                          handleSuccess: () =>
-                                            handleDelete(item._id),
-                                          handleClose: () =>
-                                            setAlert({
-                                              open: false,
-                                            }),
-                                        });
-                                      }}
-                                    >
-                                      {deleteData.icon}
-                                    </IconButton>
-                                  </TooltipCustom>
-                                )}
-                            </Box>
-                          )}
-                        </Box>
-                        <Divider />
-                        <Box className="flex flex-col gap-[0.1rem]">
-                          {/* <br /> */}
-                          <Box className="flex justify-between items-center mb-2">
-                            <TooltipCustom
-                              title={
-                                <div className="min-h-auto max-h-[15rem] overflow-auto">
-                                  {item?.shared?.length
-                                    ? item.shared?.map((data, index) =>
-                                        renderMembers(
-                                          data.name,
-                                          data.email,
-                                          data.profile,
-                                          index,
-                                          item.shared.length
-                                        )
+                          </Box>
+                        )}
+                      </Box>
+                      <Divider />
+                      <Box className="flex flex-col gap-[0.1rem]">
+                        <Typography
+                          variant="h7"
+                          className="mb-2"
+                          sx={{
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: 2, // Limits text to 2 lines
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "normal", // Allows wrapping
+                            maxWidth: "100%",
+                          }}
+                        >
+                          {item?.description}
+                        </Typography>
+                        <Box className="flex justify-between items-center mb-2">
+                          <TooltipCustom
+                            title={
+                              <div className="min-h-auto max-h-[15rem] overflow-auto">
+                                {item?.shared?.length
+                                  ? item.shared?.map((data, index) =>
+                                      renderMembers(
+                                        data.name,
+                                        data.email,
+                                        data.profile,
+                                        index,
+                                        item.shared.length
                                       )
-                                    : "No one"}
-                                </div>
-                              }
-                              placement="right"
+                                    )
+                                  : "No one"}
+                              </div>
+                            }
+                            placement="right"
+                          >
+                            <Box className="flex gap-2 items-center">
+                              <Typography variant="h7">Shared with</Typography>
+                              <Typography
+                                variant="h7"
+                                sx={{
+                                  backgroundColor: "background.invert",
+                                  padding: "0.1rem 0.6rem",
+                                  borderRadius: "1rem",
+                                }}
+                              >
+                                {item.shared?.length}
+                              </Typography>
+                              <GroupAddRoundedIcon color="secondary" />
+                            </Box>
+                          </TooltipCustom>
+                          <TooltipCustom
+                            title={
+                              <div className="min-h-auto max-h-[15rem] overflow-auto">
+                                {item.apiIds?.length
+                                  ? item.apiIds?.map((data, index) => (
+                                      <Typography key={index}>
+                                        - {data}
+                                      </Typography>
+                                    ))
+                                  : "No apis"}
+                              </div>
+                            }
+                            placement="top"
+                          >
+                            <Box className="flex gap-2 items-center">
+                              <Typography
+                                variant="h7"
+                                sx={{
+                                  backgroundColor: "background.invert",
+                                  padding: "0.1rem 0.6rem",
+                                  borderRadius: "1rem",
+                                }}
+                              >
+                                {item.apiIds?.length}
+                              </Typography>
+                              <Typography variant="h7">apis</Typography>
+                            </Box>
+                          </TooltipCustom>
+                        </Box>
+                        {location === "/projects/shared" && (
+                          <Box className="flex justify-between items-center">
+                            <TooltipCustom
+                              title={"Permission"}
+                              placement="bottom"
                             >
                               <Box className="flex gap-2 items-center">
-                                <Typography variant="h7">
-                                  Shared with
-                                </Typography>
                                 <Typography
                                   variant="h7"
                                   sx={{
-                                    backgroundColor: "background.invert",
-                                    padding: "0.1rem 0.6rem",
-                                    borderRadius: "1rem",
+                                    transform: "translateY(0.1rem)",
+                                    ":first-letter": {
+                                      textTransform: "capitalize",
+                                    },
                                   }}
                                 >
-                                  {item.shared?.length}
+                                  {item.permission?.name} level
                                 </Typography>
-                                <GroupAddRoundedIcon color="secondary" />
+                                {item.permission === "admin" && (
+                                  <LocalPoliceRoundedIcon color="secondary" />
+                                )}
+                                {item.permission === "read" && (
+                                  <AutoStoriesRoundedIcon color="secondary" />
+                                )}
+                                {item.permission === "write" && (
+                                  <DrawRoundedIcon color="secondary" />
+                                )}
                               </Box>
                             </TooltipCustom>
-                            <TooltipCustom
-                              title={
-                                <div className="min-h-auto max-h-[15rem] overflow-auto">
-                                  {item.apiIds?.length
-                                    ? item.apiIds?.map((data, index) => (
-                                        <Typography key={index}>
-                                          - {data}
-                                        </Typography>
-                                      ))
-                                    : "No apis"}
-                                </div>
-                              }
-                              placement="top"
-                            >
-                              <Box className="flex gap-2 items-center">
-                                <Typography
-                                  variant="h7"
-                                  sx={{
-                                    backgroundColor: "background.invert",
-                                    padding: "0.1rem 0.6rem",
-                                    borderRadius: "1rem",
-                                  }}
-                                >
-                                  {item.apiIds?.length}
-                                </Typography>
-                                <Typography variant="h7">apis</Typography>
-                              </Box>
+                            <TooltipCustom title={"Status"} placement="bottom">
+                              <Typography
+                                sx={{
+                                  backgroundColor:
+                                    item.status === "inactive"
+                                      ? "status.red"
+                                      : "status.green",
+                                  padding: "0.1rem 0.6rem",
+                                  borderRadius: "1rem",
+                                  color: "white",
+                                }}
+                              >
+                                {item.status}
+                              </Typography>
                             </TooltipCustom>
                           </Box>
-                          {location === "/projects/shared" && (
-                            <Box className="flex justify-between items-center">
-                              <TooltipCustom
-                                title={"Permission"}
-                                placement="bottom"
-                              >
-                                <Box className="flex gap-2 items-center">
-                                  <Typography
-                                    variant="h7"
-                                    sx={{
-                                      transform: "translateY(0.1rem)",
-                                      ":first-letter": {
-                                        textTransform: "capitalize",
-                                      },
-                                    }}
-                                  >
-                                    {item.permission} level
-                                  </Typography>
-                                  {item.permission === "admin" && (
-                                    <LocalPoliceRoundedIcon color="secondary" />
-                                  )}
-                                  {item.permission === "read" && (
-                                    <AutoStoriesRoundedIcon color="secondary" />
-                                  )}
-                                  {item.permission === "write" && (
-                                    <DrawRoundedIcon color="secondary" />
-                                  )}
-                                </Box>
-                              </TooltipCustom>
-                              <TooltipCustom
-                                title={"Status"}
-                                placement="bottom"
-                              >
+                        )}
+                        <Box className="flex gap-2 flex-col mt-3">
+                          <Box className="flex items-center justify-between">
+                            <TooltipCustom title={"Created at"} placement="top">
+                              <Box className="flex gap-2 items-center">
+                                <CalendarMonthRoundedIcon
+                                  fontSize="small"
+                                  color="secondary"
+                                />
                                 <Typography
-                                  sx={{
-                                    backgroundColor:
-                                      item.status === "inactive"
-                                        ? "status.red"
-                                        : "status.green",
-                                    padding: "0.1rem 0.6rem",
-                                    borderRadius: "1rem",
-                                    color: "white",
-                                  }}
+                                  variant="h7"
+                                  sx={
+                                    {
+                                      // transform: "translateY(0.2rem)",
+                                    }
+                                  }
                                 >
-                                  {item.status}
+                                  {getDate(item.createdAt)}
                                 </Typography>
-                              </TooltipCustom>
-                            </Box>
-                          )}
-                          <Box className="flex gap-2 flex-col mt-3">
-                            <Box className="flex items-center justify-between">
-                              <TooltipCustom
-                                title={"Created at"}
-                                placement="top"
-                              >
-                                <Box className="flex gap-2 items-center">
-                                  <CalendarMonthRoundedIcon
-                                    fontSize="small"
-                                    color="secondary"
-                                  />
-                                  <Typography
-                                    variant="h7"
-                                    sx={
-                                      {
-                                        // transform: "translateY(0.2rem)",
-                                      }
-                                    }
-                                  >
-                                    {getDate(item.createdAt)}
-                                  </Typography>
-                                </Box>
-                              </TooltipCustom>
-                              {location === "/projects/shared" && (
-                                <TooltipCustom
-                                  title={renderMembers(
-                                    item.owner?.name + " (owner)",
-                                    item.owner?.email,
-                                    null,
-                                    index
-                                  )}
-                                  placement="top"
-                                >
-                                  <Image
-                                    src={item?.owner?.profile}
-                                    alt="profile"
-                                    width={30}
-                                    height={30}
-                                    style={{ borderRadius: "50%" }}
-                                  />
-                                </TooltipCustom>
-                              )}
-                            </Box>
-                            <Box className="flex items-center justify-between">
-                              <TooltipCustom
-                                title={"Last modified"}
-                                placement="bottom"
-                              >
-                                <Box className="flex gap-2 items-center">
-                                  <EditCalendarRoundedIcon
-                                    fontSize="small"
-                                    color="secondary"
-                                  />
-                                  <Typography
-                                    variant="h7"
-                                    sx={
-                                      {
-                                        // transform: "translateY(0.2rem)",
-                                      }
-                                    }
-                                  >
-                                    {getDate(item.updatedAt)}
-                                  </Typography>
-                                </Box>
-                              </TooltipCustom>
+                              </Box>
+                            </TooltipCustom>
+                            {location === "/projects/shared" && (
                               <TooltipCustom
                                 title={renderMembers(
-                                  item?.updatedBy?.name + " (last modified)",
-                                  item?.updatedBy?.email,
+                                  item.owner?.name + " (owner)",
+                                  item.owner?.email,
                                   null,
                                   index
                                 )}
-                                placement="bottom"
+                                placement="top"
                               >
                                 <Image
-                                  src={item?.updatedBy?.profile}
+                                  src={item?.owner?.profile}
                                   alt="profile"
                                   width={30}
                                   height={30}
                                   style={{ borderRadius: "50%" }}
                                 />
                               </TooltipCustom>
-                            </Box>
+                            )}
+                          </Box>
+                          <Box className="flex items-center justify-between">
+                            <TooltipCustom
+                              title={"Last modified"}
+                              placement="bottom"
+                            >
+                              <Box className="flex gap-2 items-center">
+                                <EditCalendarRoundedIcon
+                                  fontSize="small"
+                                  color="secondary"
+                                />
+                                <Typography
+                                  variant="h7"
+                                  sx={
+                                    {
+                                      // transform: "translateY(0.2rem)",
+                                    }
+                                  }
+                                >
+                                  {getDate(item.updatedAt)}
+                                </Typography>
+                              </Box>
+                            </TooltipCustom>
+                            <TooltipCustom
+                              title={renderMembers(
+                                item?.updatedBy?.name + " (last modified)",
+                                item?.updatedBy?.email,
+                                null,
+                                index
+                              )}
+                              placement="bottom"
+                            >
+                              <Image
+                                src={item?.updatedBy?.profile}
+                                alt="profile"
+                                width={30}
+                                height={30}
+                                style={{ borderRadius: "50%" }}
+                              />
+                            </TooltipCustom>
                           </Box>
                         </Box>
                       </Box>
-                    </Grid2>
-                  ))
-                )}
-              </Grid2>
-            )}
-          </Box>
-          {projects?.length ? (
-            <Grid2
-              item
-              xs={12}
-              sx={{
-                position: "sticky",
-                bottom: "0",
-                backgroundColor: "background.default",
-                borderRadius: "0.5rem",
-              }}
-            >
-              <TablePagination
-                component="div"
-                count={totlaCount}
-                page={pagination.page}
-                variant="outlined"
-                color="loading"
-                onPageChange={(event, newPage) =>
-                  setPagination({ ...pagination, page: newPage })
-                }
-                rowsPerPage={pagination.rowsPerPage}
-                onRowsPerPageChange={(event) =>
-                  setPagination({
-                    page: 0,
-                    rowsPerPage: parseInt(event.target.value, 10),
-                  })
-                }
-              />
+                    </Box>
+                  </Grid2>
+                ))
+              )}
             </Grid2>
-          ) : (
-            ""
           )}
         </Box>
+        {projects?.length ? (
+          <Grid2
+            item
+            xs={12}
+            sx={{
+              position: "sticky",
+              bottom: "0.5rem",
+              backgroundColor: "background.default",
+              borderRadius: "0.5rem",
+              border: "0.1rem solid",
+              borderColor: "divider",
+            }}
+          >
+            <TablePagination
+              component="div"
+              count={totlaCount}
+              page={pagination.page}
+              variant="outlined"
+              color="loading"
+              onPageChange={(event, newPage) =>
+                setPagination({ ...pagination, page: newPage })
+              }
+              rowsPerPage={pagination.rowsPerPage}
+              onRowsPerPageChange={(event) =>
+                setPagination({
+                  page: 0,
+                  rowsPerPage: parseInt(event.target.value, 10),
+                })
+              }
+            />
+          </Grid2>
+        ) : (
+          ""
+        )}
       </Box>
-    </div>
+    </Box>
   );
 };
 

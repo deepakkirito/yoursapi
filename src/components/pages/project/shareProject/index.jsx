@@ -3,6 +3,7 @@ import CustomMenu from "@/components/common/customMenu";
 import CustomSelect from "@/components/common/customSelect";
 import CustomInput from "@/components/common/customTextField";
 import { showNotification } from "@/components/common/notification";
+import { getPermissionApi } from "@/utilities/api/permissionApi";
 import {
   checkOtherUserApi,
   getSingleShareProjectAccessApi,
@@ -33,13 +34,30 @@ const ShareProject = ({ id }) => {
   const [buttonloading, setButtonLoading] = useState(false);
   const [checkeduser, setCheckedUser] = useState("");
   const [checkedUserData, setCheckedUserData] = useState({});
-  const [userPermission, setUserPermission] = useState("read");
+  const [userPermission, setUserPermission] = useState("");
   const [revokeLoading, setRevokeLoading] = useState(false);
   const [permissionLoading, setPermissionLoading] = useState(false);
+  const [permissions, setPermissions] = useState([]);
 
   useEffect(() => {
     getProject(true);
+    getPermissions();
   }, []);
+
+  useEffect(() => {
+    if (!permissions.length) return;
+    setUserPermission(permissions[0]._id);
+  }, [permissions]);
+
+  const getPermissions = async () => {
+    await getPermissionApi(id)
+      .then((res) => {
+        setPermissions(res.data.data);
+      })
+      .catch((err) => {
+        catchError(err);
+      });
+  };
 
   const getProject = async (load) => {
     setLoading(load);
@@ -53,7 +71,7 @@ const ShareProject = ({ id }) => {
       .finally(() => {
         setLoading(false);
         setCheckedUserData({});
-        setUserPermission("read");
+        setUserPermission("");
         setCheckedUser("");
         setRevokeLoading(false);
       });
@@ -133,7 +151,7 @@ const ShareProject = ({ id }) => {
   };
 
   return (
-    <div className="h-[calc(100vh-15rem)] overflow-auto">
+    <div className="max-h-[calc(100vh-15rem)] overflow-auto min-h-auto">
       {loading && (
         <div className="flex items-center justify-center h-[calc(100vh-15rem)]">
           <CircularProgress color="secondary" />
@@ -195,13 +213,16 @@ const ShareProject = ({ id }) => {
               {"name" in checkedUserData && (
                 <Grid2
                   item
-                  size={{ xs: 12, md: 6 }}
+                  size={{ xs: 12, md: 8 }}
                   className="flex items-center gap-2 justify-left flex-wrap"
                 >
                   <div>
                     <CustomSelect
                       label="User Permission"
-                      options={UserPermissionoptions}
+                      options={permissions.map((item) => ({
+                        label: item.name,
+                        value: item._id,
+                      }))}
                       value={userPermission}
                       none={false}
                       handleChange={(event) =>
@@ -225,7 +246,7 @@ const ShareProject = ({ id }) => {
               )}
               <Grid2
                 item
-                size={{ xs: 12, md: "name" in checkedUserData ? 6 : 12 }}
+                size={{ xs: 12, md: "name" in checkedUserData ? 4 : 12 }}
               >
                 <Button
                   type="submit"
@@ -274,32 +295,42 @@ const ShareProject = ({ id }) => {
                       <Typography width={"max-content"}>{data.name}</Typography>
                       <Typography variant="h7">{data.email}</Typography>
                     </div>
-                    {!data.self && <div>
-                      <CustomSelect
-                        options={UserPermissionoptions}
-                        value={data.permission}
-                        none={false}
-                        disabled={data.self}
-                        handleChange={(event) =>
-                          handleChangePermission(data.email, event.target.value)
-                        }
-                      />
-                    </div>}
-                    {!data.self && <div>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        disabled={data.self || revokeLoading}
-                        // endIcon={
-                        //   revokeLoading && (
-                        //     <CircularProgress size={16} color="loading" />
-                        //   )
-                        // }
-                        onClick={() => handleRevoke(data.email)}
-                      >
-                        Revoke Access
-                      </Button>
-                    </div>}
+                    {!data.self && (
+                      <div>
+                        <CustomSelect
+                          options={permissions.map((item) => ({
+                            label: item.name,
+                            value: item._id,
+                          }))}
+                          value={data.permission}
+                          none={false}
+                          disabled={data.self}
+                          handleChange={(event) =>
+                            handleChangePermission(
+                              data.email,
+                              event.target.value
+                            )
+                          }
+                        />
+                      </div>
+                    )}
+                    {!data.self && (
+                      <div>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          disabled={data.self || revokeLoading}
+                          // endIcon={
+                          //   revokeLoading && (
+                          //     <CircularProgress size={16} color="loading" />
+                          //   )
+                          // }
+                          onClick={() => handleRevoke(data.email)}
+                        >
+                          Revoke Access
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   <Divider />
                 </div>

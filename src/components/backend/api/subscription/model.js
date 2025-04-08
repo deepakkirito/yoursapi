@@ -5,63 +5,81 @@ const Schema = mongoose.Schema;
 
 const subscriptionSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
     createdAt: {
       type: Date,
-      default: () => convertToIST(new Date()),
+      default: new Date(),
     },
     updatedAt: {
       type: Date,
-      default: () => convertToIST(new Date()),
+      default: new Date(),
     },
     status: {
       type: Boolean,
       default: true,
     },
-    requests: {
-      type: Number,
-      default: null,
-    },
-    ramLimit: {
-      type: Number,
-      default: 2048,
-    },
-    cpuLimit: {
-      type: Number,
-      default: 1,
-    },
-    projectLimit: {
-      type: Number,
-      default: null,
-    },
-    apiLimit: {
-      type: Number,
-      default: null,
-    },
-    price: [
-      {
-        value: {
-          type: Number,
-          default: 0,
-        },
-        currency: {
-          type: String,
-          default: "INR",
-        },
-        type: {
-          type: String,
-          default: "monthly",
-          enum: ["monthly", "yearly", "quarterly"],
-        },
-        discount: {
-          type: Number,
-          default: 0,
-        },
+    cpus: {
+      data: {
+        type: Number,
+        default: 0,
       },
-    ],
+      description: {
+        type: String,
+        default: "",
+      },
+    },
+
+    cpuType: {
+      data: {
+        type: String,
+        required: true,
+      },
+      description: {
+        type: String,
+        default: "",
+      },
+    },
+    ram: {
+      data: {
+        type: Number,
+        default: 0,
+      },
+      description: {
+        type: String,
+        default: "",
+      },
+    },
+    disk: {
+      type: Number,
+      default: 0,
+    },
+    diskType: {
+      type: String,
+      default: "",
+    },
+    machineType: {
+      data: {
+        type: String,
+        required: true,
+      },
+      description: {
+        type: String,
+        default: "",
+      },
+    },
+    bandwidth: {
+      type: Number,
+      default: 0,
+    },
+    price: {
+      type: Number,
+      default: 0,
+    },
+    currency: {
+      type: String,
+      required: true,
+      enum: ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD", "INR"],
+      default: "INR",
+    },
   },
   {
     timestamps: true,

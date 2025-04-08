@@ -2,7 +2,8 @@ export const light = {
   mode: "light",
   common: {
     link: "#0B6BCB",
-    button: "#acf1ff"
+    button: "#acf1ff",
+    link: "#0078D4"
   },
   primary: {
     main: "#01476e",
@@ -22,10 +23,10 @@ export const light = {
   },
   background: {
     defaultLinear: "linear-gradient(to right, #3cb5e8, #d7fcff)",
-    default: "#41bce740",
+    default: "#41bce780",
     defaultSolid: "#41bce7",
     login: "rgba(255 255 255 / 0.2)",
-    foreground: "#acf1ff80",
+    foreground: "#acf1ff",
     invert: "#acf1ff",
     active: "#acf1ff",
     inactive: "#41bce740",
@@ -39,5 +40,7 @@ export const light = {
   status: {
     green: "#008000",
     red: "#b10000",
-  }
+  },
+  divider: "#41bce7",
+  reverse: "#00304f",
 };

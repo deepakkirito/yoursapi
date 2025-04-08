@@ -13,10 +13,10 @@ export async function GET(request) {
     const rowsPerPage = parseInt(url.searchParams.get("rowsPerPage")) || 10;
     const search = url.searchParams.get("search") || "";
     const sort = url.searchParams.get("sort") || "lth";
-    const filter = url.searchParams.get("filter") || "name";
+    const filter = url.searchParams.get("filter") || "price";
 
     // Construct query
-    const query = { name: { $regex: search, $options: "i" } };
+    const query = { ["machineType.data"]: { $regex: search, $options: "i" } };
 
     // Fetch subscriptions with sorting, pagination
     const subscriptions = await SubscriptionModel.find(query)
@@ -50,27 +50,10 @@ export async function POST(request) {
     const { userId, token, email, name, role, body, username } =
       await verifyToken(request);
 
-    const verifySubscription = await SubscriptionModel.findOne({
-      name: body.name,
-    });
-
-    if (verifySubscription) {
-      return NextResponse.json(
-        { message: "Subscription already exists" },
-        { status: 400 }
-      );
-    }
-
     await SubscriptionModel.create({
-      name: body.name,
       createdAt: new Date(),
       updatedAt: new Date(),
-      requests: body.requests,
-      ramLimit: body.ramLimit,
-      cpuLimit: body.cpuLimit,
-      price: body.price,
-      projectLimit: body.projectLimit,
-      apiLimit: body.apiLimit,
+      ...body,
     });
 
     return NextResponse.json(

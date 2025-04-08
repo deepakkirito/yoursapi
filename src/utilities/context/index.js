@@ -5,6 +5,8 @@ import { PopupContext } from "./popup";
 import { SidebarContext } from "./sidebar";
 import { NavTitleContext } from "./navTitle";
 import { AlertContext } from "./alert";
+import { ServerTabContext } from "./serverTab";
+import { ProjectDataContext } from "./projectData";
 
 const Context = ({ children, getTheme }) => {
   const [theme, setTheme] = useState();
@@ -38,7 +40,11 @@ const Context = ({ children, getTheme }) => {
         <SidebarContext>
           <PopupContext>
             <AlertContext>
-              <NavTitleContext>{children}</NavTitleContext>
+              <ServerTabContext>
+                <ProjectDataContext>
+                  <NavTitleContext>{children}</NavTitleContext>
+                </ProjectDataContext>
+              </ServerTabContext>
             </AlertContext>
           </PopupContext>
         </SidebarContext>

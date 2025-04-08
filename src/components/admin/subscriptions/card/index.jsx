@@ -11,9 +11,17 @@ import { useRouter } from "next/navigation";
 
 const SubscriptionCard = ({ data, handleDelete, clickUrl, deleteLoading }) => {
   const router = useRouter();
+
+  const getRam = (ram) => {
+    if (ram >= 1) {
+      return `${ram} GB`;
+    } else {
+      return `${ram * 1024} MB`;
+    }
+  };
   return (
     <Box
-      className="flex flex-col gap-2 w-full"
+      className="flex flex-col gap-1 w-full"
       sx={{
         borderRadius: "0.5rem",
         padding: "1rem",
@@ -33,7 +41,7 @@ const SubscriptionCard = ({ data, handleDelete, clickUrl, deleteLoading }) => {
       onClick={() => router.push(clickUrl)}
     >
       <div className="flex gap-2 items-center justify-between">
-        <Typography variant="h6">Name: {data?.name}</Typography>
+        <Typography variant="h7">Plan Details</Typography>
         {deleteLoading ? (
           <CircularProgress size={16} color="secondary" />
         ) : (
@@ -53,55 +61,39 @@ const SubscriptionCard = ({ data, handleDelete, clickUrl, deleteLoading }) => {
         )}
       </div>
       <div className="flex gap-2 items-center justify-between">
-        <Typography variant="h7">
-          {data?.requests ?? "Unlimited"} requests
+        <Typography variant="h8">
+          Machine Type: {data?.machineType.data}
         </Typography>
-        <Typography variant="h7">
+        <Typography variant="h8">
           Status: {data?.status ? "Active" : "Inactive"}
         </Typography>
       </div>
       <div className="flex gap-2 items-center justify-between">
-        <Typography variant="h7">{data?.cpuLimit} CPU</Typography>
-        <Typography variant="h7">{data?.ramLimit} MB RAM</Typography>
+        <Typography variant="h8">Cpu Type: {data?.cpuType.data}</Typography>
+        <Typography variant="h8">{data?.cpus.data} CPU</Typography>
       </div>
       <div className="flex gap-2 items-center justify-between">
-        <Typography variant="h7">
-          Projects Limit: {data?.projectLimit ?? "Unlimited"}
+        <Typography variant="h8">Ram: {getRam(data?.ram.data)}</Typography>
+        <Typography variant="h8">
+          Disk: {data?.disk} GB {data?.diskType}
         </Typography>
-        <Typography variant="h7">
-          APIs Limit: {data?.apiLimit ?? "Unlimited"}
+      </div>
+      <div className="flex gap-2 items-center justify-between">
+        <Typography variant="h8">
+          Disk Transfer: {data?.bandwidth} TB
+        </Typography>
+        <Typography variant="h8">
+          Price: {data?.price} {data?.currency}
         </Typography>
       </div>
       <Divider className="w-full" />
-      <div className="flex gap-1 justify-between flex-col">
-        <Typography
-          variant="h7"
-          sx={{
-            fontWeight: "bold",
-          }}
-        >
-          Plans
-        </Typography>
-        {data?.price?.length > 0
-          ? data?.price?.map((item, index) => (
-              <Typography key={index} variant="h7">
-                {item.type.toUpperCase()} - {item.currency} {item.value} -{" "}
-                {item.discount}% off - {(item.value * item.discount) / 100}{" "}
-                {item.currency} -{" "}
-                {item.value - (item.value * item.discount) / 100}{" "}
-                {item.currency}
-              </Typography>
-            ))
-          : "No plans"}
-      </div>
-      <Divider className="w-full" />
       <div className="flex gap-2 items-center justify-between">
-        <Typography variant="h7">
+        <Typography variant="h8">
           Created at: {getDate(data?.createdAt)}
         </Typography>
       </div>
       <div className="flex gap-2 items-center justify-between">
-        <Typography variant="h7">
+        <Typography variant="h8">
           Last modified: {getDate(data?.updatedAt)}
         </Typography>
       </div>

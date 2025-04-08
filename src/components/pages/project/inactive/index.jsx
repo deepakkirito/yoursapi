@@ -13,10 +13,9 @@ export default function InactiveProject() {
   return (
     <Suspense fallback={<CircularProgress />}>
       <Box
-        className="px-2"
         sx={{
-          // backgroundColor: "background.invert",
-          height: "calc(100vh - 7rem)",
+          height: "inherit",
+          overflow: "hidden",
         }}
       >
         <ProjectLayout

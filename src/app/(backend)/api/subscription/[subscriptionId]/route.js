@@ -9,9 +9,15 @@ export async function GET(request, { params }) {
 
     const { subscriptionId } = await params;
 
-    const subscription = await SubscriptionModel.findOne({
-      _id: subscriptionId,
-    }).lean();
+    const subscription = await SubscriptionModel.findOne(
+      {
+        _id: subscriptionId,
+      },
+      {
+        _id: 0,
+        __v: 0,
+      }
+    ).lean();
 
     if (!subscription) {
       return redirectToLogin(request);
@@ -45,48 +51,12 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    const {
-      name: newName,
-      requests,
-      ramLimit,
-      cpuLimit,
-      status,
-      price,
-      projectLimit,
-      apiLimit,
-    } = body;
-
-    if (newName && newName !== subscription.name) {
-      const subscriptions = await SubscriptionModel.find({
-        name: newName,
-      }).lean();
-
-      if (subscriptions?.length) {
-        return NextResponse.json(
-          { message: "Subscription name already exists" },
-          { status: 400 }
-        );
-      }
-    }
-
     await SubscriptionModel.findOneAndUpdate(
       { _id: subscriptionId },
       {
         $set: {
-          name: newName || subscription.name,
-          requests: requests || subscription.requests,
-          ramLimit: ramLimit || subscription.ramLimit,
-          cpuLimit: cpuLimit || subscription.cpuLimit,
-          status:
-            status === "true"
-              ? true
-              : status === "false"
-                ? false
-                : subscription.status,
-          price: price || subscription.price,
+          ...body,
           updatedAt: convertToIST(new Date()),
-          projectLimit: projectLimit || subscription.projectLimit,
-          apiLimit: apiLimit || subscription.apiLimit,
         },
       },
       { new: true, lean: true }

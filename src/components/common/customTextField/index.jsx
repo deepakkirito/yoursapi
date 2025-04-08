@@ -27,14 +27,16 @@ const CustomInput = ({
       }}
     >
       {/* Label for better association */}
-      <div className="flex gap-2 items-center mb-2">
-        <FormLabel htmlFor={name}>{formLabel}</FormLabel>
-        {tooltip && (
-          <TooltipCustom title={tooltip}>
-            <InfoOutlined fontSize="small" className="mt-[0.1rem]" />
-          </TooltipCustom>
-        )}
-      </div>
+      {formLabel && (
+        <div className="flex gap-2 items-center mb-2">
+          <FormLabel htmlFor={name}>{formLabel}</FormLabel>
+          {tooltip && (
+            <TooltipCustom title={tooltip}>
+              <InfoOutlined fontSize="small" className="mt-[0.1rem]" />
+            </TooltipCustom>
+          )}
+        </div>
+      )}
 
       {/* ✅ Pass autoComplete inside both TextField and inputProps */}
       <TextField

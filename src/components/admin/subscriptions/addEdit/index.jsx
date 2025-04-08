@@ -32,82 +32,101 @@ const AddEdit = ({ id = "" }) => {
   const [customLoading, setCustomLoading] = useState({
     status: false,
   });
-  const [priceArray, setPriceArray] = useState([]);
-  const [price, setPrice] = useState({});
+
+  console.log(data);
 
   const fields = useMemo(() => {
     return [
       {
-        id: "name",
-        label: "Subscription Name",
+        id: "machineType.data",
+        label: "Machine Type",
         type: "text",
         required: true,
       },
       {
-        id: "requests",
-        label: "Requests",
+        id: "machineType.description",
+        label: "Machine Type Description",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "cpus.data",
+        label: "CPUs",
         type: "number",
         required: true,
       },
       {
-        id: "ramLimit",
-        label: "RAM Limit",
-        type: "number",
+        id: "cpus.description",
+        label: "CPUs Description",
+        type: "text",
+        required: true,
       },
       {
-        id: "cpuLimit",
-        label: "CPU Limit",
-        type: "number",
+        id: "cpuType.data",
+        label: "CPU Type",
+        type: "text",
+        required: true,
       },
       {
-        id: "projectLimit",
-        label: "Project Limit",
-        type: "number",
+        id: "cpuType.description",
+        label: "CPU Type Description",
+        type: "text",
+        required: true,
       },
       {
-        id: "apiLimit",
-        label: "API Limit",
+        id: "ram.data",
+        label: "RAM",
         type: "number",
+        required: true,
+      },
+      {
+        id: "ram.description",
+        label: "RAM Description",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "disk",
+        label: "Disk",
+        type: "number",
+        required: true,
+      },
+      {
+        id: "diskType",
+        label: "Disk Type",
+        type: "text",
+        required: true,
+      },
+      {
+        id: "bandwidth",
+        label: "Bandwidth",
+        type: "number",
+        required: true,
       },
       {
         id: "status",
         label: "Status",
         type: "toggle",
+        required: true,
+      },
+      {
+        id: "price",
+        label: "Price",
+        type: "number",
+        required: true,
+      },
+      {
+        id: "currency",
+        label: "Currency",
+        type: "select",
+        options: [
+          { label: "USD", value: "USD" },
+          { label: "INR", value: "INR" },
+          { label: "EUR", value: "EUR" },
+        ],
       },
     ];
   }, []);
-
-  const priceFields = [
-    {
-      id: "value",
-      label: "Price",
-      type: "number",
-    },
-    {
-      id: "discount",
-      label: "Discount",
-      type: "number",
-    },
-    {
-      id: "currency",
-      label: "Currency",
-      type: "select",
-      options: [
-        { label: "INR", value: "INR" },
-        { label: "USD", value: "USD" },
-      ],
-    },
-    {
-      id: "type",
-      label: "Type",
-      type: "select",
-      options: [
-        { label: "Monthly", value: "monthly" },
-        { label: "Yearly", value: "yearly" },
-        { label: "Quarterly", value: "quarterly" },
-      ],
-    },
-  ];
 
   useEffect(() => {
     if (!id) return;
@@ -115,7 +134,6 @@ const AddEdit = ({ id = "" }) => {
     getSingleSubscriptionApi(id)
       .then((res) => {
         setData(res.data);
-        setPriceArray(res.data.price);
       })
       .catch(catchError)
       .finally(() => setPageLoading(false));
@@ -123,7 +141,7 @@ const AddEdit = ({ id = "" }) => {
 
   const handleSave = async () => {
     setLoading(true);
-    await createSubscriptionApi({ ...data, price: priceArray })
+    await createSubscriptionApi(data)
       .then((res) => {
         showNotification({
           content: res.data.message,
@@ -144,7 +162,6 @@ const AddEdit = ({ id = "" }) => {
     await updateSubscriptionApi(id, {
       ...data,
       status: data.status ? "true" : "false",
-      price: priceArray,
     })
       .then((res) => {
         showNotification({
@@ -187,11 +204,20 @@ const AddEdit = ({ id = "" }) => {
           <Button
             variant="contained"
             size="small"
-            disabled={loading || !data?.name || pageLoading}
-            onClick={!id ? handleSave : handleUpdate}
+            disabled={loading || pageLoading}
+            onClick={handleSave}
             endIcon={loading ? <CircularProgress size={16} /> : ""}
           >
-            {id ? "Update" : "Create"}
+            Create
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            disabled={loading || pageLoading}
+            onClick={handleUpdate}
+            endIcon={loading ? <CircularProgress size={16} /> : ""}
+          >
+            Update
           </Button>
           {id && (
             <Button
@@ -210,16 +236,35 @@ const AddEdit = ({ id = "" }) => {
     );
   };
 
+  const getValueByPath = (obj, path) => {
+    return path.split(".").reduce((acc, part) => acc?.[part], obj);
+  };
+
+  const setValueByPath = (obj, path, value) => {
+    const keys = path.split(".");
+    const lastKey = keys.pop();
+    const deepObj = keys.reduce((acc, key) => {
+      if (!acc[key]) acc[key] = {};
+      return acc[key];
+    }, obj);
+    deepObj[lastKey] = value;
+    return { ...obj };
+  };
+
   const renderField = (field) => {
     return field.type === "text" || field.type === "number" ? (
       <CustomInput
         type={field.type}
         label={field.label}
         placeholder={field.label}
-        value={data?.[field.id]}
-        onChange={(event) =>
-          setData({ ...data, [field.id]: event.target.value.toUpperCase() })
-        }
+        value={getValueByPath(data, field.id)}
+        onChange={(event) => {
+          const value =
+            field.type === "number"
+              ? parseFloat(event.target.value)
+              : event.target.value;
+          setData(setValueByPath(data, field.id, value));
+        }}
       />
     ) : field.type === "toggle" ? (
       <div className="w-full">
@@ -232,12 +277,12 @@ const AddEdit = ({ id = "" }) => {
           value={
             data?.[field.id] === null || data?.[field.id] === undefined
               ? true
-              : data?.[field.id]
+              : getValueByPath(data, field.id)
           }
           disabled={!data?.name || !data?.requests}
           handleChange={(value) => {
             if (value !== null) {
-              setData({ ...data, [field.id]: value });
+              setData(setValueByPath(data, field.id, value));
             } else {
               setCustomLoading({ ...loading, [field.id]: true });
               setTimeout(() => {
@@ -253,76 +298,9 @@ const AddEdit = ({ id = "" }) => {
         labelTop={field.label}
         options={field.options}
         value={data?.[field.id]}
+        none={false}
         handleChange={(event) =>
           setData({ ...data, [field.id]: event.target.value })
-        }
-      />
-    ) : (
-      ""
-    );
-  };
-
-  const renderPriceField = (field) => {
-    return field.type === "number" || field.type === "text" ? (
-      <CustomInput
-        type={field.type}
-        label={field.label}
-        placeholder={field.label}
-        value={price?.[field.id]}
-        onChange={(event) =>
-          setPrice({ ...price, [field.id]: event.target.value })
-        }
-      />
-    ) : field.type === "select" ? (
-      <CustomSelect
-        size="medium"
-        none={false}
-        labelTop={field.label}
-        options={field.options}
-        value={price?.[field.id]}
-        handleChange={(event) =>
-          setPrice({ ...price, [field.id]: event.target.value })
-        }
-      />
-    ) : (
-      ""
-    );
-  };
-
-  const renderPriceFieldsArray = (field, index) => {
-    return field.type === "number" || field.type === "text" ? (
-      <CustomInput
-        type={field.type}
-        label={field.label}
-        placeholder={field.label}
-        value={priceArray[index]?.[field.id]}
-        onChange={(event) =>
-          setPriceArray((prevState) => {
-            const newState = [...prevState];
-            newState[index] = {
-              ...(newState[index] || {}), // Ensure the object exists
-              [field.id]: event.target.value,
-            };
-            return newState;
-          })
-        }
-      />
-    ) : field.type === "select" ? (
-      <CustomSelect
-        size="medium"
-        none={false}
-        labelTop={field.label}
-        options={field.options}
-        value={priceArray[index]?.[field.id]}
-        onChange={(event) =>
-          setPriceArray((prevState) => {
-            const newState = [...prevState];
-            newState[index] = {
-              ...(newState[index] || {}), // Ensure the object exists
-              [field.id]: event.target.value,
-            };
-            return newState;
-          })
         }
       />
     ) : (
@@ -352,77 +330,6 @@ const AddEdit = ({ id = "" }) => {
                 {renderField(field)}
               </Grid2>
             ))}
-            <div className="w-full">
-              <br />
-              <Divider className="w-full" />
-              <br />
-            </div>
-            <Box
-              className="w-full"
-              sx={{
-                borderRadius: "0.5rem",
-                padding: "1rem",
-                backgroundColor: "background.default",
-                border: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              {priceArray?.length > 0 &&
-                priceArray.map((item, indexArray) => (
-                  <Grid2
-                    container
-                    spacing={2}
-                    key={indexArray}
-                    className="items-center mb-2"
-                  >
-                    {priceFields.map((field, index) => (
-                      <Grid2
-                        item
-                        size={{
-                          xs: 12,
-                          md: 6,
-                          lg: 4,
-                        }}
-                        key={index}
-                      >
-                        {renderPriceFieldsArray(field, indexArray)}
-                      </Grid2>
-                    ))}
-                    <IconButton
-                      onClick={() => {
-                        setPriceArray((prevState) => {
-                          const newState = [...prevState];
-                          newState.splice(indexArray, 1);
-                          return newState;
-                        });
-                      }}
-                    >
-                      <DeleteRounded color="error" />
-                    </IconButton>
-                  </Grid2>
-                ))}
-            </Box>
-            {priceFields.map((field, index) => (
-              <Grid2
-                item
-                size={{
-                  xs: 12,
-                  md: 6,
-                  lg: 4,
-                }}
-                key={index}
-              >
-                {renderPriceField(field)}
-              </Grid2>
-            ))}
-            <IconButton
-              onClick={() => {
-                setPriceArray((prevState) => [...(prevState ?? []), price]);
-                setPrice({});
-              }}
-            >
-              <AddRounded />
-            </IconButton>
           </Grid2>
         )}
         <br />

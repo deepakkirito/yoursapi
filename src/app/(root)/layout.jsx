@@ -9,11 +9,14 @@ import { CreateSidebarContext } from "@/utilities/context/sidebar";
 import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 
 export default function Layout({ children }) {
-  // const { sidebarOpen, setSidebarOpen } = useContext(CreateSidebarContext);
-  const [sidebarOpen, setSidebarOpen] = useLocalStorage("sidebar", true);
+  const { sidebarOpen, setSidebarOpen } = useContext(CreateSidebarContext);
 
   return (
-    <div>
+    <div
+      style={{
+        height: "calc(100vh - 4.7rem)",
+      }}
+    >
       <Suspense
         fallback={
           <Box
@@ -29,16 +32,14 @@ export default function Layout({ children }) {
           </Box>
         }
       >
-        <Box>
+        <Box height={"inherit"}>
           <Navbar />
           <Box
-            width={"100%"}
             sx={{
               display: "flex",
               padding: "0rem",
-              gap: "1rem",
-              height: "fit-content",
-              overflow: "hidden",
+              height: "inherit",
+              overflow: "auto",
             }}
           >
             <Box
@@ -57,10 +58,10 @@ export default function Layout({ children }) {
                 },
                 overflow: "hidden",
                 zIndex: "1000",
-                height: "fit-content",
+                height: "auto",
                 marginLeft: {
                   xs: "0rem",
-                  md: "1rem",
+                  // md: "1rem",
                 },
               }}
             >
@@ -79,7 +80,7 @@ export default function Layout({ children }) {
                   lg: sidebarOpen ? "85%" : "calc(100% - 3.7rem)",
                   xl: sidebarOpen ? "89%" : "calc(100% - 3.7rem)",
                 },
-                height: "fit-content",
+                height: "inherit",
               }}
             >
               {children}

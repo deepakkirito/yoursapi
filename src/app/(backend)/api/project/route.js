@@ -13,6 +13,7 @@ import { saveData } from "@/components/backend/utilities/middlewares/saveData";
 import { sendMail } from "@/components/backend/utilities/nodemailer";
 import LoggersModel from "@/components/backend/api/logger";
 import { convertToIST, getDate } from "@/utilities/helpers/functions";
+import SubscriptionModel from "@/components/backend/api/subscription/model";
 
 export async function GET(request) {
   try {
@@ -49,6 +50,7 @@ export async function GET(request) {
       _id: 1,
       updatedBy: 1,
       shared: 1,
+      description: 1,
     })
       .sort({ [filter]: sort === "lth" ? 1 : -1 })
       .skip(page * rows)
@@ -121,11 +123,25 @@ export async function POST(request) {
       );
     }
 
+    const subscriptions = await SubscriptionModel.find({
+      status: true,
+    }).lean();
+
     const newProject = await ProjectsModel.create({
       name: body.projectName,
+      description: body.description,
+      type: body.type,
       userId,
       updatedBy: userId,
       createdBy: userId,
+      data: {
+        production: {
+          "activeSubscription.data": subscriptions[0]._id,
+        },
+        development: {
+          "activeSubscription.data": subscriptions[0]._id,
+        },
+      },
     });
 
     await UsersModel.findOneAndUpdate(
@@ -143,7 +159,7 @@ export async function POST(request) {
       type: "project",
       createdBy: userId,
       projectId: newProject._id,
-      log: `Project '${body.projectName}' created`,
+      log: `Project '${body.projectName}' created for ${body.type === "youpiapi" ? "Youpi Api" : "Web Hosting"}`,
       link: `${process.env.COMPANY_URL}projects/${newProject._id}`,
     });
 
