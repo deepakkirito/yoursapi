@@ -213,3 +213,11 @@ export const nodeVersions = [
     cons: ["No more security patches", "Should be migrated to a newer version"],
   },
 ];
+
+export const periodToMs = {
+  '1h': 3600000,
+  '6h': 6 * 3600000,
+  '24h': 24 * 3600000,
+  '7d': 7 * 24 * 3600000,
+  '15d': 15 * 24 * 3600000,
+};

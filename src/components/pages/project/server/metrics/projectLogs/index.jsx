@@ -15,7 +15,7 @@ import { useLocalStorage } from "@/utilities/helpers/hooks/useLocalStorage";
 import useDebounce from "@/utilities/helpers/hooks/useDebounce";
 import { getProjectTotalLogsApi } from "@/utilities/api/projectApi";
 
-const ProjectLogs = ({ projectId, environment }) => {
+const ProjectLogs = ({ projectId, environment, period }) => {
   const [logs, setLogs] = useState({ data: [], totalCount: 0 });
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ page: 0, rowsPerPage: 10 });
@@ -38,6 +38,7 @@ const ProjectLogs = ({ projectId, environment }) => {
       order,
       orderBy,
       logType,
+      period,
     })
       .then((res) => {
         setLogs(res.data);
@@ -52,7 +53,7 @@ const ProjectLogs = ({ projectId, environment }) => {
 
   useEffect(() => {
     getLogs();
-  }, [pagination, search, order, orderBy, logType, environment, projectId]);
+  }, [pagination, search, order, orderBy, logType, environment, projectId, period]);
 
   const renderNotification = (data) => {
     const parsedData = data.split("~");
@@ -112,7 +113,7 @@ const ProjectLogs = ({ projectId, environment }) => {
     <Box className="mx-4">
       <CustomTable
         title="Project Logs"
-        maxHeightTable="calc(100vh - 23rem)"
+        maxHeightTable="calc(100vh - 25.5rem)"
         typeShow={false}
         data={logs.data}
         pagination={pagination}

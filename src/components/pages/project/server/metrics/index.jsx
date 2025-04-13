@@ -1,11 +1,12 @@
 import { getProjectMetricsApi } from "@/utilities/api/projectApi";
 import { catchError } from "@/utilities/helpers/functions";
-import { Grid2, Typography } from "@mui/material";
+import { Box, Grid2, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import Logs from "./logs";
 import ProjectLogs from "./projectLogs";
 import Performance from "./performance";
 import { usePathname, useRouter } from "next/navigation";
+import CustomSelect from "@/components/common/customSelect";
 
 const Links = [
   {
@@ -25,6 +26,7 @@ const Links = [
 const Metrics = ({ projectId, environment, projectData, shared }) => {
   const [activeTab, setActiveTab] = useState("logs");
   const router = useRouter();
+  const [period, setPeriod] = useState("1h");
 
   useEffect(() => {
     projectId &&
@@ -36,19 +38,35 @@ const Metrics = ({ projectId, environment, projectData, shared }) => {
   const renderLinks = useMemo(() => {
     switch (activeTab) {
       case "logs":
-        return <Logs environment={environment} projectId={projectId} />;
+        return (
+          <Logs
+            environment={environment}
+            projectId={projectId}
+            period={period}
+            status={projectData?.data?.instance?.status}
+          />
+        );
       case "project":
-        return <ProjectLogs projectId={projectId} environment={environment} />;
+        return (
+          <ProjectLogs
+            projectId={projectId}
+            environment={environment}
+            period={period}
+            status={projectData?.data?.instance?.status}
+          />
+        );
       case "performance":
         return (
           <Performance
             environment={environment}
             projectId={projectId}
             projectData={projectData}
+            period={period}
+            status={projectData?.data?.instance?.status}
           />
         );
     }
-  }, [activeTab, environment, projectId, projectData]);
+  }, [activeTab, environment, projectId, projectData, period]);
 
   return (
     <div className="h-[inherit]">
@@ -86,14 +104,41 @@ const Metrics = ({ projectId, environment, projectData, shared }) => {
                     ? "0 0 0.3rem " + theme.palette.reverse
                     : "0 0 0rem transparent",
                 transition: "all 0.5s",
+                color: "text.primary",
               })}
             >
               {item.label}
             </Typography>
           ))}
+          <CustomSelect
+            labelTop={"Period"}
+            options={[
+              { label: "Last 1 Hour", value: "1h" },
+              { label: "Last 6 Hours", value: "6h" },
+              { label: "Last 24 Hours", value: "24h" },
+              { label: "Last 7 Days", value: "7d" },
+              { label: "Last 15 Days", value: "15d" },
+            ]}
+            size="small"
+            fullWidth={false}
+            value={period}
+            handleChange={(event) => setPeriod(event.target.value)}
+          />
         </Grid2>
         <Grid2 item size={{ xs: 12, md: 10.5 }}>
-          {renderLinks}
+          <Box
+            sx={{
+              borderRadius: "0.5rem",
+              border: "1px solid",
+              borderColor: "divider",
+              backgroundColor: "background.default",
+              padding: "1rem 0",
+              marginRight: "1rem",
+              maxHeight: "calc(100vh - 13.5rem)",
+            }}
+          >
+            {renderLinks}
+          </Box>
         </Grid2>
       </Grid2>
     </div>

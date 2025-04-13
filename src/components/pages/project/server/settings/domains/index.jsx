@@ -100,7 +100,7 @@ const Domains = ({
   }, [domain]);
 
   return (
-    <div className="mx-4">
+    <div className="mx-0">
       <div>
         <div className="flex gap-2 items-center">
           <Typography variant="h6">Connect Sub-domains</Typography>

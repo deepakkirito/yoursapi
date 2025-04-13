@@ -1,7 +1,15 @@
 import { convertToIST } from "@/utilities/helpers/functions";
 import mongoose from "mongoose";
+import generator from "generate-password";
 
 const Schema = mongoose.Schema;
+
+const generateEnvId = () =>
+  generator.generate({
+    length: 10,
+    lowercase: true,
+    numbers: true,
+  });
 
 const environmentTypeData = {
   dbString: {
@@ -15,7 +23,26 @@ const environmentTypeData = {
     },
   },
   environmentVariables: {
-    data: { type: Object, default: {} },
+    data: [
+      {
+        id: {
+          type: String,
+          default: generateEnvId(),
+        },
+        key: {
+          type: String,
+          default: null,
+        },
+        value: {
+          type: String,
+          default: null,
+        },
+        updatedAt: {
+          type: Date,
+          default: new Date(),
+        },
+      },
+    ],
     updatedAt: {
       type: Date,
       default: new Date(),

@@ -6,7 +6,13 @@ import { useEffect, useMemo, useState } from "react";
 import Lottie from "react-lottie";
 import ChartLoading from "@/components/assets/json/chartLoading.json";
 
-const Performance = ({ environment, projectId, projectData }) => {
+const Performance = ({
+  environment,
+  projectId,
+  projectData,
+  period,
+  status,
+}) => {
   const [metrics, setMetrics] = useState(null);
   const { palette } = useTheme();
   const [activeLabel, setActiveLabel] = useState("");
@@ -16,17 +22,15 @@ const Performance = ({ environment, projectId, projectData }) => {
   });
 
   useEffect(() => {
-    getMetrics();
+    status && getMetrics();
     const interval = setInterval(() => {
-      getMetrics();
+      status && getMetrics();
     }, 10000);
     return () => clearInterval(interval);
-  }, [environment, projectId]);
+  }, [environment, projectId, period, status]);
 
   const getMetrics = () => {
-    console.log(projectId);
-
-    getProjectMetricsApi(projectId, environment)
+    getProjectMetricsApi(projectId, environment, "metrics", period)
       .then((res) => {
         setMetrics(res.data);
       })
@@ -51,7 +55,7 @@ const Performance = ({ environment, projectId, projectData }) => {
   // Flatten the nested logs for Recharts
   const flattenedLogs = useMemo(() => {
     if (!metrics) return [];
-    return metrics.logs.map((log) => ({
+    return metrics.metrics.map((log) => ({
       timestamp: new Date(log.timestamp).toLocaleTimeString(), // x-axis label
       "cpu-user": +(log.cpu.user / 1e9).toFixed(2), // seconds
       "cpu-sys": +(log.cpu.sys / 1e9).toFixed(2), // seconds
@@ -69,12 +73,17 @@ const Performance = ({ environment, projectId, projectData }) => {
     <div>
       {!metrics ? (
         <div
-          style={{
-            transform: "translateX(-5rem)",
-          }}
+          style={
+            {
+              // transform: "translateX(-5rem)",
+            }
+          }
         >
           {!projectData?.data?.instance?.status && (
-            <Typography variant="h8" className="flex items-center justify-center">
+            <Typography
+              variant="h8"
+              className="flex items-center justify-center"
+            >
               Start the instance to see performance
             </Typography>
           )}
@@ -89,7 +98,7 @@ const Performance = ({ environment, projectId, projectData }) => {
           />
         </div>
       ) : (
-        <div className="px-2 pb-12 max-h-[calc(100vh-11rem)] overflow-auto">
+        <div className="px-2 pb-12 max-h-[calc(100vh-12rem)] overflow-auto">
           <Recharts
             data={flattenedLogs}
             XAxisKey="timestamp"

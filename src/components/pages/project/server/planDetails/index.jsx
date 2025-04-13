@@ -1,12 +1,16 @@
 import { Box, Typography } from "@mui/material";
 
 const PlanDetails = ({ data }) => {
-  console.log(data);
 
   return (
     <Box
       className="flex flex-col gap-2 items-start justify-left"
       component={"ul"}
+      sx={{
+        "& .MuiTypography-root": {
+          color: "text.primary",
+        },
+      }}
     >
       <Typography variant="h8" component={"li"}>
         Machine Details: {data.machineType.description}

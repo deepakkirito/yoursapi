@@ -3,17 +3,16 @@ import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken"
 import { NextResponse } from "next/server";
 import UsersModel from "@/components/backend/api/users/model";
 import { getProjectOwner } from "@/components/backend/utilities/middlewares/getProjectOwner";
+import { periodToMs } from "@/components/assets/constants/instance";
 
 function escapeRegex(string) {
-  return string.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"); // Escape special characters
+  return string.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
 
 export async function GET(request, { params }) {
   try {
     const { userId, token, email, name, role } = await verifyToken(request);
-
     const { projectId } = await params;
-
     const { searchParams } = new URL(request.url);
 
     const rows = parseInt(searchParams.get("rows")) || 10;
@@ -23,10 +22,10 @@ export async function GET(request, { params }) {
     const orderBy = searchParams.get("orderBy") || "";
     const logType = searchParams.get("logType") || "";
     const environment = searchParams.get("environment") || "production";
+    const period = searchParams.get("period");
 
     const logTypeArray = logType.split(",").filter((item) => item !== "");
-
-    const escapedSearch = escapeRegex(search); // Escape the search string
+    const escapedSearch = escapeRegex(search);
 
     const { ownerUserId } = await getProjectOwner({ projectId, userId });
 
@@ -40,9 +39,14 @@ export async function GET(request, { params }) {
       ],
     };
 
-    // Only apply the type filter if logTypeArray is not empty
     if (logTypeArray.length > 0) {
       filterConditions.type = { $in: logTypeArray };
+    }
+
+    // Apply period filter
+    if (period && periodToMs[period]) {
+      const cutoffDate = new Date(Date.now() - periodToMs[period]);
+      filterConditions.createdAt = { $gte: cutoffDate };
     }
 
     const notification = await LoggersModel.find(filterConditions, {

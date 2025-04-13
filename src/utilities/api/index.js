@@ -3,7 +3,7 @@ const { default: axios } = require("axios");
 const axiosGet = (url) => {
   let promise = new Promise(function (resolve, reject) {
     axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}`, {
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}/api2`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -43,7 +43,7 @@ const axiosGetSelf = (url) => {
 const axiosPost = (url, body) => {
   let promise = new Promise(function (resolve, reject) {
     axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}`, body, {
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}/api2`, body, {
         withCredentials: true,
       })
       .then((response) => {
@@ -85,7 +85,7 @@ const axiosPostSelf = (url, body) => {
 const axiosPut = (url, body) => {
   let promise = new Promise(function (resolve, reject) {
     axios
-      .put(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}`, body, {
+      .put(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}/api2`, body, {
         withCredentials: true,
       })
       .then((response) => {
@@ -125,7 +125,7 @@ const axiosPutSelf = (url, body) => {
 const axiosDelete = (url) => {
   let promise = new Promise(function (resolve, reject) {
     axios
-      .delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}`, {
+      .delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}/api2`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -165,7 +165,7 @@ const axiosDeleteSelf = (url) => {
 const axiosHead = (url) => {
   let promise = new Promise(function (resolve, reject) {
     axios
-      .head(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}`, {
+      .head(`${process.env.NEXT_PUBLIC_BACKEND_URL}${url}/api2`, {
         withCredentials: true,
       })
       .then((response) => {

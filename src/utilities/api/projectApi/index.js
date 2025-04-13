@@ -121,9 +121,9 @@ export const addSubscriptionApi = (id, body) => {
   return axiosPostSelf(`project/subscription/${id}`, body);
 };
 
-export const getProjectMetricsApi = (id, environment) => {
+export const getProjectMetricsApi = (id, environment, type, period) => {
   return axiosGetSelf(
-    `project/instance/metrics/${id}?environment=${environment}`
+    `project/instance/metrics/${id}?environment=${environment}&type=${type}&period=${period}`
   );
 };
 
@@ -141,9 +141,10 @@ export const getProjectTotalLogsApi = ({
   order,
   orderBy,
   logType,
+  period,
 }) => {
   return axiosGetSelf(
-    `project/logs/${id}?environment=${environment}&search=${search}&filter=${filter}&rows=${rows}&page=${page}&order=${order}&orderBy=${orderBy}&logType=${logType}`
+    `project/logs/${id}?environment=${environment}&search=${search}&filter=${filter}&rows=${rows}&page=${page}&order=${order}&orderBy=${orderBy}&logType=${logType}&period=${period}`
   );
 };
 

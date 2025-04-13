@@ -1,3 +1,4 @@
+import { periodToMs } from "@/components/assets/constants/instance";
 import DockersModel from "@/components/backend/api/docker/model";
 import ProjectsModel from "@/components/backend/api/project/model";
 import { verifyToken } from "@/components/backend/utilities/helpers/verifyToken";
@@ -12,6 +13,8 @@ export async function GET(request, { params }) {
 
     const searchParams = new URL(request.url).searchParams;
     const environment = searchParams.get("environment") || "production";
+    const type = searchParams.get("type") || "metrics";
+    const period = searchParams.get("period");
 
     const { ownerUserId } = await getProjectOwner({ userId, projectId });
 
@@ -44,7 +47,18 @@ export async function GET(request, { params }) {
       containerId: containerId,
     }).lean();
 
-    return NextResponse.json(docker);
+    let filteredData = docker[type];
+    if (period && periodToMs[period]) {
+      const now = Date.now();
+      const cutoff = now - periodToMs[period];
+
+      filteredData = filteredData.filter((entry) => {
+        const entryTime = new Date(entry.timestamp).getTime(); // convert ISO to ms
+        return entryTime >= cutoff;
+      });
+    }
+
+    return NextResponse.json({ [type]: filteredData });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

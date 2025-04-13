@@ -33,14 +33,14 @@ const Recharts = ({ data, XAxisKey, toolTipLabels, YAxisKeys, label }) => {
             <li
               key={`legend-item-${index}`}
               style={{ marginRight: 10, cursor: "pointer" }}
-              onMouseOver={() => setActiveLabel(entry.dataKey)}
-              onMouseOut={() => setActiveLabel("")}
-              onClick={() =>
-                setHardActiveLabel((prev) => ({
-                  label: prev.label === entry.dataKey ? null : entry.dataKey,
-                  color: prev.label === entry.dataKey ? null : entry.color,
-                }))
-              }
+              // onMouseOver={() => setActiveLabel(entry.dataKey)}
+              // onMouseOut={() => setActiveLabel("")}
+              // onClick={() =>
+              //   setHardActiveLabel((prev) => ({
+              //     label: prev.label === entry.dataKey ? null : entry.dataKey,
+              //     color: prev.label === entry.dataKey ? null : entry.color,
+              //   }))
+              // }
             >
               <span style={{ color: entry.color }}>⬤</span> {entry.value}
             </li>

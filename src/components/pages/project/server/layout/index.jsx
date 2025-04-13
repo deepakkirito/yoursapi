@@ -171,7 +171,14 @@ export default function Layout({ children, shared, projectId }) {
               }}
             >
               <Box className="flex gap-2 items-center">
-                <Typography variant="h8">{activeSubscription}</Typography>
+                <Typography
+                  variant="h8"
+                  sx={{
+                    color: "text.primary",
+                  }}
+                >
+                  {activeSubscription}
+                </Typography>
                 <TooltipCustom title={"Choose Plan"} placement="top">
                   <IconButton
                     onClick={() => setShowPricing(!showPricing)}
@@ -225,6 +232,9 @@ export default function Layout({ children, shared, projectId }) {
             borderBottom: "0.1rem solid",
             borderColor: "divider",
             transition: "all 0.5s",
+            "& .MuiTypography-root": {
+              color: "text.primary",
+            },
           }}
         >
           <div className="flex gap-2 items-center">
@@ -254,7 +264,14 @@ export default function Layout({ children, shared, projectId }) {
         {projectData && (
           <>
             <div className="flex gap-2 items-start px-4 pb-4">
-              <Typography variant="h8">Domains:</Typography>
+              <Typography
+                variant="h8"
+                sx={{
+                  color: "text.primary",
+                }}
+              >
+                Domains:
+              </Typography>
               <div className="flex gap-2 items-start flex-row flex-wrap">
                 <div className="flex gap-2 items-center">
                   <Typography

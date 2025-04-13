@@ -1,6 +1,6 @@
 import { getProjectMetricsApi } from "@/utilities/api/projectApi";
 import { catchError } from "@/utilities/helpers/functions";
-import { Grid2, Typography } from "@mui/material";
+import { Box, Grid2, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import Domains from "./domains";
 import Environment from "./environment";
@@ -121,7 +121,19 @@ const Settings = ({
           ))}
         </Grid2>
         <Grid2 item size={{ xs: 12, md: 10 }}>
-          {renderLinks}
+          <Box
+            sx={{
+              borderRadius: "0.5rem",
+              border: "1px solid",
+              borderColor: "divider",
+              backgroundColor: "background.default",
+              padding: "1rem",
+              marginRight: "1rem",
+              maxHeight: "calc(100vh - 13.5rem)",
+            }}
+          >
+            {renderLinks}
+          </Box>
         </Grid2>
       </Grid2>
     </div>

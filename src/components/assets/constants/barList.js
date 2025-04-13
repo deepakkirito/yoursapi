@@ -33,16 +33,36 @@ const mainList = [
     name: "Inactive Projects",
     icon: <HideSourceRoundedIcon color="secondary" fontSize="small" />,
   },
-  // {
-  //   name: "divider",
-  // },
+  {
+    link: "/teams",
+    name: "Teams",
+    icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
+  },
+  {
+    name: "divider",
+  },
   // {
   //   name: "header",
   //   label: "Settings",
   // },
   {
-    link: "/teams",
-    name: "Teams",
+    link: "/billing",
+    name: "Billing",
+    icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
+  },
+  {
+    link: "/support",
+    name: "Support",
+    icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
+  },
+  {
+    link: "/referral",
+    name: "Referral",
+    icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
+  },
+  {
+    link: "/documentation",
+    name: "Documentation",
     icon: <StorageRoundedIcon color="secondary" fontSize="small" />,
   },
 ];

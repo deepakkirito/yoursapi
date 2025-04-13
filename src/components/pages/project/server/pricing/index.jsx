@@ -88,37 +88,6 @@ const Pricing = ({
 
   return (
     <div className="flex flex-row gap-4 items-start justify-left">
-      {/* <div className="p-2">
-        {subscriptionData.length > 0 && !loading && (
-          <Box
-            className="flex flex-col gap-1 items-start justify-left min-w-[20rem]"
-            sx={{
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: "0.5rem",
-              padding: "1rem",
-              backgroundColor: "background.defaultSolid",
-            }}
-          >
-            <div className="flex gap-4 items-center justify-between w-full">
-              <Typography variant="h8">MachineType</Typography>
-              <Typography variant="h8">CPU Type</Typography>
-            </div>
-            <div className="flex gap-4 items-center justify-between w-full">
-              <Typography variant="h8">CPUs</Typography>
-              <Typography variant="h8">Ram</Typography>
-            </div>
-            <div className="flex gap-4 items-center justify-between w-full">
-              <Typography variant="h8">Disk</Typography>
-              <Typography variant="h8">Data transfer</Typography>
-            </div>
-            <div className="flex gap-4 items-center justify-between w-full">
-              <Typography variant="h8">Pricing per month</Typography>
-              <Typography variant="h8">Pricing per hour</Typography>
-            </div>
-          </Box>
-        )}
-      </div> */}
       <div className="flex gap-4 items-start justify-left overflow-x-auto overflow-y-hidden p-2">
         {loading ? (
           <div className="flex justify-center items-center">
@@ -147,6 +116,9 @@ const Pricing = ({
                     : planDetails?._id === item._id
                       ? "scale(1.05)"
                       : "scale(1)",
+                "& .MuiTypography-root": {
+                  color: "text.primary",
+                },
               }}
               onClick={() => setPlanDetails(item)}
             >
@@ -185,6 +157,7 @@ const Pricing = ({
                     backgroundColor: "status.green",
                     padding: "0.1rem 0.6rem",
                     borderRadius: "1rem",
+                    color: "white !important",
                   }}
                 >
                   Active

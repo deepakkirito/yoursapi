@@ -33,7 +33,10 @@ export async function GET(request, { params }) {
       projectId,
     });
 
-    const project = await ProjectsModel.findOne({ _id: projectId })
+    const project = await ProjectsModel.findOne(
+      { _id: projectId },
+      { [`data.${environment}.environmentVariables`]: 0 }
+    )
       .populate("apiIds")
       .populate("shared.shared.permission")
       .populate("userId", "username")

@@ -6,7 +6,7 @@ const dockerSchema = new Schema(
   {
     name: String,
     containerId: String,
-    logs: [
+    metrics: [
       {
         timestamp: { type: Date, default: Date.now },
         cpu: {
